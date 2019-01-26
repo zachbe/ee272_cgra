@@ -1,0 +1,43 @@
+cross-reference  op and opcode
+coreir version
+
+mult0
+mult1
+mult2
+
+lut 
+  d, e, f
+
+
+questions
+- 3 input mode?
+- operation and flag
+  - ignore res
+  - ignore res_p
+
+microbenchmarks
+- sorting network
+  - min
+  - max
+- lfsr
+  - shift and xor w/ constant 
+- register file
+  - 2 registers and mux
+  - decoder w/ lut
+- soft core
+  - 4 bits to choose inst? 
+
+enhancements
+- cmp
+  - ge, lt
+  - eq, ne
+- tst
+  - z, nz
+
+sub
+- sub doesn't seem to handle carry correctly
+
+counter
+
+double mode
+

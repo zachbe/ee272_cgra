@@ -19,7 +19,7 @@ tests/parsetab.py
 .coverage
 .DS_Store
 # pip directory for -e in requirements.txt
-src
+src/pyverilog
 
 parser.out
 parsetab.py
