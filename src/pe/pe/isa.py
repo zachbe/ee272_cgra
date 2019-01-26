@@ -56,19 +56,15 @@ def add():
 
 def add_vec():
     def _add_vec(a, b, c, d):
-        res_p = (BitVector(a[0:3], 5) + BitVector(b[0:3], 5) >= 2 ** 4) or \
-                (BitVector(a[4:7], 5) + BitVector(b[4:7], 5) >= 2 ** 4) or \
-                (BitVector(a[8:11], 5) + BitVector(b[8:11], 5) >= 2 ** 4) or \
-                (BitVector(a[12:15], 5) + BitVector(b[12:15], 5) >= 2 ** 4)
-        first = (a[0:3] + b[0:3])
-        print(a[0:3] + b[0:3])
-        second= (a[4:7] + b[4:7])
-        print((a[4:7] + b[4:7]))
-        third = (a[8:11] + b[8:11])
-        print(third)
-        fourth= (a[12:15] + b[12:15])
-        print(fourth)
-        return first & second & third & fourth, res_p
+        res_p = (BitVector(a[0:4], 5) + BitVector(b[0:4], 5) >= 2 ** 4) or \
+                (BitVector(a[4:8], 5) + BitVector(b[4:8], 5) >= 2 ** 4) or \
+                (BitVector(a[8:12], 5) + BitVector(b[8:12], 5) >= 2 ** 4) or \
+                (BitVector(a[12:16], 5) + BitVector(b[12:16], 5) >= 2 ** 4)
+        first = BitVector((a[0:4] + b[0:4]), a[0:4].num_bits + 12)
+        second= BitVector((a[4:8] + b[4:8]), a[4:8].num_bits + 12) << 4
+        third = BitVector((a[8:12] + b[8:12]), a[8:12].num_bits + 12) << 8
+        fourth= BitVector((a[12:16] + b[12:16]), a[12:16].num_bits + 12) << 12
+        return first | second | third | fourth, res_p
     return PE( 0x16 , _add_vec )
 
 def sub():
