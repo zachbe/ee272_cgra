@@ -188,6 +188,11 @@ class PE:
             C = (ra.ext(1) + (~rb).ext(1) + 1)[16]
         elif self._opcode == 0x3: # abs
             C = ((~ra).ext(1) + 1)[16]
+        elif self._opcode == 0x16: #add_vec
+            C = (ra[0:4].ext(1) + rb[0:4].ext(1))[4] or \
+                (ra[4:8].ext(1) + rb[4:8].ext(1))[4] or \
+                (ra[8:12].ext(1) + rb[8:12].ext(1))[4] or \
+                (ra[12:16].ext(1) + rb[12:16].ext(1))[4]
         else:
             C = (ra.ext(1) + rb.ext(1))[16]
         N = alu_res[15]
