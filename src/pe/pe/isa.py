@@ -11,7 +11,7 @@ __all__ += ['min', 'max', 'abs']
 __all__ += ['ge', 'le']
 __all__ += ['sel']
 __all__ += ['mul0', 'mul1', 'mul2']
-
+__all__ += ['vec4_mul0', 'vec4_mul1', 'vec2_mul0', 'vec2_mul1']
 def or_():
     return PE( 0x12, lambda a, b, c, d: a | b).carry()
 
@@ -142,3 +142,36 @@ def mul2(signed):
         a, b = a.ext(16), b.ext(16)
         return (a * b)[16:32], 0
     return PE(0xd , _mul, signed=signed)
+
+def vec4_mul0(signed):
+    def _vec4_mul0(a,b,c,d):
+        va = map(lambda Ai: Ai.ext(4), (a[0:4],a[4:8],a[8:12],a[12:16]))
+        vb = map(lambda Bi: Bi.ext(4), (b[0:4],b[4:8],b[8:12],b[12:16]))
+        vab = list(map(lambda Ai,Bi: BitVector((Ai*Bi)[:4],4), va,vb))
+        return BitVector(vab[0].bits() + vab[1].bits() + vab[2].bits() +vab[3].bits(),16),0
+    return PE(0x1b, _vec4_mul0, signed=signed)
+
+def vec4_mul1(signed):
+    def _vec4_mul1(a,b,c,d):
+        va = map(lambda Ai: Ai.ext(4), (a[0:4],a[4:8],a[8:12],a[12:16]))
+        vb = map(lambda Bi: Bi.ext(4), (b[0:4],b[4:8],b[8:12],b[12:16]))
+        vab = list(map(lambda Ai,Bi: BitVector((Ai*Bi)[4:8],4), va,vb))
+        return BitVector(vab[0].bits() + vab[1].bits() + vab[2].bits() +vab[3].bits(),16),0
+    return PE(0x1c, _vec4_mul1, signed=signed)
+
+def vec2_mul0(signed):  
+    def _vec2_mul0(a,b,c,d):
+        va = map(lambda Ai: Ai.ext(8), (a[0:8],a[8:16]))
+        vb = map(lambda Bi: Bi.ext(8), (b[0:8],b[8:16]))
+        vab = list(map(lambda Ai,Bi: BitVector((Ai*Bi)[:8],8),va,vb))
+        return BitVector(vab[0].bits() + vab[1].bits(),16),0
+    return PE(0x2b, _vec2_mul0,signed=signed)
+
+def vec2_mul1(signed):  
+    def _vec2_mul0(a,b,c,d):
+        va = map(lambda Ai: Ai.ext(8), (a[0:8],a[8:16]))
+        vb = map(lambda Bi: Bi.ext(8), (b[0:8],b[8:16]))
+        vab = list(map(lambda Ai,Bi: BitVector((Ai*Bi)[8:16],8),va,vb))
+        return BitVector(vab[0].bits() + vab[1].bits(),16),0
+    return PE(0x2c, _vec2_mul0,signed=signed)
+
