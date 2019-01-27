@@ -6,7 +6,7 @@ import functools
 __all__  = ['or_', 'and_', 'xor']
 __all__ += ['shr', 'lshl']
 __all__ += ['add', 'sub']
-__all__ += ['add_vec']
+__all__ += ['add_vec', 'sub_vec']
 __all__ += ['min', 'max', 'abs']
 __all__ += ['ge', 'le']
 __all__ += ['sel']
@@ -73,6 +73,18 @@ def sub():
         return a - b, res_p
     return PE( 0x1 , _sub)
 
+def sub_vec():
+    def _sub_vec(a, b, c, d):
+        res_p = (BitVector(a[0:4], 5) + BitVector(~b[0:4], 5) + 1 >= 2 ** 4) or \
+                (BitVector(a[4:8], 5) + BitVector(~b[4:8], 5) + 1 >= 2 ** 4) or \
+                (BitVector(a[8:12], 5) + BitVector(~b[8:12], 5) + 1 >= 2 ** 4) or \
+                (BitVector(a[12:16], 5) + BitVector(~b[12:16], 5) + 1 >= 2 ** 4)
+        first = BitVector((a[0:4] - b[0:4]), a[0:4].num_bits + 12)
+        second= BitVector((a[4:8] - b[4:8]), a[4:8].num_bits + 12) << 4
+        third = BitVector((a[8:12] - b[8:12]), a[8:12].num_bits + 12) << 8
+        fourth= BitVector((a[12:16] - b[12:16]), a[12:16].num_bits + 12) << 12
+        return first | second | third | fourth, res_p
+    return PE( 0x17 , _sub_vec )
 
 # def eq():
 #     raise NotImplementedError("eq should use sub with Z flag")
