@@ -56,10 +56,10 @@ def add():
 
 def add_vec():
     def _add_vec(a, b, c, d):
-        res_p = (BitVector(a[0:4], 5) + BitVector(b[0:4], 5) >= 2 ** 4) or \
-                (BitVector(a[4:8], 5) + BitVector(b[4:8], 5) >= 2 ** 4) or \
-                (BitVector(a[8:12], 5) + BitVector(b[8:12], 5) >= 2 ** 4) or \
-                (BitVector(a[12:16], 5) + BitVector(b[12:16], 5) >= 2 ** 4)
+        res_p = BitVector([(BitVector(a[0:4], 5) + BitVector(b[0:4], 5) >= 2 ** 4),\
+                (BitVector(a[4:8], 5) + BitVector(b[4:8], 5) >= 2 ** 4),\
+                (BitVector(a[8:12], 5) + BitVector(b[8:12], 5) >= 2 ** 4),\
+                (BitVector(a[12:16], 5) + BitVector(b[12:16], 5) >= 2 ** 4)])
         first = BitVector((a[0:4] + b[0:4]), a[0:4].num_bits + 12)
         second= BitVector((a[4:8] + b[4:8]), a[4:8].num_bits + 12) << 4
         third = BitVector((a[8:12] + b[8:12]), a[8:12].num_bits + 12) << 8
@@ -75,10 +75,10 @@ def sub():
 
 def sub_vec():
     def _sub_vec(a, b, c, d):
-        res_p = (BitVector(a[0:4], 5) + BitVector(~b[0:4], 5) + 1 >= 2 ** 4) or \
-                (BitVector(a[4:8], 5) + BitVector(~b[4:8], 5) + 1 >= 2 ** 4) or \
-                (BitVector(a[8:12], 5) + BitVector(~b[8:12], 5) + 1 >= 2 ** 4) or \
-                (BitVector(a[12:16], 5) + BitVector(~b[12:16], 5) + 1 >= 2 ** 4)
+        res_p = BitVector([(BitVector(a[0:4], 5) + BitVector(~b[0:4], 5) + 1 >= 2 ** 4),\
+                (BitVector(a[4:8], 5) + BitVector(~b[4:8], 5) + 1 >= 2 ** 4),\
+                (BitVector(a[8:12], 5) + BitVector(~b[8:12], 5) + 1 >= 2 ** 4),\
+                (BitVector(a[12:16], 5) + BitVector(~b[12:16], 5) + 1 >= 2 ** 4)])
         first = BitVector((a[0:4] - b[0:4]), a[0:4].num_bits + 12)
         second= BitVector((a[4:8] - b[4:8]), a[4:8].num_bits + 12) << 4
         third = BitVector((a[8:12] - b[8:12]), a[8:12].num_bits + 12) << 8
