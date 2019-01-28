@@ -216,7 +216,7 @@ class PE:
                 ((ra[4:8]*rb[4:8])[7] if (ra[7] == rb[7]) else (ra[4:8]*rb[4:8])[7] == 0 and (ra[4:8]!=0 or rb[4:8]!=0)) or \
                 ((ra[8:12]*rb[8:12])[11] if (ra[11] == rb[11]) else (ra[8:12]*rb[8:12])[11] == 0 and (ra[8:12]!=0 or rb[8:12]!=0)) or \
                 ((ra[12:16]*rb[12:16])[15] if (ra[15] == rb[15]) else (ra[12:16]*rb[12:16])[15] == 0 and (ra[12:16]!=0 or rb[12:16]!=0))
-        elif self.opcode in [0x2b,0x2c]: #vec2_mul0, vec2_mul1
+        elif self._opcode in [0x2b,0x2c]: #vec2_mul0, vec2_mul1
             V = ((ra[0:8]*rb[0:8])[7] if (ra[7] == rb[7]) else (ra[0:8]*rb[0:8])[7] == 0 and (ra[0:8]!=0 or rb[0:8]!=0)) or \
                 ((ra[8:16]*rb[8:16])[15] if (ra[16] == rb[16]) else (ra[8:16]*rb[8:16])[15] == 0 and (ra[8:16]!=0 or rb[8:16]!=0))
 
