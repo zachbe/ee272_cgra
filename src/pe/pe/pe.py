@@ -195,11 +195,11 @@ class PE:
         #     #     (ra[4:8].ext(1) + rb[4:8].ext(1))[4] or \
         #     #     (ra[8:12].ext(1) + rb[8:12].ext(1))[4] or \
         #     #     (ra[12:16].ext(1) + rb[12:16].ext(1))[4]
-        elif self._opcode == 0x17: #sub_vec
-            C = (ra[0:4].ext(1) + (~rb[0:4]).ext(1))[4] or \
-                (ra[4:8].ext(1) + (~rb[4:8]).ext(1))[4] or \
-                (ra[8:12].ext(1) + (~rb[8:12]).ext(1))[4] or \
-                (ra[12:16].ext(1) + (~rb[12:16]).ext(1))[4]
+        # elif self._opcode == 0x17: #sub_vec
+        #     C = (ra[0:4].ext(1) + (~rb[0:4]).ext(1))[4] or \
+        #         (ra[4:8].ext(1) + (~rb[4:8]).ext(1))[4] or \
+        #         (ra[8:12].ext(1) + (~rb[8:12]).ext(1))[4] or \
+        #         (ra[12:16].ext(1) + (~rb[12:16]).ext(1))[4]
         else:
             C = (ra.ext(1) + rb.ext(1))[16]
         N = alu_res[15]
@@ -232,10 +232,11 @@ class PE:
         #     #     ((ra[11] == rb[11]) and (ra[11] != (ra[8:12] + rb[8:12])[3])) or \
         #     #     ((ra[15] == rb[15]) and (ra[15] != (ra[12:16] + rb[12:16])[3]))
         elif self._opcode == 0x17: #sub_vec
-            V = ((ra[3] == rb[3]) and (ra[3] != (ra[0:4] + ~rb[0:4] + 1)[3])) or \
-                ((ra[7] == rb[7]) and (ra[7] != (ra[4:8] + ~rb[4:8] + 1)[3])) or \
-                ((ra[11] == rb[11]) and (ra[11] != (ra[8:12] + ~rb[8:12] + 1)[3])) or \
-                ((ra[15] == rb[15]) and (ra[15] != (ra[12:16] + ~rb[12:16] + 1)[3]))
+            V = 0
+            # V = ((ra[3] == rb[3]) and (ra[3] != (ra[0:4] + ~rb[0:4] + 1)[3])) or \
+            #     ((ra[7] == rb[7]) and (ra[7] != (ra[4:8] + ~rb[4:8] + 1)[3])) or \
+            #     ((ra[11] == rb[11]) and (ra[11] != (ra[8:12] + ~rb[8:12] + 1)[3])) or \
+            #     ((ra[15] == rb[15]) and (ra[15] != (ra[12:16] + ~rb[12:16] + 1)[3]))
         else:
             V = (ra[15] == rb[15]) and (ra[15] != (ra + rb)[15])
         if self._opcode in [0x12, 0x13, 0x14,  # and, or, xor clear overflow flag

@@ -215,6 +215,7 @@ localparam PE_DIV_OP     = 6'h19;
 
 //ADD PERL HERE IF NEED BE
 localparam PE_ADD_VEC_OP= 6'h16;
+localparam PE_SUB_VEC_OP= 6'h17;
 
 
 //; if(($en_double==0) &$mult_mode > 0) {
@@ -356,6 +357,7 @@ always_comb begin
     PE_DIV_OP     : pe_oper = Div_Op;
 //; }
     PE_ADD_VEC_OP : pe_oper = Add_Vec_Op;
+    PE_SUB_VEC_OP : pe_oper = Sub_Vec_Op;
     default       : pe_oper = InvalidOp;
   endcase
 end
@@ -675,6 +677,12 @@ always_comb begin : proc_alu
 
     PE_ADD_VEC_OP: begin
       res_w = {op_a[15:12] + op_b[15:12], op_a[11:8] + op_b[11:8], op_a[7:4] + op_b[7:4], op_a[3:0] + op_b[3:0]} ;
+      res_p_w = 0 ;
+      ovfl = 1'b0 ;
+    end
+
+    PE_SUB_VEC_OP: begin
+      res_w = {op_a[15:12] - op_b[15:12], op_a[11:8] - op_b[11:8], op_a[7:4] - op_b[7:4], op_a[3:0] - op_b[3:0]} ;
       res_p_w = 0 ;
       ovfl = 1'b0 ;
     end
