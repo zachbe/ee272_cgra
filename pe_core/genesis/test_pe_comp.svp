@@ -212,6 +212,11 @@ localparam PE_DIV_OP     = 6'h19;
 //;   predicate => '(op_a+op_b) gte 2^16'
 //; };
 //; }
+
+//ADD PERL HERE IF NEED BE
+localparam PE_ADD_VEC_OP= 6'h16;
+
+
 //; if(($en_double==0) &$mult_mode > 0) {
 logic [`2*$data_width-1`:0] mult_res;
 //;}
@@ -322,7 +327,7 @@ logic                 mult_c_out;
 enum {
 Add_Op, Sub_Op, Abs_Op, GteMax_Op, LteMin_Op, 
 Sel_Op, Rshft_Op, Lshft_Op, Mult0_Op, Mult1_Op, Mult2_Op, Relu_Op, Or_Op,
-And_Op, Xor_Op, Cntr_Op, Div_Op, InvalidOp
+And_Op, Xor_Op, Cntr_Op, Div_Op, InvalidOp, Add_Vec_Op
 } pe_oper;
 
 always_comb begin
@@ -350,6 +355,7 @@ always_comb begin
 //; if($use_div) {
     PE_DIV_OP     : pe_oper = Div_Op;
 //; }
+    PE_ADD_VEC_OP : pe_oper = Add_Vec_Op;
     default       : pe_oper = InvalidOp;
   endcase
 end
@@ -666,6 +672,12 @@ always_comb begin : proc_alu
 //;}
       end
 //; }
+
+    PE_ADD_VEC_OP: begin
+      res_w = {op_a[15:12] + op_b[15:12], op_a[11:8] + op_b[11:8], op_a[7:4] + op_b[7:4], op_a[3:0] + op_b[3:0]} ;
+      res_p_w = 0 ;
+      ovfl = 1'b0 ;
+    end
 
     default: begin
         res_w   = op_a;

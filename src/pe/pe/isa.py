@@ -3,15 +3,16 @@ from .pe import PE, CONST
 from .bv import BitVector
 import functools
 
-__all__  = ['or_', 'and_', 'xor']
-__all__ += ['shr', 'lshl']
+__all__ = ['add_vec']
+# __all__  = ['or_', 'and_', 'xor']
+# __all__ += ['shr', 'lshl']
 __all__ += ['add', 'sub']
-__all__ += ['add_vec', 'sub_vec']
-__all__ += ['min', 'max', 'abs']
-__all__ += ['ge', 'le']
-__all__ += ['sel']
-__all__ += ['mul0', 'mul1', 'mul2']
-__all__ += ['vec4_mul0', 'vec4_mul1', 'vec2_mul0', 'vec2_mul1']
+# __all__ += ['add_vec', 'sub_vec']
+# __all__ += ['min', 'max', 'abs']
+# __all__ += ['ge', 'le']
+# __all__ += ['sel']
+# __all__ += ['mul0', 'mul1', 'mul2']
+# __all__ += ['vec4_mul0', 'vec4_mul1', 'vec2_mul0', 'vec2_mul1']
 def or_():
     return PE( 0x12, lambda a, b, c, d: a | b).carry()
 
@@ -64,7 +65,7 @@ def add_vec():
         second= BitVector((a[4:8] + b[4:8]), a[4:8].num_bits + 12) << 4
         third = BitVector((a[8:12] + b[8:12]), a[8:12].num_bits + 12) << 8
         fourth= BitVector((a[12:16] + b[12:16]), a[12:16].num_bits + 12) << 12
-        return first | second | third | fourth, res_p
+        return first | second | third | fourth, 0#res_p
     return PE( 0x16 , _add_vec )
 
 def sub():
@@ -83,7 +84,7 @@ def sub_vec():
         second= BitVector((a[4:8] - b[4:8]), a[4:8].num_bits + 12) << 4
         third = BitVector((a[8:12] - b[8:12]), a[8:12].num_bits + 12) << 8
         fourth= BitVector((a[12:16] - b[12:16]), a[12:16].num_bits + 12) << 12
-        return first | second | third | fourth, res_p
+        return first | second | third | fourth, 0#res_p
     return PE( 0x17 , _sub_vec )
 
 # def eq():

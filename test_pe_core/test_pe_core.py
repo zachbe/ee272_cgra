@@ -191,6 +191,7 @@ def run_test(tester, functional_model, strategy, signed, lut_code,
         tester.poke(pe_core.bit0, bit0)
         tester.poke(pe_core.bit1, bit1)
         tester.poke(pe_core.bit2, bit2)
+        print(functional_model.flag_sel)
         if not with_clk:
             tester.eval()
             res, res_p, irq = functional_model(data0=data0, data1=data1,
