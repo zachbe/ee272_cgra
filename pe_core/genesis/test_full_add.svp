@@ -1,27 +1,37 @@
 //; my $use_dual = parameter(Name=>'dual', Val=>0, List=>[1, 0],
 //;                               Doc=>"dual?");
 module `mname`  #(
-  parameter DataWidth = 16
+  parameter DataWidth = 16,
+  parameter Segs      = 4,
+  parameter SegWidth  = 4
 ) (
 
   input  [DataWidth-1:0]        a,
   input  [DataWidth-1:0]        b,
   input                         c_in,
-//; if($use_dual) {
-  input                    dual_mode,
-//;}
+
+  input  						is_vec,
+
   output logic [DataWidth-1:0]  res,
-  output logic                  c_out
+  output logic [Segs-1:0]    c_out
 );
 
-//; if($use_dual) {
-logic c_out_lsb;
-assign {c_out_lsb, res[DataWidth/2-1:0]} = a[DataWidth/2-1:0] + b[DataWidth/2-1:0] + c_in;
-assign {c_out, res[DataWidth-1:DataWidth/2]} = a[DataWidth-1:DataWidth/2] + b[DataWidth-1:DataWidth/2] +
-                                               (c_out_lsb );
-//;} else {
-assign {c_out, res} = a + b + c_in;
-//;}
+logic [Segs-1:0] carries_in; //extra bit for syntactic correctness later
+
+assign carries_in[0] = c_in;
+
+genvar vec_el;
+
+generate
+	for(vec_el=0; vec_el<Segs; vec_el=vec_el + 1) begin: GEN_VEC_ADD
+		if(vec_el != Segs - 1) begin
+			assign carries_in[vec_el + 1] = is_vec ? 0 : c_out[vec_el];
+		end
+		assign {c_out[vec_el], res[((vec_el + 1)*SegWidth) - 1 : (vec_el*SegWidth)]} = 
+					a[((vec_el + 1)*SegWidth) - 1 : (vec_el*SegWidth)] + b[((vec_el + 1)*SegWidth) - 1 : (vec_el*SegWidth)] + carries_in[vec_el];
+	end
+
+endgenerate
 
 endmodule
 

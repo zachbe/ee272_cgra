@@ -244,13 +244,14 @@ logic                 cmpr_eq;
 
 localparam NUM_ADDERS = `$use_add`;
 localparam ADD_MSB = NUM_ADDERS - 1;
+localparam NUM_SEGS = 4;
 
-logic [DATA_MSB:0]  add_a     [ADD_MSB:0];
-logic [DATA_MSB:0]  add_b     [ADD_MSB:0];
-logic               add_c_in  [ADD_MSB:0];
+logic [DATA_MSB:0]   add_a     [ADD_MSB:0];
+logic [DATA_MSB:0]   add_b     [ADD_MSB:0];
+logic                add_c_in  [ADD_MSB:0];
 
-wire  [DATA_MSB:0]  add_res   [ADD_MSB:0];
-wire                add_c_out [ADD_MSB:0];
+wire  [DATA_MSB:0]   add_res   [ADD_MSB:0];
+wire  [NUM_SEGS-1:0] add_c_out [ADD_MSB:0];
 
 
 genvar ggg;
@@ -263,6 +264,7 @@ generate
       .a     (add_a[ggg]),
       .b     (add_b[ggg]),
       .c_in  (add_c_in[ggg]),
+      .is_vec (1'b0),
 
 //      .dual_mode (dual_mode),
 
@@ -271,7 +273,7 @@ generate
     );
 
 //; if($get_carry | ($en_double & !$is_msb)) {
-  assign carry_out[ggg] = add_c_out[ggg];
+  assign carry_out[ggg] = add_c_out[ggg][NUM_SEGS-1];
 //;}
   end
 
@@ -475,9 +477,9 @@ always_comb begin : proc_alu
 //;} else {
         add_c_in[0] = op_d_p;
 //;}
-        res_p_w     = add_c_out[0];
+        res_p_w     = add_c_out[0][NUM_SEGS-1];
 //; if($use_sad) {
-        res_p_w     = add_c_out[0] | add_c_out[1];
+        res_p_w     = add_c_out[0][NUM_SEGS-1] | add_c_out[1][NUM_SEGS-1];
 //;}
 //; if($en_ovfl) {
         ovfl        = (is_signed) ? (|ovfl_add_signed) : res_p_w;
