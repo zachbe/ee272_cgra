@@ -449,7 +449,7 @@ always_comb begin : proc_alu
 //;}
 
   res_w   = add_res[ADD_MSB];
-  res_p_w = add_c_out[ADD_MSB];
+  res_p_w = add_c_out[ADD_MSB][NUM_SEGS-1];
 //; } else {
   res_w   = 'hX;
   res_p_w = 'hX;
