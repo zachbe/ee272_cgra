@@ -253,9 +253,10 @@ logic                add_c_in  [ADD_MSB:0];
 wire  [DATA_MSB:0]   add_res   [ADD_MSB:0];
 wire  [NUM_SEGS-1:0] add_c_out [ADD_MSB:0];
 
+logic is_addsub_vec;
+assign is_addsub_vec = (op_code[5:0] == PE_ADD_VEC_OP) || (op_code[5:0] == PE_SUB_VEC_OP);
 
 genvar ggg;
-
 generate
   for(ggg=0;ggg<NUM_ADDERS;ggg=ggg+1) begin : GEN_ADD
 //; my $full_add = generate_base('test_full_add', 'full_add');
@@ -264,7 +265,7 @@ generate
       .a     (add_a[ggg]),
       .b     (add_b[ggg]),
       .c_in  (add_c_in[ggg]),
-      .is_vec (1'b0),
+      .is_vec (is_addsub_vec),
 
 //      .dual_mode (dual_mode),
 
@@ -273,7 +274,7 @@ generate
     );
 
 //; if($get_carry | ($en_double & !$is_msb)) {
-  assign carry_out[ggg] = add_c_out[ggg][NUM_SEGS-1];
+  assign carry_out[ggg] = is_addsub_vec ? 1'b0 : add_c_out[ggg][NUM_SEGS-1];
 //;}
   end
 
