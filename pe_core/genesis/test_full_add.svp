@@ -25,7 +25,7 @@ genvar vec_el;
 generate
 	for(vec_el=0; vec_el<Segs; vec_el=vec_el + 1) begin: GEN_VEC_ADD
 		if(vec_el != Segs - 1) begin
-			assign carries_in[vec_el + 1] = is_vec ? 0 : c_out[vec_el];
+			assign carries_in[vec_el + 1] = is_vec ? c_in : c_out[vec_el];
 		end
 		assign {c_out[vec_el], res[((vec_el + 1)*SegWidth) - 1 : (vec_el*SegWidth)]} = 
 					a[((vec_el + 1)*SegWidth) - 1 : (vec_el*SegWidth)] + b[((vec_el + 1)*SegWidth) - 1 : (vec_el*SegWidth)] + carries_in[vec_el];
