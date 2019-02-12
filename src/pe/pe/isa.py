@@ -6,13 +6,13 @@ import functools
 __all__ = ['add_vec', 'sub_vec']
 # __all__  = ['or_', 'and_', 'xor']
 # __all__ += ['shr', 'lshl']
-__all__ += ['add', 'sub']
+#__all__ += ['add', 'sub']
 # __all__ += ['add_vec', 'sub_vec']
 # __all__ += ['min', 'max', 'abs']
 # __all__ += ['ge', 'le']
 # __all__ += ['sel']
 # __all__ += ['mul0', 'mul1', 'mul2']
-# __all__ += ['vec4_mul0', 'vec4_mul1', 'vec2_mul0', 'vec2_mul1']
+__all__ += ['vec4_mul0', 'vec4_mul1', 'vec2_mul0', 'vec2_mul1']
 def or_():
     return PE( 0x12, lambda a, b, c, d: a | b).carry()
 
