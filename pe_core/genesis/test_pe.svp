@@ -445,6 +445,9 @@ logic V;
 logic [3:0] temp_res_p;
 assign comp_res_p = temp_res_p[3];
 
+logic [3:0] temp_ovfl;
+assign V = temp_ovfl[3];
+
 `$pe_comp->instantiate()`
 (
   .op_code (op_code[7:0]),
@@ -498,7 +501,7 @@ assign comp_res_p = temp_res_p[3];
   .mult_res (mult_res),
 //;}
 //; if($en_ovfl) {
-  .ovfl     (V),
+  .ovfl     (temp_ovfl),
 //;}
   .res_p    (temp_res_p)
 );

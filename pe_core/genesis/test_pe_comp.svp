@@ -83,7 +83,7 @@ module   `mname` (
   output logic [`2*$data_width-1`:0] mult_res,
 //;}
 //; if($en_ovfl) {
-  output logic                   ovfl,
+  output logic [`$max_num_seg-1` : 0] ovfl,
 //;}
   output logic [`$max_num_seg-1` : 0]    res_p
 );
@@ -462,7 +462,7 @@ always_comb begin : proc_alu
   div_co      = {`$data_width`{1'b0}};
 //; }
 //; if($en_ovfl) {
-  ovfl = 1'b0;
+  ovfl = {`$max_num_seg`{1'b0}};
 //;}
 
 
@@ -482,7 +482,7 @@ always_comb begin : proc_alu
         res_p_w     = add_c_out[0] | add_c_out[1];
 //;}
 //; if($en_ovfl) {
-        ovfl        = (is_signed) ? (|ovfl_add_signed) : res_p_w[`$max_num_seg-1`];
+        ovfl        = {`$max_num_seg`{(is_signed) ? (|ovfl_add_signed) : res_p_w[`$max_num_seg-1`]}};
 //;}
       end
     PE_SUB_OP: begin
@@ -496,7 +496,7 @@ always_comb begin : proc_alu
         add_c_in[0] = 1'b1;
 //;}
 //; if($en_ovfl) {
-        ovfl        = (is_signed) ? ovfl_sub_signed : 1'b0;
+        ovfl        = {`$max_num_seg`{(is_signed) ? ovfl_sub_signed : 1'b0}};
 //;}
       end
 //; if($use_abs) {
@@ -514,17 +514,17 @@ always_comb begin : proc_alu
 //;     }
 
 //; if($en_ovfl) {
-        ovfl        = (add_res[0][DATA_MSB] & (~|add_res[0][DATA_MSB-1:0])) |
-                      res_w[DATA_MSB];
+        ovfl        = {`$max_num_seg`{(add_res[0][DATA_MSB] & (~|add_res[0][DATA_MSB-1:0])) |
+                      res_w[DATA_MSB]}};
 //;}
 
-        res_p_w     = {`$max_num_seg`{diff_sign;}}
+        res_p_w     = {`$max_num_seg`{diff_sign}};
 //;   } else {
         add_a[0]    = ~op_a;
         add_b[0]    = 0;
 //;     if($en_double & $is_msb) {
         add_c_in[0] = double_mode ? carry_in[0] : 1'b1;
-        res_p_w     = {`$max_num_seg`{op_a[DATA_MSB]};
+        res_p_w     = {`$max_num_seg`{op_a[DATA_MSB]}};
 //;     } elsif($en_double) {
         add_c_in[0] = 1'b1;
         res_p_w     = {`$max_num_seg`{double_mode ? res_p_msb : op_a[DATA_MSB]}}
@@ -535,7 +535,7 @@ always_comb begin : proc_alu
 
         res_w       = (diff_sign | !is_signed) ? op_a : add_res[0];
 //; if($en_ovfl) {
-        ovfl        = res_w[DATA_MSB];
+        ovfl        = {`$max_num_seg`{res_w[DATA_MSB]}};
 //;}
 
 //;   }
@@ -565,7 +565,7 @@ always_comb begin : proc_alu
         res_p_w     = {`$max_num_seg`{cmpr_lte}};
 //;} elsif($en_double) {
         add_c_in[0] = 1'b1;
-        res_p_w     = {`$max_num_seg`{double_mode ? res_p_msb : cmpr_lte;}}
+        res_p_w     = {`$max_num_seg`{double_mode ? res_p_msb : cmpr_lte}};
 //;} else {
         add_c_in[0] = 1'b1;
         res_p_w     = {`$max_num_seg`{cmpr_lte}};
@@ -592,11 +592,11 @@ always_comb begin : proc_alu
         res_p_w = {`$max_num_seg`{mult_c_out}};
 //; if($en_ovfl) {
         if (is_signed) begin
-          ovfl = (op_a[DATA_MSB] == op_b[DATA_MSB]) ?
+          ovfl = {`$max_num_seg`{(op_a[DATA_MSB] == op_b[DATA_MSB]) ?
                                     mult_res[DATA_MSB] :
-                                    ~mult_res[DATA_MSB] & |{op_a, op_b};
+                                    ~mult_res[DATA_MSB] & |{op_a, op_b}}};
         end else begin
-          ovfl = |mult_res[`2*$data_width-1`:`$data_width`];
+          ovfl = {`$max_num_seg`{|mult_res[`2*$data_width-1`:`$data_width`]}};
         end
 //;}
       end
@@ -605,11 +605,11 @@ always_comb begin : proc_alu
         res_p_w = {`$max_num_seg`{mult_c_out}};
 //; if($en_ovfl) {
         if (is_signed) begin
-          ovfl = (op_a[DATA_MSB] == op_b[DATA_MSB]) ?
+          ovfl = {`$max_num_seg`{(op_a[DATA_MSB] == op_b[DATA_MSB]) ?
                                     mult_res[DATA_MSB] :
-                                    ~mult_res[DATA_MSB] & |{op_a, op_b};
+                                    ~mult_res[DATA_MSB] & |{op_a, op_b}}};
         end else begin
-          ovfl = |mult_res[`2*$data_width-1`:`3*$data_width/2`];
+          ovfl = {`$max_num_seg`{|mult_res[`2*$data_width-1`:`3*$data_width/2`]}};
         end
 //;}
       end
@@ -617,7 +617,7 @@ always_comb begin : proc_alu
         res_w   = mult_res[`2*$data_width-1`:`$data_width`];
         res_p_w = {`$max_num_seg`{mult_c_out}};
 //; if($en_ovfl) {
-        ovfl = 1'b0;
+        ovfl = {`$max_num_seg`{1'b0}};
 //;}
       end
 
@@ -679,14 +679,14 @@ always_comb begin : proc_alu
 
     PE_ADD_VEC_OP: begin
       res_p_w = 4'b0 ;
-      ovfl = 1'b0 ;
+      ovfl = 4'b0 ;
     end
 
     PE_SUB_VEC_OP: begin
       add_b[0]    = ~op_b;
       add_c_in[0] = 1'b1;
       res_p_w = 4'b0 ;
-      ovfl = 1'b0 ;
+      ovfl = 4'b0 ;
     end
 
     default: begin
