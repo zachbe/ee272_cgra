@@ -569,7 +569,7 @@ logic res_lut; //Not sure what to do about LUT result (make it 4 bit?)
 
     assign C = carry_out;
     assign Z = {~|comp_res[15:12], ~|comp_res[11:8], ~|comp_res[7:4], ~|comp_res[3:0]}; //Parameterize this nicely
-    assign N = {comp_res[`$data_width-1`], comp_res[11], comp_res[7], comp_res[3]}; //Parameterize this nicely too
+    assign N = {comp_res[15], comp_res[11], comp_res[7], comp_res[3]}; //Parameterize this nicely too
     //How should we handle N for vector vs scalar instructions?
 
     localparam PE_FLAG_EQ = 4'h0;
@@ -670,7 +670,7 @@ logic res_lut; //Not sure what to do about LUT result (make it 4 bit?)
             PE_FLAG_LS  : result_flag = ~C | Z;
             PE_FLAG_GE  : result_flag = {(N == V), {`$max_num_seg-1`{1'b0}}};
             PE_FLAG_LT  : result_flag = {(N != V), {`$max_num_seg-1`{1'b0}}};
-            PE_FLAG_GT  : result_flag = {(~(|Z) & (N == V)),{`$max_num_seg-1`{1'b0}}};
+            PE_FLAG_GT  : result_flag = {((~(|Z)) & (N == V)),{`$max_num_seg-1`{1'b0}}};
             PE_FLAG_LE  : result_flag = {((|Z) | (N != V)),{`$max_num_seg-1`{1'b0}}};
 //; if($use_lut) {
             PE_FLAG_LUT : result_flag = res_lut;

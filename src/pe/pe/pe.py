@@ -241,19 +241,6 @@ class PE:
         else:
             V = (ra[15] == rb[15]) and (ra[15] != (ra + rb)[15])
 
-        print("---Z--")
-        print(Z)
-        print("------")
-        print("---C--")
-        print(C)
-        print("------")
-        print("---N--")
-        print(N)
-        print("------")
-        print("---V--")
-        print(V)
-        print("------")
-
         if self._opcode in [0x12, 0x13, 0x14,  # and, or, xor clear overflow flag
                                   0xf, 0x11,         # lshl, lshr
                                   0x8]:              # sel
@@ -283,9 +270,9 @@ class PE:
         elif self.flag_sel == 0xB:
             return BitVector([0,0,0,N != V])
         elif self.flag_sel == 0xC:
-            return BitVector([0,0,0,~(Z[3] | Z[2] | Z[1] | Z[0]) and (N == V)])
+            return BitVector([0,0,0,(not (Z[3] or Z[2] or Z[1] or Z[0])) and (N == V)])
         elif self.flag_sel == 0xD:
-            return BitVector([0,0,0,(Z[3] | Z[2] | Z[1] | Z[0]) or (N != V)])
+            return BitVector([0,0,0,(Z[3] or Z[2] or Z[1] or Z[0]) or (N != V)])
         elif self.flag_sel == 0xE:
             return lut_out
         elif self.flag_sel == 0xF:
