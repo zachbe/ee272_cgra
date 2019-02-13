@@ -276,7 +276,7 @@ assign is_addsub_vec = (op_code[5:0] == PE_ADD_VEC_OP) || (op_code[5:0] == PE_SU
   );
 
 //; if($get_carry | ($en_double & !$is_msb)) {
-  assign carry_out = is_addsub_vec? 4'b0 : add_c_out[0]; //REMOVE THIS TERNARY WHEN THE TESTS ARE ALL FIXED
+  assign carry_out = is_addsub_vec? 4'b0 : {{add_c_out[0][`$max_num_seg-1`]}, {`$max_num_seg-1`{1'b0}}}; //add_c_out[0]
 //;}
 
 //; if($en_double & $is_msb) {
@@ -482,7 +482,7 @@ always_comb begin : proc_alu
         res_p_w     = add_c_out[0] | add_c_out[1];
 //;}
 //; if($en_ovfl) {
-        ovfl        = {`$max_num_seg`{(is_signed) ? (|ovfl_add_signed) : res_p_w[`$max_num_seg-1`]}};
+        ovfl        = {{(is_signed) ? (|ovfl_add_signed) : res_p_w[`$max_num_seg-1`]},{`$max_num_seg-1`{1'b0}}};
 //;}
       end
     PE_SUB_OP: begin
@@ -496,7 +496,7 @@ always_comb begin : proc_alu
         add_c_in[0] = 1'b1;
 //;}
 //; if($en_ovfl) {
-        ovfl        = {`$max_num_seg`{(is_signed) ? ovfl_sub_signed : 1'b0}};
+        ovfl        = {{(is_signed) ? ovfl_sub_signed : 1'b0},{`$max_num_seg-1`{1'b0}}};
 //;}
       end
 //; if($use_abs) {
@@ -514,28 +514,28 @@ always_comb begin : proc_alu
 //;     }
 
 //; if($en_ovfl) {
-        ovfl        = {`$max_num_seg`{(add_res[0][DATA_MSB] & (~|add_res[0][DATA_MSB-1:0])) |
-                      res_w[DATA_MSB]}};
+        ovfl        = {{(add_res[0][DATA_MSB] & (~|add_res[0][DATA_MSB-1:0])) |
+                      res_w[DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
 //;}
 
-        res_p_w     = {`$max_num_seg`{diff_sign}};
+        res_p_w     = {{diff_sign},{`$max_num_seg-1`{1'b0}}};
 //;   } else {
         add_a[0]    = ~op_a;
         add_b[0]    = 0;
 //;     if($en_double & $is_msb) {
         add_c_in[0] = double_mode ? carry_in[0] : 1'b1;
-        res_p_w     = {`$max_num_seg`{op_a[DATA_MSB]}};
+        res_p_w     = {{op_a[DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
 //;     } elsif($en_double) {
         add_c_in[0] = 1'b1;
-        res_p_w     = {`$max_num_seg`{double_mode ? res_p_msb : op_a[DATA_MSB]}}
+        res_p_w     = {{double_mode ? res_p_msb : op_a[DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
 //;     } else {
         add_c_in[0] = 1'b1;
-        res_p_w     = {`$max_num_seg`{op_a[DATA_MSB]}};
+        res_p_w     = {{op_a[DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
 //;     }
 
         res_w       = (diff_sign | !is_signed) ? op_a : add_res[0];
 //; if($en_ovfl) {
-        ovfl        = {`$max_num_seg`{res_w[DATA_MSB]}};
+        ovfl        = {{res_w[DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
 //;}
 
 //;   }
@@ -546,13 +546,13 @@ always_comb begin : proc_alu
         add_b[0]    = ~op_b;
 //; if($en_double & $is_msb) {
         add_c_in[0] = double_mode ? carry_in[0] : 1'b1;
-        res_p_w     = {`$max_num_seg`{cmpr_gte}};
+        res_p_w     = {{cmpr_gte},{`$max_num_seg-1`{1'b0}}};
 //;} elsif($en_double) {
         add_c_in[0] = 1'b1;
-        res_p_w     = {`$max_num_seg`{double_mode ? res_p_msb : cmpr_gte}};
+        res_p_w     = {{double_mode ? res_p_msb : cmpr_gte},{`$max_num_seg-1`{1'b0}}};
 //;} else {
         add_c_in[0] = 1'b1;
-        res_p_w     = {`$max_num_seg`{cmpr_gte}};
+        res_p_w     = {{cmpr_gte},{`$max_num_seg-1`{1'b0}}};
 //;}
 //; if($use_max_min) {
         res_w       = res_p_w[`$max_num_seg-1`] ? op_a : op_b;
@@ -562,13 +562,13 @@ always_comb begin : proc_alu
         add_b[0]    = ~op_b;
 //; if($en_double & $is_msb) {
         add_c_in[0] = double_mode ? carry_in[0] : 1'b1;
-        res_p_w     = {`$max_num_seg`{cmpr_lte}};
+        res_p_w     = {{cmpr_lte},{`$max_num_seg-1`{1'b0}}};
 //;} elsif($en_double) {
         add_c_in[0] = 1'b1;
-        res_p_w     = {`$max_num_seg`{double_mode ? res_p_msb : cmpr_lte}};
+        res_p_w     = {{double_mode ? res_p_msb : cmpr_lte},{`$max_num_seg-1`{1'b0}}};
 //;} else {
         add_c_in[0] = 1'b1;
-        res_p_w     = {`$max_num_seg`{cmpr_lte}};
+        res_p_w     = {{cmpr_lte},{`$max_num_seg-1`{1'b0}}};
 //;}
 //; if($use_max_min) {
         res_w       = res_p_w[`$max_num_seg-1`] ? op_a : op_b;
@@ -589,42 +589,42 @@ always_comb begin : proc_alu
 //; if($mult_mode > 0) {
     PE_MULT_0_OP: begin
         res_w   = mult_res[DATA_MSB:0];
-        res_p_w = {`$max_num_seg`{mult_c_out}};
+        res_p_w = {{mult_c_out},{`$max_num_seg-1`{1'b0}}};
 //; if($en_ovfl) {
         if (is_signed) begin
-          ovfl = {`$max_num_seg`{(op_a[DATA_MSB] == op_b[DATA_MSB]) ?
+          ovfl = {{(op_a[DATA_MSB] == op_b[DATA_MSB]) ?
                                     mult_res[DATA_MSB] :
-                                    ~mult_res[DATA_MSB] & |{op_a, op_b}}};
+                                    ~mult_res[DATA_MSB] & |{op_a, op_b}},{`$max_num_seg-1`{1'b0}}};
         end else begin
-          ovfl = {`$max_num_seg`{|mult_res[`2*$data_width-1`:`$data_width`]}};
+          ovfl = {{|mult_res[`2*$data_width-1`:`$data_width`]},{`$max_num_seg-1`{1'b0}}};
         end
 //;}
       end
     PE_MULT_1_OP: begin
         res_w   = mult_res[`3*$data_width/2-1`:`$data_width/2`];
-        res_p_w = {`$max_num_seg`{mult_c_out}};
+        res_p_w = {{mult_c_out},{`$max_num_seg-1`{1'b0}}};
 //; if($en_ovfl) {
         if (is_signed) begin
-          ovfl = {`$max_num_seg`{(op_a[DATA_MSB] == op_b[DATA_MSB]) ?
+          ovfl = {{(op_a[DATA_MSB] == op_b[DATA_MSB]) ?
                                     mult_res[DATA_MSB] :
-                                    ~mult_res[DATA_MSB] & |{op_a, op_b}}};
+                                    ~mult_res[DATA_MSB] & |{op_a, op_b}},{`$max_num_seg-1`{1'b0}}};
         end else begin
-          ovfl = {`$max_num_seg`{|mult_res[`2*$data_width-1`:`3*$data_width/2`]}};
+          ovfl = {{|mult_res[`2*$data_width-1`:`3*$data_width/2`]},{`$max_num_seg-1`{1'b0}}};
         end
 //;}
       end
     PE_MULT_2_OP: begin
         res_w   = mult_res[`2*$data_width-1`:`$data_width`];
-        res_p_w = {`$max_num_seg`{mult_c_out}};
+        res_p_w = {{mult_c_out},{`$max_num_seg-1`{1'b0}}};
 //; if($en_ovfl) {
-        ovfl = {`$max_num_seg`{1'b0}};
+        ovfl = {{1'b0},{`$max_num_seg-1`{1'b0}}};
 //;}
       end
 
 //;   if($use_relu) {
     PE_RELU: begin
         res_w   = diff_sign ? mult_res[`2*$data_width-1`:`$data_width`] : op_a;
-        res_p_w = {`$max_num_seg`{op_a[DATA_MSB]}};
+        res_p_w = {{op_a[DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
       end
 //;   }
 
@@ -654,9 +654,9 @@ always_comb begin : proc_alu
 	res_w       = add_res[0];
         //cntr_next   = add_res[0];
 //; if($use_sad) {
-        res_p_w     = {`$max_num_seg`{~|(op_b ^ op_c)}}; // Done counting
+        res_p_w     = {{~|(op_b ^ op_c)},{`$max_num_seg-1`{1'b0}}}; // Done counting
 //; } else {
-        res_p_w     = {`$max_num_seg`{~|(op_b ^ op_a)}}; // Done counting
+        res_p_w     = {{~|(op_b ^ op_a)},{`$max_num_seg-1`{1'b0}}}; // Done counting
 //;}
       end
 //; }
@@ -669,7 +669,7 @@ always_comb begin : proc_alu
 
 //; if($is_msb) {
       res_w       = ~add_res[0][DATA_MSB] ?  add_res[0] : div_oper;
-      res_p_w     = {`$max_num_seg`{add_res[0][DATA_MSB]}};
+      res_p_w     = {{add_res[0][DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
 //;} else {
       div_co      = ~add_res[0][DATA_MSB] ? add_res[0] : div_oper;
       res_w       = {op_a[`$data_width-3`:0], ~add_res[0][DATA_MSB] , ~res_p_msb} ;
@@ -691,7 +691,7 @@ always_comb begin : proc_alu
 
     default: begin
         res_w   = op_a;
-        res_p_w = {`$max_num_seg`{op_d_p}};
+        res_p_w = {{op_d_p},{`$max_num_seg-1`{1'b0}}};
       end
   endcase
 end
