@@ -3,15 +3,15 @@ from .pe import PE, CONST
 from .bv import BitVector
 import functools
 
-__all__ = ['add_vec', 'sub_vec']
-# __all__  = ['or_', 'and_', 'xor']
-# __all__ += ['shr', 'lshl']
+# __all__ = ['add_vec', 'sub_vec']
+__all__  = ['or_', 'and_', 'xor']
+__all__ += ['shr', 'lshl']
 __all__ += ['add', 'sub']
-# __all__ += ['add_vec', 'sub_vec']
-# __all__ += ['min', 'max', 'abs']
-# __all__ += ['ge', 'le']
-# __all__ += ['sel']
-# __all__ += ['mul0', 'mul1', 'mul2']
+__all__ += ['add_vec', 'sub_vec']
+__all__ += ['min', 'max', 'abs']
+__all__ += ['ge', 'le']
+__all__ += ['sel']
+__all__ += ['mul0', 'mul1', 'mul2']
 # __all__ += ['vec4_mul0', 'vec4_mul1', 'vec2_mul0', 'vec2_mul1']
 def or_():
     return PE( 0x12, lambda a, b, c, d: a | b).carry()
@@ -96,7 +96,7 @@ def ge(signed):
     # res = a >= b ? a : b (comparison should be signed/unsigned)
     def _ge(a, b, c, d):
         res = a if a >= b else b
-        res_p = a >= b
+        res_p = BitVector([0,0,0,a >= b])
         return res, res_p
     return PE( 0x4, _ge, signed=signed )
 
@@ -106,7 +106,7 @@ def le(signed):
     # res = a <= b ? a : b
     def _le(a, b, c, d):
         res = a if a <= b else b
-        res_p = a <= b
+        res_p = BitVector([0,0,0,a <= b])
         return res, res_p
     return PE( 0x5 , _le, signed=signed )
 min = le
@@ -114,7 +114,7 @@ min = le
 def abs(signed=True):
     # res = abs(a-b) + c
     def _abs(a, b, c, d):
-        return a if a >= 0 else -a, a[15]
+        return a if a >= 0 else -a, BitVector([0,0,0,a[15]])
     # if not signed:
     #     raise Exception("Abs undefined for unsigned mode ")
     return PE( 0x3 , _abs , signed=signed)

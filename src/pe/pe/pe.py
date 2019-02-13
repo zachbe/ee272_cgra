@@ -73,7 +73,7 @@ class ALU:
         d = bv(op_d_p, num_bits=self.width)
         res = self.op(a, b, c, d)
         if self._carry:
-            res_p = BitVector(a._value + b._value >= (2 ** self.width), 1)
+            res_p = BitVector([0,0,0,BitVector(a._value + b._value >= (2 ** self.width), 1)])
             return res, res_p
         return res
 
@@ -188,7 +188,7 @@ class PE:
         elif self._opcode in [0x1, 0x4, 0x5]: # sub
             C = BitVector([0,0,0,(ra.ext(1) + (~rb).ext(1) + 1)[16]])
         elif self._opcode == 0x3: # abs
-            C = ((~ra).ext(1) + 1)[16]
+            C = BitVector([0,0,0,((~ra).ext(1) + 1)[16]])
         elif self._opcode == 0x16: #add_vec
             C = BitVector([(ra[0:4].ext(1) + rb[0:4].ext(1))[4],
                 (ra[4:8].ext(1) + rb[4:8].ext(1))[4],
@@ -200,17 +200,17 @@ class PE:
                 (ra[8:12].ext(1) + ((~rb[8:12]).ext(1)+1))[4],
                 (ra[12:16].ext(1) + ((~rb[12:16]).ext(1)+1))[4]])
         else:
-            C = (ra.ext(1) + rb.ext(1))[16]
+            C = BitVector([0,0,0,(ra.ext(1) + rb.ext(1))[16]])
         N = BitVector([alu_res[3],alu_res[7],alu_res[11],alu_res[15]])
         if self._opcode == 0x0: # add
             V = BitVector([0,0,0,(ra[15] == rb[15]) and (ra[15] != (ra + rb + rd)[15])])
         elif self._opcode == 0x1: # sub
             V = BitVector([0,0,0,(ra[15] != rb[15]) and (ra[15] != (ra + ~rb + 1)[15])])
         elif self._opcode == 0x3: # abs
-            V = ra == 0x8000
+            V = BitVector([0,0,0,ra == 0x8000])
             # V = alu_res[15]
         elif self._opcode in [0xb, 0xc]: # mul0, mul1
-            V = (ra * rb)[15] if (ra[15] == rb[15]) else (ra * rb)[15] == 0 and (ra != 0 or rb != 0)
+            V = BitVector([0,0,0,(ra * rb)[15] if (ra[15] == rb[15]) else (ra * rb)[15] == 0 and (ra != 0 or rb != 0)])
         elif self._opcode in [0x1b,0x1c]: #vec4_mul0, vec4_mul1
             V = ((ra[0:4]*rb[0:4])[3] if (ra[3] == rb[3]) else (ra[0:4]*rb[0:4])[3] == 0 and (ra[0:4]!=0 or rb[0:4]!=0)) or \
                 ((ra[4:8]*rb[4:8])[3] if (ra[7] == rb[7]) else (ra[4:8]*rb[4:8])[3] == 0 and (ra[4:8]!=0 or rb[4:8]!=0)) or \
@@ -221,9 +221,9 @@ class PE:
                 ((ra[8:16]*rb[8:16])[7] if (ra[16] == rb[16]) else (ra[8:16]*rb[8:16])[15] == 0 and (ra[8:16]!=0 or rb[8:16]!=0))
 
         elif self._opcode == 0xd:
-            V = 0
+            V = BitVector([0,0,0,0])
         elif self._opcode in [0x4, 0x5]:
-            V = 0
+            V = BitVector([0,0,0,0])
         elif self._opcode == 0x16: #add_vec
             V = BitVector([0,0,0,0])
             # V = BitVector([((ra[3] == rb[3]) and (ra[3] != (ra[0:4] + rb[0:4])[3])),
@@ -237,12 +237,12 @@ class PE:
             #     ((ra[11] == rb[11]) and (ra[11] != (ra[8:12] + ~rb[8:12] + 1)[3])),
             #     ((ra[15] == rb[15]) and (ra[15] != (ra[12:16] + ~rb[12:16] + 1)[3]))])
         else:
-            V = (ra[15] == rb[15]) and (ra[15] != (ra + rb)[15])
+            V = BitVector([0,0,0,(ra[15] == rb[15]) and (ra[15] != (ra + rb)[15])])
 
         if self._opcode in [0x12, 0x13, 0x14,  # and, or, xor clear overflow flag
                                   0xf, 0x11,         # lshl, lshr
                                   0x8]:              # sel
-            V = 0
+            V = BitVector([0,0,0,0])
         if self.flag_sel == 0x0:
             return Z
         elif self.flag_sel == 0x1:
