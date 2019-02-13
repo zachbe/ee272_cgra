@@ -26,6 +26,9 @@
 //; my $use_sad   = $use_add > 1;
 //;
 //; my $use_c_input = ($use_sad > 0) or ($mult_mode > 1);
+//;
+//; my $max_num_seg = 4;
+// ADD PARAMETERIZATION HERE
 
 /*
 $use_add  = `$use_add `
@@ -58,7 +61,7 @@ module   `mname` (
 //;   }
 //; }
 //; if(($use_add > 0) & ($get_carry | ($en_double & !$is_msb))) {
-  output logic [`$use_add -1`:0]             carry_out,
+  output logic [`$max_num_seg-1` : 0]             carry_out,
 //;}
 
 //; if($use_cntr) {
@@ -244,7 +247,7 @@ logic                 cmpr_eq;
 
 localparam NUM_ADDERS = `$use_add`;
 localparam ADD_MSB = NUM_ADDERS - 1;
-localparam NUM_SEGS = 4;
+localparam NUM_SEGS = `$max_num_seg`;
 
 logic [DATA_MSB:0]   add_a     [ADD_MSB:0];
 logic [DATA_MSB:0]   add_b     [ADD_MSB:0];
@@ -256,29 +259,25 @@ wire  [NUM_SEGS-1:0] add_c_out [ADD_MSB:0];
 logic is_addsub_vec;
 assign is_addsub_vec = (op_code[5:0] == PE_ADD_VEC_OP) || (op_code[5:0] == PE_SUB_VEC_OP);
 
-genvar ggg;
-generate
-  for(ggg=0;ggg<NUM_ADDERS;ggg=ggg+1) begin : GEN_ADD
+//removing generative two-add stuff for now
+
 //; my $full_add = generate_base('test_full_add', 'full_add');
-  `$full_add->mname()` #(.DataWidth(`$data_width`)) `$full_add->iname()`
-    (
-      .a     (add_a[ggg]),
-      .b     (add_b[ggg]),
-      .c_in  (add_c_in[ggg]),
-      .is_vec (is_addsub_vec),
+`$full_add->mname()` #(.DataWidth(`$data_width`)) `$full_add->iname()`
+  (
+    .a     (add_a[0]),
+    .b     (add_b[0]),
+    .c_in  (add_c_in[0]),
+    .is_vec (is_addsub_vec),
 
 //      .dual_mode (dual_mode),
 
-      .res   (add_res[ggg]),
-      .c_out (add_c_out[ggg])
-    );
+    .res   (add_res[0]),
+    .c_out (add_c_out[0])
+  );
 
 //; if($get_carry | ($en_double & !$is_msb)) {
-  assign carry_out[ggg] = is_addsub_vec ? 1'b0 : add_c_out[ggg][NUM_SEGS-1];
+  assign carry_out = is_addsub_vec? 4'b0 : add_c_out[0]; //REMOVE THIS TERNARY WHEN THE TESTS ARE ALL FIXED
 //;}
-  end
-
-endgenerate
 
 //; if($en_double & $is_msb) {
 assign cmpr_eq   =  ~|(op_a ^ op_b) & (~double_mode | cmpr_eq_in);

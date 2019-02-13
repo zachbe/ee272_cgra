@@ -110,7 +110,7 @@ module   `mname` (
   input                         cmpr_eq_in,
 //;   } else {
   input                         res_p_msb,
-  output [`$use_add -1`:0]      carry_out,
+  output [3:0]      carry_out,
   output                        cmpr_eq_out,
 //;   }
 //; }
@@ -156,7 +156,7 @@ logic                 comp_res_p;
 logic                 res_p_w;
 
 //; if(($use_add > 0) & ($get_carry & !($en_double & !$is_msb))) {
-  logic [`$use_add -1`:0]             carry_out;
+  logic [3:0]             carry_out;
 //;}
 
 
@@ -564,7 +564,7 @@ logic res_lut;
 
     assign flag_sel = op_code[`$opcode_flag_sel_bith`: `$opcode_flag_sel_bitl`];
 
-    assign C = carry_out[`$use_add -1`];
+    assign C = carry_out[3];
     assign Z = ~|comp_res;
     assign N = comp_res[`$data_width-1`];
 
