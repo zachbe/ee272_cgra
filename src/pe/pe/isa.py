@@ -3,10 +3,10 @@ from .pe import PE, CONST
 from .bv import BitVector
 import functools
 
-# __all__ = ['add_vec', 'sub_vec']
+__all__ = ['add_vec', 'sub_vec']
 # __all__  = ['or_', 'and_', 'xor']
 # __all__ += ['shr', 'lshl']
-__all__ = ['add', 'sub']
+__all__ += ['add', 'sub']
 # __all__ += ['add_vec', 'sub_vec']
 # __all__ += ['min', 'max', 'abs']
 # __all__ += ['ge', 'le']
