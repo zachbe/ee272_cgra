@@ -3,10 +3,10 @@ from .pe import PE, CONST
 from .bv import BitVector
 import functools
 
-__all__ = ['add_vec', 'sub_vec']
+# __all__ = ['add_vec', 'sub_vec']
 # __all__  = ['or_', 'and_', 'xor']
 # __all__ += ['shr', 'lshl']
-__all__ += ['add', 'sub']
+__all__ = ['add', 'sub']
 # __all__ += ['add_vec', 'sub_vec']
 # __all__ += ['min', 'max', 'abs']
 # __all__ += ['ge', 'le']
@@ -51,7 +51,7 @@ def lshl():
 def add():
     # res_p = cout
     def _add(a, b, c, d):
-        res_p = BitVector(a, a.num_bits + 1) + BitVector(b, b.num_bits + 1) + d >= 2 ** 16
+        res_p = BitVector([0,0,0,BitVector(a, a.num_bits + 1) + BitVector(b, b.num_bits + 1) + d >= 2 ** 16])
         return a + b + d, res_p
     return PE( 0x0 , _add)
 
@@ -65,12 +65,12 @@ def add_vec():
         second= BitVector((a[4:8] + b[4:8]), a[4:8].num_bits + 12) << 4
         third = BitVector((a[8:12] + b[8:12]), a[8:12].num_bits + 12) << 8
         fourth= BitVector((a[12:16] + b[12:16]), a[12:16].num_bits + 12) << 12
-        return first | second | third | fourth, 0#res_p
+        return first | second | third | fourth, res_p
     return PE( 0x16 , _add_vec )
 
 def sub():
     def _sub(a, b, c, d):
-        res_p = BitVector(a, a.num_bits + 1) + BitVector(~b, b.num_bits + 1) + 1 >= 2 ** 16
+        res_p = BitVector([0,0,0,BitVector(a, a.num_bits + 1) + BitVector(~b, b.num_bits + 1) + 1 >= 2 ** 16])
         return a - b, res_p
     return PE( 0x1 , _sub)
 
@@ -84,7 +84,7 @@ def sub_vec():
         second= BitVector((a[4:8] - b[4:8]), a[4:8].num_bits + 12) << 4
         third = BitVector((a[8:12] - b[8:12]), a[8:12].num_bits + 12) << 8
         fourth= BitVector((a[12:16] - b[12:16]), a[12:16].num_bits + 12) << 12
-        return first | second | third | fourth, 0#res_p
+        return first | second | third | fourth, res_p
     return PE( 0x17 , _sub_vec )
 
 # def eq():

@@ -65,6 +65,9 @@
 
 //; my $rename_hash;
 
+//; my $max_num_seg = 4;
+// ADD PARAMETERIZATION HERE
+
 /*
 use_add   = `$use_add  `
 mult_mode = `$mult_mode`
@@ -110,7 +113,7 @@ module   `mname` (
   input                         cmpr_eq_in,
 //;   } else {
   input                         res_p_msb,
-  output [3:0]      carry_out,
+  output [`$max_num_seg-1`:0]      carry_out,
   output                        cmpr_eq_out,
 //;   }
 //; }
@@ -132,7 +135,7 @@ module   `mname` (
 //; if($en_debug) {
   output logic                   irq,
 //;}
-  output logic                   res_p,
+  output logic [`$max_num_seg-1`:0] res_p,
   output logic [31:0]  read_data
 );
 
@@ -152,11 +155,11 @@ logic                         op_f_p;
 logic                         op_f_p_reg;
 
 logic [`$data_width-1`:0] comp_res;
-logic                 comp_res_p;
-logic                 res_p_w;
+logic [`$max_num_seg-1`:0] comp_res_p;
+logic  [`$max_num_seg-1`:0] res_p_w;
 
 //; if(($use_add > 0) & ($get_carry & !($en_double & !$is_msb))) {
-  logic [3:0]             carry_out;
+  logic [`$max_num_seg-1`:0]             carry_out;
 //;}
 
 
@@ -428,7 +431,7 @@ assign flip_inputs = op_code[`$opcode_flip_bitl`:`$opcode_flip_bith`]; // WARNIN
 //;}
 
 //; if($en_ovfl) {
-logic V;
+logic [`$max_num_seg-1`:0] V;
 
 //;}
 
@@ -440,13 +443,6 @@ logic V;
 //;                         "use_abs"=>$use_abs, "use_max_min"=>$use_max_min,
 //;                         "get_carry" => $get_carry, "en_ovfl" => $en_ovfl,
 //;                         "debug"=>$debug);
-
-//temp stuff to snip res_p
-logic [3:0] temp_res_p;
-assign comp_res_p = temp_res_p[3];
-
-logic [3:0] temp_ovfl;
-assign V = temp_ovfl[3];
 
 `$pe_comp->instantiate()`
 (
@@ -501,9 +497,9 @@ assign V = temp_ovfl[3];
   .mult_res (mult_res),
 //;}
 //; if($en_ovfl) {
-  .ovfl     (temp_ovfl),
+  .ovfl     (V),
 //;}
-  .res_p    (temp_res_p)
+  .res_p    (comp_res_p)
 );
 
 //; $pe_info_hash->{ '1_comp' } = {
@@ -552,28 +548,29 @@ assign V = temp_ovfl[3];
 
 //; my $res_flag_hash;
 
-logic result_flag;
+logic [`$max_num_seg-1`:0] result_flag;
 //; if($use_lut) {
-logic res_lut;
+logic res_lut; //Not sure what to do about LUT result (make it 4 bit?)
 //; }
 
 //; if($get_carry) {
-    logic Z;
-    logic N;
-    logic C;
+    logic [`$max_num_seg-1`:0] Z;
+    logic [`$max_num_seg-1`:0] N;
+    logic [`$max_num_seg-1`:0] C;
 
 //; 	  if(!$en_ovfl) {
-   logic V;
-   assign V = 1'b0;
+   logic [`$max_num_seg-1`:0] V;
+   assign V = {`$max_num_seg-1`{1'b0}};
 //;	    }
 
     logic [3:0] flag_sel;
 
     assign flag_sel = op_code[`$opcode_flag_sel_bith`: `$opcode_flag_sel_bitl`];
 
-    assign C = carry_out[3];
-    assign Z = ~|comp_res;
-    assign N = comp_res[`$data_width-1`];
+    assign C = carry_out;
+    assign Z = {~|comp_res[15:12], ~|comp_res[11:8], ~|comp_res[7:4], ~|comp_res[3:0]}; //Parameterize this nicely
+    assign N = {comp_res[`$data_width-1`], comp_res[11], comp_res[7], comp_res[3]}; //Parameterize this nicely too
+    //How should we handle N for vector vs scalar instructions?
 
     localparam PE_FLAG_EQ = 4'h0;
     localparam PE_FLAG_NE = 4'h1;
@@ -671,10 +668,10 @@ logic res_lut;
             PE_FLAG_VC  : result_flag = ~V;
             PE_FLAG_HI  : result_flag = C & ~Z;
             PE_FLAG_LS  : result_flag = ~C | Z;
-            PE_FLAG_GE  : result_flag = (N == V);
-            PE_FLAG_LT  : result_flag = (N != V);
-            PE_FLAG_GT  : result_flag = ~Z & (N == V);
-            PE_FLAG_LE  : result_flag = Z | (N != V);
+            PE_FLAG_GE  : result_flag = {(N == V), {`$max_num_seg-1`{1'b0}}};
+            PE_FLAG_LT  : result_flag = {(N != V), {`$max_num_seg-1`{1'b0}}};
+            PE_FLAG_GT  : result_flag = {(~(|Z) & (N == V)),{`$max_num_seg-1`{1'b0}}};
+            PE_FLAG_LE  : result_flag = {((|Z) | (N != V)),{`$max_num_seg-1`{1'b0}}};
 //; if($use_lut) {
             PE_FLAG_LUT : result_flag = res_lut;
 //; }
@@ -802,11 +799,11 @@ logic [31:0] read_data_debug_data;
 
 logic [31:0] read_data_debug_bit;
 //; my $debug_b = clone($debug_d, 'test_debug_bit');
-`$debug_b->mname()` #(.DataWidth(1)) `$debug_b->iname()`
+`$debug_b->mname()` #(.DataWidth(`$max_num_seg`)) `$debug_b->iname()`
 (
   .cfg_clk   (clk),
   .cfg_rst_n (rst_n),
-  .cfg_d     (cfg_d[0]),
+  .cfg_d     (cfg_d[`$max_num_seg-1`:0]),
   .cfg_en    (cfg_en && (cfg_a == 8'hE1)),
 
   .data_in   (res_p),
