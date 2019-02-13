@@ -225,17 +225,17 @@ class PE:
         elif self._opcode in [0x4, 0x5]:
             V = BitVector([0,0,0,0])
         elif self._opcode == 0x16: #add_vec
-            V = BitVector([0,0,0,0])
-            # V = BitVector([((ra[3] == rb[3]) and (ra[3] != (ra[0:4] + rb[0:4])[3])),
-            #     ((ra[7] == rb[7]) and (ra[7] != (ra[4:8] + rb[4:8])[3])),
-            #     ((ra[11] == rb[11]) and (ra[11] != (ra[8:12] + rb[8:12])[3])),
-            #     ((ra[15] == rb[15]) and (ra[15] != (ra[12:16] + rb[12:16])[3]))])
+            # V = BitVector([0,0,0,0])
+            V = BitVector([((ra[3] == rb[3]) and (ra[3] != (ra[0:4] + rb[0:4])[3])),
+                ((ra[7] == rb[7]) and (ra[7] != (ra[4:8] + rb[4:8])[3])),
+                ((ra[11] == rb[11]) and (ra[11] != (ra[8:12] + rb[8:12])[3])),
+                ((ra[15] == rb[15]) and (ra[15] != (ra[12:16] + rb[12:16])[3]))])
         elif self._opcode == 0x17: #sub_vec
-            V = BitVector([0,0,0,0])
-            # V = BitVector([((ra[3] == rb[3]) and (ra[3] != (ra[0:4] + ~rb[0:4] + 1)[3])),
-            #     ((ra[7] == rb[7]) and (ra[7] != (ra[4:8] + ~rb[4:8] + 1)[3])),
-            #     ((ra[11] == rb[11]) and (ra[11] != (ra[8:12] + ~rb[8:12] + 1)[3])),
-            #     ((ra[15] == rb[15]) and (ra[15] != (ra[12:16] + ~rb[12:16] + 1)[3]))])
+            # V = BitVector([0,0,0,0])
+            V = BitVector([((ra[3] != rb[3]) and (ra[3] != (ra[0:4] + ~rb[0:4] + 1)[3])),
+                ((ra[7] != rb[7]) and (ra[7] != (ra[4:8] + ~rb[4:8] + 1)[3])),
+                ((ra[11] != rb[11]) and (ra[11] != (ra[8:12] + ~rb[8:12] + 1)[3])),
+                ((ra[15] != rb[15]) and (ra[15] != (ra[12:16] + ~rb[12:16] + 1)[3]))])
         else:
             V = BitVector([0,0,0,(ra[15] == rb[15]) and (ra[15] != (ra + rb)[15])])
 

@@ -28,6 +28,7 @@
 //; my $use_c_input = ($use_sad > 0) or ($mult_mode > 1);
 //;
 //; my $max_num_seg = 4;
+//; my $seg_len = 4;
 // ADD PARAMETERIZATION HERE
 
 /*
@@ -680,14 +681,32 @@ always_comb begin : proc_alu
     PE_ADD_VEC_OP: begin
       res_p_w = add_c_out[0] ;
       add_c_in[0] = 1'b0;
-      ovfl = 4'b0 ;
+      //parameterize overflow better!
+      ovfl = is_signed ? {(op_a[`($max_num_seg * $seg_len) - 1`] == op_b[`($max_num_seg * $seg_len) - 1`]) &
+                           (op_a[`($max_num_seg * $seg_len) - 1`] != add_res[0][`($max_num_seg * $seg_len) - 1`]),
+                           (op_a[`(($max_num_seg-1) * $seg_len) - 1`] == op_b[`(($max_num_seg-1) * $seg_len) - 1`]) &
+                           (op_a[`(($max_num_seg-1) * $seg_len) - 1`] != add_res[0][`(($max_num_seg-1) * $seg_len) - 1`]),
+                           (op_a[`(($max_num_seg-2) * $seg_len) - 1`] == op_b[`(($max_num_seg-2) * $seg_len) - 1`]) &
+                           (op_a[`(($max_num_seg-2) * $seg_len) - 1`] != add_res[0][`(($max_num_seg-2) * $seg_len) - 1`]),
+                           (op_a[`(($max_num_seg-3) * $seg_len) - 1`] == op_b[`(($max_num_seg-3) * $seg_len) - 1`]) &
+                           (op_a[`(($max_num_seg-3) * $seg_len) - 1`] != add_res[0][`(($max_num_seg-3) * $seg_len) - 1`])
+                           } : res_p_w ;
     end
 
     PE_SUB_VEC_OP: begin
       add_b[0]    = ~op_b;
       add_c_in[0] = 1'b1;
       res_p_w = add_c_out[0] ;
-      ovfl = 4'b0 ;
+      //parameterize overflow better!
+      ovfl = is_signed ? {(op_a[`($max_num_seg * $seg_len) - 1`] != op_b[`($max_num_seg * $seg_len) - 1`]) &
+                     (op_a[`($max_num_seg * $seg_len) - 1`] != add_res[0][`($max_num_seg * $seg_len) - 1`]),
+                     (op_a[`(($max_num_seg-1) * $seg_len) - 1`] != op_b[`(($max_num_seg-1) * $seg_len) - 1`]) &
+                     (op_a[`(($max_num_seg-1) * $seg_len) - 1`] != add_res[0][`(($max_num_seg-1) * $seg_len) - 1`]),
+                     (op_a[`(($max_num_seg-2) * $seg_len) - 1`] != op_b[`(($max_num_seg-2) * $seg_len) - 1`]) &
+                     (op_a[`(($max_num_seg-2) * $seg_len) - 1`] != add_res[0][`(($max_num_seg-2) * $seg_len) - 1`]),
+                     (op_a[`(($max_num_seg-3) * $seg_len) - 1`] != op_b[`(($max_num_seg-3) * $seg_len) - 1`]) &
+                     (op_a[`(($max_num_seg-3) * $seg_len) - 1`] != add_res[0][`(($max_num_seg-3) * $seg_len) - 1`])
+                     } : res_p_w ;
     end
 
     default: begin
