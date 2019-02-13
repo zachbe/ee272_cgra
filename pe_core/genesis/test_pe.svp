@@ -441,6 +441,10 @@ logic V;
 //;                         "get_carry" => $get_carry, "en_ovfl" => $en_ovfl,
 //;                         "debug"=>$debug);
 
+//temp stuff to snip res_p
+logic [3:0] temp_res_p;
+assign comp_res_p = temp_res_p[3];
+
 `$pe_comp->instantiate()`
 (
   .op_code (op_code[7:0]),
@@ -496,7 +500,7 @@ logic V;
 //; if($en_ovfl) {
   .ovfl     (V),
 //;}
-  .res_p    (comp_res_p)
+  .res_p    (temp_res_p)
 );
 
 //; $pe_info_hash->{ '1_comp' } = {
