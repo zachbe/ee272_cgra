@@ -21,6 +21,7 @@ class PECore(Core):
         self.underlying = FromMagma(circ)
 
         TData = magma.Bits(16)
+        TFlag = magma.Bits(4)
         TBit = magma.Bits(1)
 
         self.add_ports(
@@ -30,7 +31,7 @@ class PECore(Core):
             bit1=magma.In(TBit),
             bit2=magma.In(TBit),
             res=magma.Out(TData),
-            res_p=magma.Out(TBit),
+            res_p=magma.Out(TFlag),
             clk=magma.In(magma.Clock),
             reset=magma.In(magma.AsyncReset),
             config=magma.In(ConfigurationType(8, 32)),
