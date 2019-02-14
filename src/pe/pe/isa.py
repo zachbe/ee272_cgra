@@ -2,17 +2,16 @@ from .config import config
 from .pe import PE, CONST
 from .bv import BitVector
 import functools
-
-__all__ = ['add_vec', 'sub_vec']
-# __all__  = ['or_', 'and_', 'xor']
-# __all__ += ['shr', 'lshl']
-#__all__ += ['add', 'sub']
-# __all__ += ['add_vec', 'sub_vec']
-# __all__ += ['min', 'max', 'abs']
-# __all__ += ['ge', 'le']
-# __all__ += ['sel']
-# __all__ += ['mul0', 'mul1', 'mul2']
-__all__ += ['vec4_mul0', 'vec4_mul1', 'vec2_mul0', 'vec2_mul1']
+# __all__ = ['add_vec', 'sub_vec']
+__all__  = ['or_', 'and_', 'xor']
+__all__ += ['shr', 'lshl']
+__all__ += ['add', 'sub']
+__all__ += ['add_vec', 'sub_vec']
+__all__ += ['min', 'max', 'abs']
+__all__ += ['ge', 'le']
+__all__ += ['sel']
+__all__ += ['mul0', 'mul1', 'mul2']
+# __all__ += ['vec4_mul0', 'vec4_mul1', 'vec2_mul0', 'vec2_mul1']
 def or_():
     return PE( 0x12, lambda a, b, c, d: a | b).carry()
 
@@ -51,7 +50,7 @@ def lshl():
 def add():
     # res_p = cout
     def _add(a, b, c, d):
-        res_p = BitVector(a, a.num_bits + 1) + BitVector(b, b.num_bits + 1) + d >= 2 ** 16
+        res_p = BitVector([0,0,0,BitVector(a, a.num_bits + 1) + BitVector(b, b.num_bits + 1) + d >= 2 ** 16])
         return a + b + d, res_p
     return PE( 0x0 , _add)
 
@@ -65,12 +64,12 @@ def add_vec():
         second= BitVector((a[4:8] + b[4:8]), a[4:8].num_bits + 12) << 4
         third = BitVector((a[8:12] + b[8:12]), a[8:12].num_bits + 12) << 8
         fourth= BitVector((a[12:16] + b[12:16]), a[12:16].num_bits + 12) << 12
-        return first | second | third | fourth, 0#res_p
+        return first | second | third | fourth, res_p
     return PE( 0x16 , _add_vec )
 
 def sub():
     def _sub(a, b, c, d):
-        res_p = BitVector(a, a.num_bits + 1) + BitVector(~b, b.num_bits + 1) + 1 >= 2 ** 16
+        res_p = BitVector([0,0,0,BitVector(a, a.num_bits + 1) + BitVector(~b, b.num_bits + 1) + 1 >= 2 ** 16])
         return a - b, res_p
     return PE( 0x1 , _sub)
 
@@ -84,7 +83,7 @@ def sub_vec():
         second= BitVector((a[4:8] - b[4:8]), a[4:8].num_bits + 12) << 4
         third = BitVector((a[8:12] - b[8:12]), a[8:12].num_bits + 12) << 8
         fourth= BitVector((a[12:16] - b[12:16]), a[12:16].num_bits + 12) << 12
-        return first | second | third | fourth, 0#res_p
+        return first | second | third | fourth, res_p
     return PE( 0x17 , _sub_vec )
 
 # def eq():
@@ -96,7 +95,7 @@ def ge(signed):
     # res = a >= b ? a : b (comparison should be signed/unsigned)
     def _ge(a, b, c, d):
         res = a if a >= b else b
-        res_p = a >= b
+        res_p = BitVector([0,0,0,a >= b])
         return res, res_p
     return PE( 0x4, _ge, signed=signed )
 
@@ -106,7 +105,7 @@ def le(signed):
     # res = a <= b ? a : b
     def _le(a, b, c, d):
         res = a if a <= b else b
-        res_p = a <= b
+        res_p = BitVector([0,0,0,a <= b])
         return res, res_p
     return PE( 0x5 , _le, signed=signed )
 min = le
@@ -114,7 +113,7 @@ min = le
 def abs(signed=True):
     # res = abs(a-b) + c
     def _abs(a, b, c, d):
-        return a if a >= 0 else -a, a[15]
+        return a if a >= 0 else -a, BitVector([0,0,0,a[15]])
     # if not signed:
     #     raise Exception("Abs undefined for unsigned mode ")
     return PE( 0x3 , _abs , signed=signed)
@@ -149,7 +148,7 @@ def vec4_mul0(signed):
         va = map(lambda Ai: Ai.ext(4), (a[0:4],a[4:8],a[8:12],a[12:16]))
         vb = map(lambda Bi: Bi.ext(4), (b[0:4],b[4:8],b[8:12],b[12:16]))
         vab = list(map(lambda Ai,Bi: BitVector((Ai*Bi)[:4],4), va,vb))
-        return BitVector(vab[0].bits() + vab[1].bits() + vab[2].bits() +vab[3].bits(),16),0
+        return BitVector(vab[0].bits() + vab[1].bits() + vab[2].bits() +vab[3].bits(),16),BitVector([0,0,0,0])
     return PE(0x1b, _vec4_mul0, signed=signed)
 
 def vec4_mul1(signed):
@@ -157,7 +156,7 @@ def vec4_mul1(signed):
         va = map(lambda Ai: Ai.ext(4), (a[0:4],a[4:8],a[8:12],a[12:16]))
         vb = map(lambda Bi: Bi.ext(4), (b[0:4],b[4:8],b[8:12],b[12:16]))
         vab = list(map(lambda Ai,Bi: BitVector((Ai*Bi)[4:8],4), va,vb))
-        return BitVector(vab[0].bits() + vab[1].bits() + vab[2].bits() +vab[3].bits(),16),0
+        return BitVector(vab[0].bits() + vab[1].bits() + vab[2].bits() +vab[3].bits(),16),BitVector([0,0,0,0])
     return PE(0x1c, _vec4_mul1, signed=signed)
 
 def vec2_mul0(signed):  
@@ -165,7 +164,7 @@ def vec2_mul0(signed):
         va = map(lambda Ai: Ai.ext(8), (a[0:8],a[8:16]))
         vb = map(lambda Bi: Bi.ext(8), (b[0:8],b[8:16]))
         vab = list(map(lambda Ai,Bi: BitVector((Ai*Bi)[:8],8),va,vb))
-        return BitVector(vab[0].bits() + vab[1].bits(),16),0
+        return BitVector(vab[0].bits() + vab[1].bits(),16),BitVector([0,0,0,0])
     return PE(0x2b, _vec2_mul0,signed=signed)
 
 def vec2_mul1(signed):  
@@ -173,6 +172,6 @@ def vec2_mul1(signed):
         va = map(lambda Ai: Ai.ext(8), (a[0:8],a[8:16]))
         vb = map(lambda Bi: Bi.ext(8), (b[0:8],b[8:16]))
         vab = list(map(lambda Ai,Bi: BitVector((Ai*Bi)[8:16],8),va,vb))
-        return BitVector(vab[0].bits() + vab[1].bits(),16),0
+        return BitVector(vab[0].bits() + vab[1].bits(),16),BitVector([0,0,0,0])
     return PE(0x2c, _vec2_mul0,signed=signed)
 

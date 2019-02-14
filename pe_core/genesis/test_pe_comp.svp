@@ -26,6 +26,10 @@
 //; my $use_sad   = $use_add > 1;
 //;
 //; my $use_c_input = ($use_sad > 0) or ($mult_mode > 1);
+//;
+//; my $max_num_seg = 4;
+//; my $seg_len = 4;
+// ADD PARAMETERIZATION HERE
 
 /*
 $use_add  = `$use_add `
@@ -58,7 +62,7 @@ module   `mname` (
 //;   }
 //; }
 //; if(($use_add > 0) & ($get_carry | ($en_double & !$is_msb))) {
-  output logic [`$use_add -1`:0]             carry_out,
+  output logic [`$max_num_seg-1` : 0]             carry_out,
 //;}
 
 //; if($use_cntr) {
@@ -80,9 +84,9 @@ module   `mname` (
   output logic [`2*$data_width-1`:0] mult_res,
 //;}
 //; if($en_ovfl) {
-  output logic                   ovfl,
+  output logic [`$max_num_seg-1` : 0] ovfl,
 //;}
-  output logic                   res_p
+  output logic [`$max_num_seg-1` : 0]    res_p
 );
 
 localparam DATA_MSB      = `$data_width` - 1;
@@ -234,7 +238,7 @@ assign             nc_op_code = op_code;
 
 
 logic [DATA_MSB:0] res_w;
-logic              res_p_w;
+logic [`$max_num_seg-1` : 0] res_p_w;
 
 logic                 is_signed;
 //logic                 dual_mode;
@@ -251,40 +255,41 @@ logic                 cmpr_eq;
 
 localparam NUM_ADDERS = `$use_add`;
 localparam ADD_MSB = NUM_ADDERS - 1;
+localparam NUM_SEGS = `$max_num_seg`;
 
-logic [DATA_MSB:0]  add_a     [ADD_MSB:0];
-logic [DATA_MSB:0]  add_b     [ADD_MSB:0];
-logic               add_c_in  [ADD_MSB:0];
+logic [DATA_MSB:0]   add_a     [ADD_MSB:0];
+logic [DATA_MSB:0]   add_b     [ADD_MSB:0];
+logic                add_c_in  [ADD_MSB:0];
 
-wire  [DATA_MSB:0]  add_res   [ADD_MSB:0];
-wire                add_c_out [ADD_MSB:0];
+wire  [DATA_MSB:0]   add_res   [ADD_MSB:0];
+wire  [NUM_SEGS-1:0] add_c_out [ADD_MSB:0];
 
 //temporary: logic for holding vector multiply signs
 logic [3:0] vec4_cout;
 logic [1:0] vec2_cout;
-genvar ggg;
+//genvar ggg;
+logic is_addsub_vec;
+assign is_addsub_vec = (op_code[5:0] == PE_ADD_VEC_OP) || (op_code[5:0] == PE_SUB_VEC_OP);
 
-generate
-  for(ggg=0;ggg<NUM_ADDERS;ggg=ggg+1) begin : GEN_ADD
+//removing generative two-add stuff for now
+
 //; my $full_add = generate_base('test_full_add', 'full_add');
-  `$full_add->mname()` #(.DataWidth(`$data_width`)) `$full_add->iname()`
-    (
-      .a     (add_a[ggg]),
-      .b     (add_b[ggg]),
-      .c_in  (add_c_in[ggg]),
+`$full_add->mname()` #(.DataWidth(`$data_width`)) `$full_add->iname()`
+  (
+    .a     (add_a[0]),
+    .b     (add_b[0]),
+    .c_in  (add_c_in[0]),
+    .is_vec (is_addsub_vec),
 
 //      .dual_mode (dual_mode),
 
-      .res   (add_res[ggg]),
-      .c_out (add_c_out[ggg])
-    );
+    .res   (add_res[0]),
+    .c_out (add_c_out[0])
+  );
 
 //; if($get_carry | ($en_double & !$is_msb)) {
-  assign carry_out[ggg] = add_c_out[ggg];
+  assign carry_out = is_addsub_vec? add_c_out[0] : {{add_c_out[0][`$max_num_seg-1`]}, {`$max_num_seg-1`{1'b0}}};
 //;}
-  end
-
-endgenerate
 
 genvar vec4_mul_gen;
 genvar vec2_mul_gen;
@@ -506,7 +511,7 @@ always_comb begin : proc_alu
   div_co      = {`$data_width`{1'b0}};
 //; }
 //; if($en_ovfl) {
-  ovfl = 1'b0;
+  ovfl = {`$max_num_seg`{1'b0}};
 //;}
 
 
@@ -526,7 +531,7 @@ always_comb begin : proc_alu
         res_p_w     = add_c_out[0] | add_c_out[1];
 //;}
 //; if($en_ovfl) {
-        ovfl        = (is_signed) ? (|ovfl_add_signed) : res_p_w;
+        ovfl        = {{(is_signed) ? (|ovfl_add_signed) : res_p_w[`$max_num_seg-1`]},{`$max_num_seg-1`{1'b0}}};
 //;}
       end
     PE_SUB_OP: begin
@@ -540,7 +545,7 @@ always_comb begin : proc_alu
         add_c_in[0] = 1'b1;
 //;}
 //; if($en_ovfl) {
-        ovfl        = (is_signed) ? ovfl_sub_signed : 1'b0;
+        ovfl        = {{(is_signed) ? ovfl_sub_signed : 1'b0},{`$max_num_seg-1`{1'b0}}};
 //;}
       end
 //; if($use_abs) {
@@ -558,28 +563,28 @@ always_comb begin : proc_alu
 //;     }
 
 //; if($en_ovfl) {
-        ovfl        = (add_res[0][DATA_MSB] & (~|add_res[0][DATA_MSB-1:0])) |
-                      res_w[DATA_MSB];
+        ovfl        = {{(add_res[0][DATA_MSB] & (~|add_res[0][DATA_MSB-1:0])) |
+                      res_w[DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
 //;}
 
-        res_p_w     = diff_sign;
+        res_p_w     = {{diff_sign},{`$max_num_seg-1`{1'b0}}};
 //;   } else {
         add_a[0]    = ~op_a;
         add_b[0]    = 0;
 //;     if($en_double & $is_msb) {
         add_c_in[0] = double_mode ? carry_in[0] : 1'b1;
-        res_p_w     = op_a[DATA_MSB];
+        res_p_w     = {{op_a[DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
 //;     } elsif($en_double) {
         add_c_in[0] = 1'b1;
-        res_p_w     = double_mode ? res_p_msb : op_a[DATA_MSB];
+        res_p_w     = {{double_mode ? res_p_msb : op_a[DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
 //;     } else {
         add_c_in[0] = 1'b1;
-        res_p_w     = op_a[DATA_MSB];
+        res_p_w     = {{op_a[DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
 //;     }
 
         res_w       = (diff_sign | !is_signed) ? op_a : add_res[0];
 //; if($en_ovfl) {
-        ovfl        = res_w[DATA_MSB];
+        ovfl        = {{res_w[DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
 //;}
 
 //;   }
@@ -590,32 +595,32 @@ always_comb begin : proc_alu
         add_b[0]    = ~op_b;
 //; if($en_double & $is_msb) {
         add_c_in[0] = double_mode ? carry_in[0] : 1'b1;
-        res_p_w     = cmpr_gte;
+        res_p_w     = {{cmpr_gte},{`$max_num_seg-1`{1'b0}}};
 //;} elsif($en_double) {
         add_c_in[0] = 1'b1;
-        res_p_w     = double_mode ? res_p_msb : cmpr_gte;
+        res_p_w     = {{double_mode ? res_p_msb : cmpr_gte},{`$max_num_seg-1`{1'b0}}};
 //;} else {
         add_c_in[0] = 1'b1;
-        res_p_w     = cmpr_gte;
+        res_p_w     = {{cmpr_gte},{`$max_num_seg-1`{1'b0}}};
 //;}
 //; if($use_max_min) {
-        res_w       = res_p_w ? op_a : op_b;
+        res_w       = res_p_w[`$max_num_seg-1`] ? op_a : op_b;
 //; }
       end
     PE_LTE_MIN_OP: begin
         add_b[0]    = ~op_b;
 //; if($en_double & $is_msb) {
         add_c_in[0] = double_mode ? carry_in[0] : 1'b1;
-        res_p_w     = cmpr_lte;
+        res_p_w     = {{cmpr_lte},{`$max_num_seg-1`{1'b0}}};
 //;} elsif($en_double) {
         add_c_in[0] = 1'b1;
-        res_p_w     = double_mode ? res_p_msb : cmpr_lte;
+        res_p_w     = {{double_mode ? res_p_msb : cmpr_lte},{`$max_num_seg-1`{1'b0}}};
 //;} else {
         add_c_in[0] = 1'b1;
-        res_p_w     = cmpr_lte;
+        res_p_w     = {{cmpr_lte},{`$max_num_seg-1`{1'b0}}};
 //;}
 //; if($use_max_min) {
-        res_w       = res_p_w ? op_a : op_b;
+        res_w       = res_p_w[`$max_num_seg-1`] ? op_a : op_b;
 //; }
       end
       PE_SEL_OP: begin
@@ -633,42 +638,42 @@ always_comb begin : proc_alu
 //; if($mult_mode > 0) {
     PE_MULT_0_OP: begin
         res_w   = mult_res[DATA_MSB:0];
-        res_p_w = mult_c_out;
+        res_p_w = {{mult_c_out},{`$max_num_seg-1`{1'b0}}};
 //; if($en_ovfl) {
         if (is_signed) begin
-          ovfl = (op_a[DATA_MSB] == op_b[DATA_MSB]) ?
+          ovfl = {{(op_a[DATA_MSB] == op_b[DATA_MSB]) ?
                                     mult_res[DATA_MSB] :
-                                    ~mult_res[DATA_MSB] & |{op_a, op_b};
+                                    ~mult_res[DATA_MSB] & |{op_a, op_b}},{`$max_num_seg-1`{1'b0}}};
         end else begin
-          ovfl = |mult_res[`2*$data_width-1`:`$data_width`];
+          ovfl = {{|mult_res[`2*$data_width-1`:`$data_width`]},{`$max_num_seg-1`{1'b0}}};
         end
 //;}
       end
     PE_MULT_1_OP: begin
         res_w   = mult_res[`3*$data_width/2-1`:`$data_width/2`];
-        res_p_w = mult_c_out;
+        res_p_w = {{mult_c_out},{`$max_num_seg-1`{1'b0}}};
 //; if($en_ovfl) {
         if (is_signed) begin
-          ovfl = (op_a[DATA_MSB] == op_b[DATA_MSB]) ?
+          ovfl = {{(op_a[DATA_MSB] == op_b[DATA_MSB]) ?
                                     mult_res[DATA_MSB] :
-                                    ~mult_res[DATA_MSB] & |{op_a, op_b};
+                                    ~mult_res[DATA_MSB] & |{op_a, op_b}},{`$max_num_seg-1`{1'b0}}};
         end else begin
-          ovfl = |mult_res[`2*$data_width-1`:`3*$data_width/2`];
+          ovfl = {{|mult_res[`2*$data_width-1`:`3*$data_width/2`]},{`$max_num_seg-1`{1'b0}}};
         end
 //;}
       end
     PE_MULT_2_OP: begin
         res_w   = mult_res[`2*$data_width-1`:`$data_width`];
-        res_p_w = mult_c_out;
+        res_p_w = {{mult_c_out},{`$max_num_seg-1`{1'b0}}};
 //; if($en_ovfl) {
-        ovfl = 1'b0;
+        ovfl = {{1'b0},{`$max_num_seg-1`{1'b0}}};
 //;}
       end
 
 //;   if($use_relu) {
     PE_RELU: begin
         res_w   = diff_sign ? mult_res[`2*$data_width-1`:`$data_width`] : op_a;
-        res_p_w = op_a[DATA_MSB];
+        res_p_w = {{op_a[DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
       end
 //;   }
 
@@ -698,9 +703,9 @@ always_comb begin : proc_alu
 	res_w       = add_res[0];
         //cntr_next   = add_res[0];
 //; if($use_sad) {
-        res_p_w     = ~|(op_b ^ op_c); // Done counting
+        res_p_w     = {{~|(op_b ^ op_c)},{`$max_num_seg-1`{1'b0}}}; // Done counting
 //; } else {
-        res_p_w     = ~|(op_b ^ op_a); // Done counting
+        res_p_w     = {{~|(op_b ^ op_a)},{`$max_num_seg-1`{1'b0}}}; // Done counting
 //;}
       end
 //; }
@@ -713,7 +718,7 @@ always_comb begin : proc_alu
 
 //; if($is_msb) {
       res_w       = ~add_res[0][DATA_MSB] ?  add_res[0] : div_oper;
-      res_p_w     = add_res[0][DATA_MSB];
+      res_p_w     = {{add_res[0][DATA_MSB]},{`$max_num_seg-1`{1'b0}}};
 //;} else {
       div_co      = ~add_res[0][DATA_MSB] ? add_res[0] : div_oper;
       res_w       = {op_a[`$data_width-3`:0], ~add_res[0][DATA_MSB] , ~res_p_msb} ;
@@ -722,23 +727,42 @@ always_comb begin : proc_alu
 //; }
 
     PE_ADD_VEC_OP: begin
-      res_w = {op_a[15:12] + op_b[15:12], op_a[11:8] + op_b[11:8], op_a[7:4] + op_b[7:4], op_a[3:0] + op_b[3:0]} ;
-      res_p_w = 0 ;
-      ovfl = 1'b0 ;
+      res_p_w = add_c_out[0] ;
+      add_c_in[0] = 1'b0;
+      //parameterize overflow better!
+      ovfl = is_signed ? {(op_a[`($max_num_seg * $seg_len) - 1`] == op_b[`($max_num_seg * $seg_len) - 1`]) &
+                           (op_a[`($max_num_seg * $seg_len) - 1`] != add_res[0][`($max_num_seg * $seg_len) - 1`]),
+                           (op_a[`(($max_num_seg-1) * $seg_len) - 1`] == op_b[`(($max_num_seg-1) * $seg_len) - 1`]) &
+                           (op_a[`(($max_num_seg-1) * $seg_len) - 1`] != add_res[0][`(($max_num_seg-1) * $seg_len) - 1`]),
+                           (op_a[`(($max_num_seg-2) * $seg_len) - 1`] == op_b[`(($max_num_seg-2) * $seg_len) - 1`]) &
+                           (op_a[`(($max_num_seg-2) * $seg_len) - 1`] != add_res[0][`(($max_num_seg-2) * $seg_len) - 1`]),
+                           (op_a[`(($max_num_seg-3) * $seg_len) - 1`] == op_b[`(($max_num_seg-3) * $seg_len) - 1`]) &
+                           (op_a[`(($max_num_seg-3) * $seg_len) - 1`] != add_res[0][`(($max_num_seg-3) * $seg_len) - 1`])
+                           } : res_p_w ;
     end
 
     PE_SUB_VEC_OP: begin
-      res_w = {op_a[15:12] - op_b[15:12], op_a[11:8] - op_b[11:8], op_a[7:4] - op_b[7:4], op_a[3:0] - op_b[3:0]} ;
-      res_p_w = 0 ;
-      ovfl = 1'b0 ;
-	end
+      add_b[0]    = ~op_b;
+      add_c_in[0] = 1'b1;
+      res_p_w = add_c_out[0] ;
+      //parameterize overflow better!
+      ovfl = is_signed ? {(op_a[`($max_num_seg * $seg_len) - 1`] != op_b[`($max_num_seg * $seg_len) - 1`]) &
+                     (op_a[`($max_num_seg * $seg_len) - 1`] != add_res[0][`($max_num_seg * $seg_len) - 1`]),
+                     (op_a[`(($max_num_seg-1) * $seg_len) - 1`] != op_b[`(($max_num_seg-1) * $seg_len) - 1`]) &
+                     (op_a[`(($max_num_seg-1) * $seg_len) - 1`] != add_res[0][`(($max_num_seg-1) * $seg_len) - 1`]),
+                     (op_a[`(($max_num_seg-2) * $seg_len) - 1`] != op_b[`(($max_num_seg-2) * $seg_len) - 1`]) &
+                     (op_a[`(($max_num_seg-2) * $seg_len) - 1`] != add_res[0][`(($max_num_seg-2) * $seg_len) - 1`]),
+                     (op_a[`(($max_num_seg-3) * $seg_len) - 1`] != op_b[`(($max_num_seg-3) * $seg_len) - 1`]) &
+                     (op_a[`(($max_num_seg-3) * $seg_len) - 1`] != add_res[0][`(($max_num_seg-3) * $seg_len) - 1`])
+                     } : res_p_w ;
+    end
 	PE_MUL0_VEC4_OP: begin
         res_w   = {mult_res_v4[7*(`$data_width`/4)-1:6*(`$data_width`/4)], 
  				   mult_res_v4[5*(`$data_width`/4)-1:4*(`$data_width`/4)],
  				   mult_res_v4[3*(`$data_width`/4)-1:2*(`$data_width`/4)], 
 				   mult_res_v4[(`$data_width`/4)-1:0]};
-        res_p_w = 1'b0;
-		ovfl = 1'b0;
+        res_p_w = 4'b0;
+		ovfl = 4'b0;
     end
 	PE_MUL1_VEC4_OP: begin
         res_w   = {mult_res_v4[8*(`$data_width`/4)-1:7*(`$data_width`/4)], 
@@ -746,23 +770,23 @@ always_comb begin : proc_alu
  				   mult_res_v4[4*(`$data_width`/4)-1:3*(`$data_width`/4)], 
 				   mult_res_v4[2*(`$data_width`/4)-1:(`$data_width`/4)]};
         res_p_w = 1'b0;
-		ovfl = 1'b0;
+		ovfl = 4'b0;
 	end
 	PE_MUL0_VEC2_OP: begin
         res_w   = {mult_res_v2[3*(`$data_width`/2)-1:2*(`$data_width`/2)], 
  				   mult_res_v2[(`$data_width`/2)-1:0]};
-        res_p_w = 1'b0;
-		ovfl = 1'b0;
+        res_p_w = 4'b0;
+		ovfl = 4'b0;
 	end
 	PE_MUL1_VEC2_OP: begin
         res_w   = {mult_res_v2[4*(`$data_width`/2)-1:3*(`$data_width`/2)], 
  				   mult_res_v2[2*(`$data_width`/2)-1:(`$data_width`/2)]};
-        res_p_w = 1'b0;
-		ovfl = 1'b0;
+        res_p_w = 4'b0;
+		ovfl = 4'b0;
 	end
     default: begin
         res_w   = op_a;
-        res_p_w = op_d_p;
+        res_p_w = {{op_d_p},{`$max_num_seg-1`{1'b0}}};
       end
   endcase
 end

@@ -185,21 +185,34 @@ def run_test(tester, functional_model, strategy, signed, lut_code,
 
     _iter = get_iter(strategy, signed)
     tester.configure(lut_code, cfg_d, debug_trig, debug_trig_p)
+    print("---FLAG---")
+    print(functional_model.flag_sel)
+    print("---")
     for data0, data1, bit0, bit1, bit2 in _iter:
         tester.poke(pe_core.data0, data0)
         tester.poke(pe_core.data1, data1)
         tester.poke(pe_core.bit0, bit0)
         tester.poke(pe_core.bit1, bit1)
         tester.poke(pe_core.bit2, bit2)
-        print(functional_model.flag_sel)
+        print(data0)
+        print(data1)
+        print(bit0)
+        print(bit1)
+        print(bit2)
+        print("---")
         if not with_clk:
             tester.eval()
             res, res_p, irq = functional_model(data0=data0, data1=data1,
                                                bit0=bit0, bit1=bit1, bit2=bit2)
+            # print("-res-")
+            # print(res)
+            # print("-res_p-")
             tester.expect(pe_core.res, res)
             tester.expect(pe_core.res_p, res_p)
             tester.expect(pe_core.irq, irq)
             tester.eval()
+            # print(res_p)
+            # print("---")
         else:
             for i in range(2):
                 tester.step()
@@ -208,9 +221,11 @@ def run_test(tester, functional_model, strategy, signed, lut_code,
                                                    bit2=bit2, clk=i, clk_en=1)
                 tester.expect(pe_core.res, res)
                 tester.expect(pe_core.res_p, res_p)
+                # print(res_p)
+                # print("---")
                 tester.expect(pe_core.irq, irq)
-
     tester.run(target='verilator')
+
 
 
 @pytest.mark.parametrize('random_flag', [randint(0, 15)])
