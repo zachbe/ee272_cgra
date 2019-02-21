@@ -6,7 +6,7 @@ __pycache__
 *.json
 genesis.log
 genesis_clean.cmd
-genesis_verif/
+# genesis_verif/
 genesis_vlog.synth.vf
 genesis_vlog.verif.vf
 genesis_vlog.vf
@@ -28,4 +28,4 @@ CBcb
 CBsimple_cb
 SBsb
 
-!test_pe_core/build/*
+# !test_pe_core/build/*

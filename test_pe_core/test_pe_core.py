@@ -83,8 +83,8 @@ def tester(scope="module"):
 
 def teardown_module():
     # Cleanup PE genesis2 collateral
-    for item in glob.glob('genesis_*'):
-        os.system(f"rm -r {item}")
+    # for item in glob.glob('genesis_*'):
+    #     os.system(f"rm -r {item}")
     os.system(f"rm PEtest_pe")
     os.system(f"rm PECOMPtest_pe_comp_unq1")
     os.system(f"rm REGMODEtest_opt_reg")

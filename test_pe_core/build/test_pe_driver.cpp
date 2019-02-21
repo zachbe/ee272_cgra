@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
   tracer->dump(main_time);
   #endif
   top->clk ^= 1;
-  top->cfg_d = 705298432;
+  top->cfg_d = 705339460;
   top->cfg_a = 255;
   top->eval();
   main_time++;
@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
   tracer->dump(main_time);
   #endif
   top->clk ^= 1;
-  top->cfg_d = 4821;
+  top->cfg_d = 26650;
   top->cfg_a = 224;
   top->eval();
   main_time++;
@@ -208,8 +208,26 @@ int main(int argc, char **argv) {
   tracer->dump(main_time);
   #endif
   top->clk ^= 1;
-  top->data0 = 4068;
-  top->data1 = 50615;
+  top->data0 = 25156;
+  top->data1 = 11074;
+  top->bit0 = 0;
+  top->bit1 = 1;
+  top->bit2 = 0;
+  top->eval();
+  main_time++;
+  #if VM_TRACE
+  tracer->dump(main_time);
+  #endif
+  my_assert(top->res, 25156, 43, "res");
+  my_assert(top->res_p, 8, 44, "res_p");
+  my_assert(top->irq, 0, 45, "irq");
+  top->eval();
+  main_time++;
+  #if VM_TRACE
+  tracer->dump(main_time);
+  #endif
+  top->data0 = 42592;
+  top->data1 = 15012;
   top->bit0 = 1;
   top->bit1 = 1;
   top->bit2 = 1;
@@ -218,25 +236,7 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  my_assert(top->res, 54684, 43, "res");
-  my_assert(top->res_p, 0, 44, "res_p");
-  my_assert(top->irq, 0, 45, "irq");
-  top->eval();
-  main_time++;
-  #if VM_TRACE
-  tracer->dump(main_time);
-  #endif
-  top->data0 = 34338;
-  top->data1 = 19371;
-  top->bit0 = 1;
-  top->bit1 = 0;
-  top->bit2 = 0;
-  top->eval();
-  main_time++;
-  #if VM_TRACE
-  tracer->dump(main_time);
-  #endif
-  my_assert(top->res, 53710, 53, "res");
+  my_assert(top->res, 15012, 53, "res");
   my_assert(top->res_p, 0, 54, "res_p");
   my_assert(top->irq, 0, 55, "irq");
   top->eval();
@@ -244,17 +244,17 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  top->data0 = 6412;
-  top->data1 = 21865;
+  top->data0 = 49493;
+  top->data1 = 13144;
   top->bit0 = 0;
   top->bit1 = 0;
-  top->bit2 = 0;
+  top->bit2 = 1;
   top->eval();
   main_time++;
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  my_assert(top->res, 28277, 63, "res");
+  my_assert(top->res, 13144, 63, "res");
   my_assert(top->res_p, 0, 64, "res_p");
   my_assert(top->irq, 0, 65, "irq");
   top->eval();
@@ -262,17 +262,17 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  top->data0 = 29810;
-  top->data1 = 45527;
-  top->bit0 = 0;
+  top->data0 = 33275;
+  top->data1 = 44051;
+  top->bit0 = 1;
   top->bit1 = 1;
-  top->bit2 = 1;
+  top->bit2 = 0;
   top->eval();
   main_time++;
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  my_assert(top->res, 9801, 73, "res");
+  my_assert(top->res, 44051, 73, "res");
   my_assert(top->res_p, 0, 74, "res_p");
   my_assert(top->irq, 0, 75, "irq");
   top->eval();
@@ -280,17 +280,17 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  top->data0 = 11565;
-  top->data1 = 20407;
-  top->bit0 = 1;
-  top->bit1 = 0;
+  top->data0 = 26024;
+  top->data1 = 24720;
+  top->bit0 = 0;
+  top->bit1 = 1;
   top->bit2 = 1;
   top->eval();
   main_time++;
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  my_assert(top->res, 31973, 83, "res");
+  my_assert(top->res, 26024, 83, "res");
   my_assert(top->res_p, 0, 84, "res_p");
   my_assert(top->irq, 0, 85, "irq");
   top->eval();
@@ -298,9 +298,9 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  top->data0 = 34594;
-  top->data1 = 46149;
-  top->bit0 = 1;
+  top->data0 = 27217;
+  top->data1 = 48813;
+  top->bit0 = 0;
   top->bit1 = 0;
   top->bit2 = 1;
   top->eval();
@@ -308,7 +308,7 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  my_assert(top->res, 15208, 93, "res");
+  my_assert(top->res, 27217, 93, "res");
   my_assert(top->res_p, 0, 94, "res_p");
   my_assert(top->irq, 0, 95, "irq");
   top->eval();
@@ -316,8 +316,8 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  top->data0 = 9568;
-  top->data1 = 57601;
+  top->data0 = 49316;
+  top->data1 = 18857;
   top->bit0 = 1;
   top->bit1 = 0;
   top->bit2 = 0;
@@ -326,25 +326,25 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  my_assert(top->res, 1634, 103, "res");
-  my_assert(top->res_p, 8, 104, "res_p");
+  my_assert(top->res, 18857, 103, "res");
+  my_assert(top->res_p, 0, 104, "res_p");
   my_assert(top->irq, 0, 105, "irq");
   top->eval();
   main_time++;
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  top->data0 = 48267;
-  top->data1 = 43583;
-  top->bit0 = 1;
-  top->bit1 = 1;
-  top->bit2 = 0;
+  top->data0 = 23000;
+  top->data1 = 8029;
+  top->bit0 = 0;
+  top->bit1 = 0;
+  top->bit2 = 1;
   top->eval();
   main_time++;
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  my_assert(top->res, 26315, 113, "res");
+  my_assert(top->res, 23000, 113, "res");
   my_assert(top->res_p, 0, 114, "res_p");
   my_assert(top->irq, 0, 115, "irq");
   top->eval();
@@ -352,17 +352,17 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  top->data0 = 42290;
-  top->data1 = 18953;
-  top->bit0 = 0;
-  top->bit1 = 0;
-  top->bit2 = 1;
+  top->data0 = 57196;
+  top->data1 = 18056;
+  top->bit0 = 1;
+  top->bit1 = 1;
+  top->bit2 = 0;
   top->eval();
   main_time++;
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  my_assert(top->res, 61243, 123, "res");
+  my_assert(top->res, 18056, 123, "res");
   my_assert(top->res_p, 0, 124, "res_p");
   my_assert(top->irq, 0, 125, "irq");
   top->eval();
@@ -370,44 +370,8 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  top->data0 = 58829;
-  top->data1 = 60585;
-  top->bit0 = 1;
-  top->bit1 = 1;
-  top->bit2 = 0;
-  top->eval();
-  main_time++;
-  #if VM_TRACE
-  tracer->dump(main_time);
-  #endif
-  my_assert(top->res, 53879, 133, "res");
-  my_assert(top->res_p, 0, 134, "res_p");
-  my_assert(top->irq, 0, 135, "irq");
-  top->eval();
-  main_time++;
-  #if VM_TRACE
-  tracer->dump(main_time);
-  #endif
-  top->data0 = 46198;
-  top->data1 = 18805;
-  top->bit0 = 0;
-  top->bit1 = 1;
-  top->bit2 = 1;
-  top->eval();
-  main_time++;
-  #if VM_TRACE
-  tracer->dump(main_time);
-  #endif
-  my_assert(top->res, 65003, 143, "res");
-  my_assert(top->res_p, 0, 144, "res_p");
-  my_assert(top->irq, 0, 145, "irq");
-  top->eval();
-  main_time++;
-  #if VM_TRACE
-  tracer->dump(main_time);
-  #endif
-  top->data0 = 50355;
-  top->data1 = 2320;
+  top->data0 = 20780;
+  top->data1 = 23462;
   top->bit0 = 0;
   top->bit1 = 0;
   top->bit2 = 0;
@@ -416,7 +380,43 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  my_assert(top->res, 52675, 153, "res");
+  my_assert(top->res, 23462, 133, "res");
+  my_assert(top->res_p, 0, 134, "res_p");
+  my_assert(top->irq, 0, 135, "irq");
+  top->eval();
+  main_time++;
+  #if VM_TRACE
+  tracer->dump(main_time);
+  #endif
+  top->data0 = 33126;
+  top->data1 = 27130;
+  top->bit0 = 0;
+  top->bit1 = 1;
+  top->bit2 = 0;
+  top->eval();
+  main_time++;
+  #if VM_TRACE
+  tracer->dump(main_time);
+  #endif
+  my_assert(top->res, 27130, 143, "res");
+  my_assert(top->res_p, 0, 144, "res_p");
+  my_assert(top->irq, 0, 145, "irq");
+  top->eval();
+  main_time++;
+  #if VM_TRACE
+  tracer->dump(main_time);
+  #endif
+  top->data0 = 56517;
+  top->data1 = 20021;
+  top->bit0 = 0;
+  top->bit1 = 1;
+  top->bit2 = 0;
+  top->eval();
+  main_time++;
+  #if VM_TRACE
+  tracer->dump(main_time);
+  #endif
+  my_assert(top->res, 20021, 153, "res");
   my_assert(top->res_p, 0, 154, "res_p");
   my_assert(top->irq, 0, 155, "irq");
   top->eval();
@@ -424,17 +424,17 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  top->data0 = 60206;
-  top->data1 = 27769;
+  top->data0 = 52536;
+  top->data1 = 1225;
   top->bit0 = 0;
-  top->bit1 = 1;
+  top->bit1 = 0;
   top->bit2 = 1;
   top->eval();
   main_time++;
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  my_assert(top->res, 22439, 163, "res");
+  my_assert(top->res, 1225, 163, "res");
   my_assert(top->res_p, 0, 164, "res_p");
   my_assert(top->irq, 0, 165, "irq");
   top->eval();
@@ -442,8 +442,44 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  top->data0 = 56314;
-  top->data1 = 10658;
+  top->data0 = 1716;
+  top->data1 = 50543;
+  top->bit0 = 1;
+  top->bit1 = 1;
+  top->bit2 = 1;
+  top->eval();
+  main_time++;
+  #if VM_TRACE
+  tracer->dump(main_time);
+  #endif
+  my_assert(top->res, 1716, 173, "res");
+  my_assert(top->res_p, 0, 174, "res_p");
+  my_assert(top->irq, 0, 175, "irq");
+  top->eval();
+  main_time++;
+  #if VM_TRACE
+  tracer->dump(main_time);
+  #endif
+  top->data0 = 32752;
+  top->data1 = 1115;
+  top->bit0 = 1;
+  top->bit1 = 0;
+  top->bit2 = 1;
+  top->eval();
+  main_time++;
+  #if VM_TRACE
+  tracer->dump(main_time);
+  #endif
+  my_assert(top->res, 32752, 183, "res");
+  my_assert(top->res_p, 0, 184, "res_p");
+  my_assert(top->irq, 0, 185, "irq");
+  top->eval();
+  main_time++;
+  #if VM_TRACE
+  tracer->dump(main_time);
+  #endif
+  top->data0 = 42277;
+  top->data1 = 41877;
   top->bit0 = 1;
   top->bit1 = 1;
   top->bit2 = 0;
@@ -452,43 +488,7 @@ int main(int argc, char **argv) {
   #if VM_TRACE
   tracer->dump(main_time);
   #endif
-  my_assert(top->res, 1437, 173, "res");
-  my_assert(top->res_p, 8, 174, "res_p");
-  my_assert(top->irq, 0, 175, "irq");
-  top->eval();
-  main_time++;
-  #if VM_TRACE
-  tracer->dump(main_time);
-  #endif
-  top->data0 = 30964;
-  top->data1 = 58898;
-  top->bit0 = 0;
-  top->bit1 = 1;
-  top->bit2 = 0;
-  top->eval();
-  main_time++;
-  #if VM_TRACE
-  tracer->dump(main_time);
-  #endif
-  my_assert(top->res, 24326, 183, "res");
-  my_assert(top->res_p, 2, 184, "res_p");
-  my_assert(top->irq, 0, 185, "irq");
-  top->eval();
-  main_time++;
-  #if VM_TRACE
-  tracer->dump(main_time);
-  #endif
-  top->data0 = 17994;
-  top->data1 = 14511;
-  top->bit0 = 0;
-  top->bit1 = 1;
-  top->bit2 = 0;
-  top->eval();
-  main_time++;
-  #if VM_TRACE
-  tracer->dump(main_time);
-  #endif
-  my_assert(top->res, 32505, 193, "res");
+  my_assert(top->res, 42277, 193, "res");
   my_assert(top->res_p, 0, 194, "res_p");
   my_assert(top->irq, 0, 195, "irq");
   top->eval();
