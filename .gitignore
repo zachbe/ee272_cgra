@@ -27,3 +27,5 @@ parsetab.py
 CBcb
 CBsimple_cb
 SBsb
+
+!test_pe_core/build/*
