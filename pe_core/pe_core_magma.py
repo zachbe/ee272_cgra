@@ -22,6 +22,7 @@ class PECore(Core):
 
         TData = magma.Bits(16)
         TBit = magma.Bits(1)
+        TFlag = magma.Bits(4)
 
         self.add_ports(
             data0=magma.In(TData),
@@ -30,7 +31,7 @@ class PECore(Core):
             bit1=magma.In(TBit),
             bit2=magma.In(TBit),
             res=magma.Out(TData),
-            res_p=magma.Out(TBit),
+            res_p=magma.Out(TFlag),
             clk=magma.In(magma.Clock),
             reset=magma.In(magma.AsyncReset),
             config=magma.In(ConfigurationType(8, 32)),
@@ -45,7 +46,7 @@ class PECore(Core):
         self.wire(self.ports.bit1[0], self.underlying.ports.bit1)
         self.wire(self.ports.bit2[0], self.underlying.ports.bit2)
         self.wire(self.ports.res, self.underlying.ports.res)
-        self.wire(self.ports.res_p[0], self.underlying.ports.res_p)
+        self.wire(self.ports.res_p, self.underlying.ports.res_p)
         self.wire(self.ports.config.config_addr, self.underlying.ports.cfg_a)
         self.wire(self.ports.config.config_data,
                   self.underlying.ports.cfg_d)

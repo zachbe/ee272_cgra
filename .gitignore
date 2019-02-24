@@ -28,4 +28,5 @@ CBcb
 CBsimple_cb
 SBsb
 
+!pe_tile.v
 # !test_pe_core/build/*

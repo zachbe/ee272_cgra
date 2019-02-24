@@ -113,10 +113,10 @@ class SB(Configurable):
             self.wire(self.registers[0].ports.O, self.ports.read_config_data)
 
     def __organize_inputs(self, inputs):
-        ret = {1: [], 16: []}
+        ret = {1: [], 4: [], 16: []}
         for input_ in inputs:
             width = get_width(input_.type())
-            assert width == 1 or width == 16
+            assert width == 1 or width == 16 or width == 4
             ret[width].append(input_)
         return ret
 
