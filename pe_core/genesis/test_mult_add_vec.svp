@@ -1,0 +1,207 @@
+//File: test_mult_add_vec.svp
+//This module performs segmented multiplication and accumulation.
+//Author: Vinh Nguyen
+//Attributions: Original multiply adder code from garnet (https://github.com/StanfordAHA/garnet/).
+//Partial product multiplier from Synopsys DesignWare Libraries (DW02_multp.v).
+//Segmented multiplication design published in Tan, et. al (https://ieeexplore.ieee.org/document/1207655?arnumber=1207655)
+//Issues/TODO: Much of the code isn't parameterized based on MaxVecSz, because doing so would require variable bitselect ranges, mux cases, and signal widths that we can't do in SV. Requires substantial Genesis refactor to correctly parameterize.
+//; my $use_mad = parameter(Name=>'use_mad', Val=>1, List=>[1, 0],
+//;                               Doc=>"Use MAD or simple MULT");
+// New parameter added. Needs to be propagated to the relevant files to compile in Genesis (?)
+// This would eventually replace MaxVecSz and VecWidth. Currently doesnt do anything.
+//; my $max_vec_sz = parameter(Name=>'max_vec_sz', Val=>4, List=>[4, 2, 1],
+//;                               Doc=>"Maximum number of elements allowed in segmented mult");
+module  `mname` #(
+  parameter DataWidth = 16,
+  parameter MaxVecSz = 4,
+  parameter VecWidth = 4 //must be DataWidth/MaxVecSz
+) (
+  input                  is_signed,
+  input  [DataWidth-1:0] a,
+  input  [DataWidth-1:0] b,
+
+//; if ($use_mad) {
+  input  [DataWidth-1:0] c,
+//;}
+  input  [1:0]           vec_mode, /*one-hot*/
+  output logic [2*DataWidth-1:0] res,
+  output logic  [MaxVecSz-1:0]   c_out
+);
+
+//DesignWare Code-----------------------------------------------------------------------------
+
+localparam npp  = ((DataWidth/2) + 2);
+localparam xdim = (DataWidth+DataWidth+1);
+localparam asxt = (DataWidth+1);
+localparam outStride = (DataWidth*2/MaxVecSz);
+localparam vecStride= (DataWidth/MaxVecSz);
+//-----------------------------------------------------------------------------
+reg   [xdim-1 : 0]  pp_array [0 : npp-1];
+reg   [xdim-1 : 0]	tmp_OUT0, tmp_OUT1;
+reg   [xdim-1:0] int_sum,out_sum;
+reg   [MaxVecSz-1:0] carries_out;
+wire  [DataWidth+2 : 0]	b_padded;
+wire  [xdim-1 : 0]	a_padded;
+wire  [xdim-DataWidth-1 : 0]	temp_padded;
+wire  			a_sign, b_sign, out_sign;
+wire  signed [DataWidth : 0]      a_signed;
+wire  signed [DataWidth : 0]      b_signed;
+//-----------------------------------------------------------------------------
+  assign a_sign = is_signed & a[DataWidth-1];
+  assign b_sign = is_signed & b[DataWidth-1];
+  assign b_padded = {b_sign, b_sign, b, 1'b0};
+  assign temp_padded = {asxt{a_sign}};
+  assign a_padded = {temp_padded, a};
+  //; if($use_mad) {
+  always @ (a_padded or b_padded or vec_mode or c)//c and vec_mode added.
+  //; else {
+  always @ (a_padded or b_padded or vec_mode)//vec_mode added.
+  //; 
+  begin : mk_pp_array
+    reg [xdim-1 : 0] temp_pp_array [0 : npp-1];
+    reg [xdim-1 : 0] next_pp_array [0 : npp-1];
+    reg [xdim+3 : 0] temp_pp;
+    reg [xdim-1 : 0] new_pp;
+    reg [xdim-1 : 0] tmp_pp_carry, temp_sum;
+    reg [DataWidth+2 : 0] temp_b_padded;
+    reg [2 : 0] temp_bitgroup;
+    reg [xdim-1:0]  pp_mask,mult_mask,vec_multiplicand; 
+    reg [MaxVecSz-1:0] carries_in,c_out_full;
+	integer vec_ind,maski,vec_stride,bit_pair, pp_count, i,velem,ppi,ppvi;
+//; if($use_mad) {
+    reg [2*DataWidth-1:0] c_addend;
+    c_addend = vec_mode == 2'b10 ? {{vecStride{c[15]&is_signed}},c[15:12],{vecStride{c[11]&is_signed}},c[11:8],{vecStride{c[7]&is_signed}},c[7:4],{vecStride{c[3]&is_signed}},c[3:0]} : 
+    vec_mode == 2'b01 ? {{2*vecStride{c[15]&is_signed}},c[15:8],{2*vecStride{c[7]&is_signed}},c[7:0]} : {{DataWidth{c[15]&is_signed}},c};
+    temp_pp_array[0] = {xdim{1'b0}};
+//;}
+//This for loop should implement Tan et. al, Fig 7's diagram.
+    for (bit_pair=0 ; bit_pair < npp-2 ; bit_pair = bit_pair+1)
+    begin
+      vec_ind = bit_pair >> (DataWidth/MaxVecSz >> vec_mode);
+      //$display("vec ind: %d, ", vec_ind);
+      vec_stride  = (DataWidth >> vec_mode);
+      //$display("stride  :%d, ", vec_stride);
+      pp_mask[xdim-1:DataWidth] = 0;
+      mult_mask[xdim-1:DataWidth]= 0;
+      for(maski = 0; maski < MaxVecSz; maski = maski +1) begin
+        mult_mask[maski*vecStride+:vecStride] = vec_ind == (maski >> (MaxVecSz >> vec_mode)-1) ? -1 : 0; 
+        pp_mask[maski*vecStride*2+:vecStride*2] = vec_ind == (maski >> (MaxVecSz >> vec_mode)-1) ? -1 : 0; 
+      end
+      
+      //$display("pp_mask:      %b", pp_mask);
+      //$display("mult_mask:    %b", mult_mask);
+      vec_multiplicand = a_padded & mult_mask;
+      vec_multiplicand[(vec_ind+1)*vec_stride+:DataWidth] = is_signed & vec_multiplicand[((vec_ind+1)*vec_stride)-1]?-1:0;
+      //$display("multiplicand: %b", vec_multiplicand);
+      temp_b_padded = (b_padded >> (bit_pair*2));
+      temp_bitgroup[2:1] = temp_b_padded[2:1];
+//temp_bitgroup is the input to the Booth recoder. For vector instructions, we have to modify the inputs so that:
+//-On the start of a new multiplier vector element, the last bit of temp_bitgroup (which is a bit from the last vector element) must be zeroed out. vecsz = 1: no change. vecsz = 2: every DataWidth/4 iterations vecsz = 4:every DataWidth/8 iterations.
+	  case (vec_mode)
+      	2'b10:
+          temp_bitgroup[0] = temp_b_padded[0] & ~(bit_pair[0] == 1'd0);//Not parametrized: would require refactoring with more perl to parameterize w.r.t. vector size. Assumed DataWidth = 16
+        2'b01:
+          temp_bitgroup[0] = temp_b_padded[0] & ~(bit_pair[1:0] == 2'd0);
+		default:
+          temp_bitgroup[0] = temp_b_padded[0];
+	  endcase
+	//$display("bitpair %d bitgroup %3b",bit_pair,temp_bitgroup);
+//-For each vector element, {S,S,T} where T is the top bit of the multiplier vector element S = sign(T) needs to be an additional input. I'm thinking of implementing this as a separate loop that fills an auxiliary array of regs.
+      case (temp_bitgroup)
+        3'b000, 3'b111 :
+          temp_pp = {xdim{1'b0}};
+        3'b001, 3'b010 :
+          temp_pp = (vec_multiplicand);
+        3'b011 :
+          temp_pp = (vec_multiplicand) << 1;
+        3'b100 :
+          temp_pp = (~((vec_multiplicand) << 1) + 1);
+        3'b101, 3'b110 :
+          temp_pp =  ~(vec_multiplicand) + 1;
+        default : temp_pp = {xdim{1'b0}};
+      endcase
+
+      temp_pp = (temp_pp) << (2 * bit_pair);
+      new_pp = temp_pp[xdim-1 : 0] & pp_mask;
+      //$display("pp: %b, ",new_pp);
+      temp_pp_array[bit_pair+1] = new_pp;
+    end
+    //this line (also known as the most hideous line of Verilog ever) produces the last partial product, which is only nonzero for unsigned mult.
+    //For an n-vector multiplicand V and n-vector multiplier B both with elements length k, the final partial product is {f(V[n-1]),k'd0,f(V[n-2]),k'd0,...f(V[0]),k'd0}, where f(V[i]) = 0 if B[i] is positive, and V[i] otherwise. See Tan, et al fig 6.
+    temp_pp_array[npp-1] = is_signed ? 0 : 
+    (vec_mode == 2'b00) ? b[DataWidth-1] ? a_padded << DataWidth:0 : 
+    vec_mode == 2'b01 ? {b[DataWidth-1] ? a_padded[DataWidth-1-:DataWidth/2]:{2*VecWidth{1'b0}},	 	{2*VecWidth{1'b0}}, b[DataWidth/2-1] ? a_padded[DataWidth/2-1-:DataWidth/2]:{2*VecWidth{1'b0}} ,{2*VecWidth{1'b0}}} : 
+    {b[DataWidth-1] ? a_padded[DataWidth-1-:VecWidth] :{VecWidth{1'b0}},{VecWidth{1'b0}},b[DataWidth-1-VecWidth] ? a_padded[DataWidth-1-VecWidth-:VecWidth]: {VecWidth{1'b0}},{VecWidth{1'b0}},b[DataWidth-1-2*(VecWidth)] ? a_padded[DataWidth-1-2*(VecWidth)-:VecWidth]:{VecWidth{1'b0}}, {VecWidth{1'b0}},b[(VecWidth)-1] ? a_padded[(VecWidth)-1-:VecWidth]: {VecWidth{1'b0}}, {VecWidth{1'b0}}};
+    //$display("final pp: %b ",temp_pp_array[npp-1]);
+    //add partial products together, ignoring carry outs if across vector boundaries. Same as many vector adds in series
+//DesignWare Code for adding partial products. Probably more efficient than anything I can come up with:
+    pp_count = npp;
+    while (pp_count > 2)
+    begin
+      for (i=0 ; i < (pp_count/3) ; i = i+1)
+      begin
+        next_pp_array[i*2] = temp_pp_array[i*3] ^ temp_pp_array[i*3+1] ^ temp_pp_array[i*3+2];
+
+        tmp_pp_carry = (temp_pp_array[i*3] & temp_pp_array[i*3+1]) |
+                       (temp_pp_array[i*3+1] & temp_pp_array[i*3+2]) |
+                       (temp_pp_array[i*3] & temp_pp_array[i*3+2]);
+		//Modification: Zero out carries at the start of new vector elements.
+        tmp_pp_carry[2*VecWidth-1] = tmp_pp_carry[2*VecWidth-1] & ~(vec_mode == 2'b10);
+        tmp_pp_carry[4*VecWidth-1] = tmp_pp_carry[4*VecWidth-1] & ~((vec_mode == 2'b10) | (vec_mode == 2'b01));
+        tmp_pp_carry[6*VecWidth-1] = tmp_pp_carry[6*VecWidth-1] & ~(vec_mode == 2'b10);
+        /*for( ppvi = 1; ppvi < MaxVecSz; ppvi = ppvi + 1) begin
+          tmp_pp_carry[ppvi*VecWidth] = tmp_pp_carry[ppvi*VecWidth] & ((ppvi >> (MaxVecSz >> vec_mode))==0);//buggy
+        end//End Modification*/
+        next_pp_array[i*2+1] = tmp_pp_carry << 1;
+      end
+
+      if ((pp_count % 3) > 0)
+      begin
+        for (i=0 ; i < (pp_count % 3) ; i = i + 1)
+        next_pp_array[2 * (pp_count/3) + i] = temp_pp_array[3 * (pp_count/3) + i];
+      end
+
+      for (i=0 ; i < npp ; i = i + 1) 
+        temp_pp_array[i] = next_pp_array[i];
+
+      pp_count = pp_count - (pp_count/3);
+    end
+        tmp_OUT0 = temp_pp_array[0];
+
+    if (pp_count > 1)
+      tmp_OUT1 = temp_pp_array[1];
+    else
+      tmp_OUT1 = {xdim{1'b0}};
+//end DesignWare Code
+    //add with accumulator if MAC is true, recording final carry outs
+    carries_in[0] = 1'b0;
+    //$display("outs %h %h",tmp_OUT0, tmp_OUT1);
+    temp_sum = 0;
+    for(velem=0; velem<MaxVecSz; velem=velem + 1) begin
+      {c_out_full[velem], temp_sum[(velem+1)*2*vecStride -1 -:2*vecStride]} = 
+      tmp_OUT1[(velem+1)*2*vecStride-1 -:2*vecStride] +  tmp_OUT0[(velem+1)*2*vecStride-1 -:2*vecStride] + (vec_mode == 2'b10 ? 1'b0 : vec_mode == 2'b01 ? (velem[0] & carries_in[velem]) : carries_in[velem]);
+      if(velem != MaxVecSz) begin
+         carries_in[velem + 1] =  c_out_full[velem];
+      end
+      //$display ("cin %b cout %b velem %d c %b", carries_in, c_out_full,velem, (vec_mode == 2'b10 ? 1'b0 : vec_mode == 2'b01 ? (velem[0] & carries_in[velem]) : carries_in[velem]));
+    end
+    int_sum = temp_sum;
+//; if ($use_mad) {
+    carries_in = 0;
+    c_out_full = 0;
+    for(velem=0; velem<MaxVecSz; velem=velem + 1) begin
+ 
+      {c_out_full[velem], int_sum[(velem+1)*2*vecStride -1 -:2*vecStride]} = int_sum[(velem+1)*2*vecStride -1 -:2*vecStride] + c_addend[(velem+1)*2*vecStride -1 -:2*vecStride] + (vec_mode == 2'b10 ? 1'b0 : vec_mode == 2'b01 ? (velem[0] & carries_in[velem]) : carries_in[velem]);    
+      if(velem != MaxVecSz) begin
+         carries_in[velem + 1] =  c_out_full[velem];
+      end
+      //$display ("temp sum %h cin %b cout %b velem %d c %h",temp_sum, carries_in, c_out_full,velem, c_addend); 
+    end
+//;}
+    carries_out = c_out_full;
+    out_sum = int_sum;
+  end
+  
+    assign res = out_sum;
+	assign c_out = carries_out;
+endmodule
