@@ -230,8 +230,6 @@ localparam PE_MUL1_VEC2_OP=6'h2c;
 logic [`2*$data_width-1`:0] mult_res;
 //;}
 
-logic [`2*$data_width-1`:0] mult_res_v4;
-logic [`2*$data_width-1`:0] mult_res_v2;
 
 logic [7:0]        nc_op_code;
 assign             nc_op_code = op_code;
@@ -291,40 +289,6 @@ assign is_addsub_vec = (op_code[5:0] == PE_ADD_VEC_OP) || (op_code[5:0] == PE_SU
   assign carry_out = is_addsub_vec? add_c_out[0] : {{add_c_out[0][`$max_num_seg-1`]}, {`$max_num_seg-1`{1'b0}}};
 //;}
 
-genvar vec4_mul_gen;
-genvar vec2_mul_gen;
-generate
-  for(vec4_mul_gen=1;vec4_mul_gen<5;vec4_mul_gen=vec4_mul_gen+1) begin : GEN_VEC4_MUL
-//; my $multiplier_i = generate_base('test_mult_add', 'mult_add_v4',"use_mad"=>($mult_mode-1));
-  `$multiplier_i->mname()` #(.DataWidth(`$data_width`/4)) `$multiplier_i->iname()`
-    (
-      .a     (op_a[(`$data_width`/4)*(vec4_mul_gen)-1:(`$data_width`/4)*(vec4_mul_gen-1)]),
-      .b     (op_b[(`$data_width`/4)*(vec4_mul_gen)-1:(`$data_width`/4)*(vec4_mul_gen-1)]),
-//  .dual_mode(dual_mode),
-//;if($mult_mode > 1) {
-      .c     (op_c[(`$data_width`/4)*(vec4_mul_gen)-1:(`$data_width`/4)*(vec4_mul_gen-1)]),
-//;}    
-      .res   (mult_res_v4[(`$data_width`/2)*(vec4_mul_gen)-1:(`$data_width`/2)*(vec4_mul_gen-1)]),
-      .c_out (vec4_cout[vec4_mul_gen-1])
-    );
-  end
-endgenerate
-generate
-  for(vec2_mul_gen=1;vec2_mul_gen<3;vec2_mul_gen=vec2_mul_gen+1) begin : GEN_VEC2_MUL
-//; my $multiplier_i = generate_base('test_mult_add', 'mult_add_v2',"use_mad"=>($mult_mode-1));
-  `$multiplier_i->mname()` #(.DataWidth(`$data_width`/2)) `$multiplier_i->iname()`
-    (
-      .a     (op_a[(`$data_width`/2)*(vec2_mul_gen)-1:(`$data_width`/2)*(vec2_mul_gen-1)]),
-      .b     (op_b[(`$data_width`/2)*(vec2_mul_gen)-1:(`$data_width`/2)*(vec2_mul_gen-1)]),
-//  .dual_mode(dual_mode),
-//;if($mult_mode > 1) {
-	  .c     (op_c[(`$data_width`/2)*(vec2_mul_gen)-1:(`$data_width`/2)*(vec2_mul_gen-1)]),
-//;}      
-      .res   (mult_res_v2[(`$data_width`)*(vec2_mul_gen)-1:(`$data_width`)*(vec2_mul_gen-1)]),
-      .c_out (vec2_cout[vec2_mul_gen-1])
-    );
-  end
-endgenerate
 //; if($en_double & $is_msb) {
 assign cmpr_eq   =  ~|(op_a ^ op_b) & (~double_mode | cmpr_eq_in);
 //;} else {
@@ -351,7 +315,19 @@ assign cmpr_eq   =  ~|(op_a ^ op_b);
 
 //; if($mult_mode > 0) {
 logic                 mult_c_out;
-
+logic[1:0]	      op_vec_mode;
+always_comb begin
+  unique case (op_code[5:0])
+    PE_MULT_0_OP : op_vec_mode = 2'b00;
+    PE_MULT_1_OP : op_vec_mode = 2'b00;
+    PE_MULT_2_OP : op_vec_mode = 2'b00;
+    PE_MUL0_VEC4_OP : op_vec_mode = 2'b10;
+    PE_MUL1_VEC4_OP : op_vec_mode = 2'b10;
+    PE_MUL0_VEC2_OP : op_vec_mode = 2'b01;
+    PE_MUL1_VEC2_OP : op_vec_mode = 2'b01;
+    default: op_vec_mode = 2'b00;
+  endcase
+end
 //; my $mult = generate_base('test_mult_add', 'test_mult_add', "use_mad"=>($mult_mode-1));
 `$mult->mname()` #(.DataWidth(`$data_width`)) `$mult->iname()`
 (
@@ -359,6 +335,7 @@ logic                 mult_c_out;
 
   .a  (op_a),
   .b  (op_b),
+  .vec_mode(op_vec_mode),
 
 //  .dual_mode(dual_mode),
 //;if($mult_mode > 1) {
@@ -757,30 +734,30 @@ always_comb begin : proc_alu
                      } : res_p_w ;
     end
 	PE_MUL0_VEC4_OP: begin
-        res_w   = {mult_res_v4[7*(`$data_width`/4)-1:6*(`$data_width`/4)], 
- 				   mult_res_v4[5*(`$data_width`/4)-1:4*(`$data_width`/4)],
- 				   mult_res_v4[3*(`$data_width`/4)-1:2*(`$data_width`/4)], 
-				   mult_res_v4[(`$data_width`/4)-1:0]};
+        res_w   = {mult_res[7*(`$data_width`/4)-1:6*(`$data_width`/4)], 
+ 				   mult_res[5*(`$data_width`/4)-1:4*(`$data_width`/4)],
+ 				   mult_res[3*(`$data_width`/4)-1:2*(`$data_width`/4)], 
+				   mult_res[(`$data_width`/4)-1:0]};
         res_p_w = 4'b0;
 		ovfl = 4'b0;
     end
 	PE_MUL1_VEC4_OP: begin
-        res_w   = {mult_res_v4[8*(`$data_width`/4)-1:7*(`$data_width`/4)], 
- 				   mult_res_v4[6*(`$data_width`/4)-1:5*(`$data_width`/4)],
- 				   mult_res_v4[4*(`$data_width`/4)-1:3*(`$data_width`/4)], 
-				   mult_res_v4[2*(`$data_width`/4)-1:(`$data_width`/4)]};
+        res_w   = {mult_res[8*(`$data_width`/4)-1:7*(`$data_width`/4)], 
+ 				   mult_res[6*(`$data_width`/4)-1:5*(`$data_width`/4)],
+ 				   mult_res[4*(`$data_width`/4)-1:3*(`$data_width`/4)], 
+				   mult_res[2*(`$data_width`/4)-1:(`$data_width`/4)]};
         res_p_w = 1'b0;
 		ovfl = 4'b0;
 	end
 	PE_MUL0_VEC2_OP: begin
-        res_w   = {mult_res_v2[3*(`$data_width`/2)-1:2*(`$data_width`/2)], 
- 				   mult_res_v2[(`$data_width`/2)-1:0]};
+        res_w   = {mult_res[3*(`$data_width`/2)-1:2*(`$data_width`/2)], 
+ 				   mult_res[(`$data_width`/2)-1:0]};
         res_p_w = 4'b0;
 		ovfl = 4'b0;
 	end
 	PE_MUL1_VEC2_OP: begin
-        res_w   = {mult_res_v2[4*(`$data_width`/2)-1:3*(`$data_width`/2)], 
- 				   mult_res_v2[2*(`$data_width`/2)-1:(`$data_width`/2)]};
+        res_w   = {mult_res[4*(`$data_width`/2)-1:3*(`$data_width`/2)], 
+ 				   mult_res[2*(`$data_width`/2)-1:(`$data_width`/2)]};
         res_p_w = 4'b0;
 		ovfl = 4'b0;
 	end
@@ -789,8 +766,8 @@ always_comb begin : proc_alu
         res_p_w = {{op_d_p},{`$max_num_seg-1`{1'b0}}};
       end
   endcase
+$display("res %h a %h b %h vec_mode op %b is_signed %b", res, op_a, op_b, op_vec_mode, op_code[5:0],is_signed );
 end
-
 
 assign res   = res_w;
 assign res_p = res_p_w;
