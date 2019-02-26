@@ -83,8 +83,8 @@ def tester(scope="module"):
 
 def teardown_module():
     # Cleanup PE genesis2 collateral
-    # for item in glob.glob('genesis_*'):
-    #     os.system(f"rm -r {item}")
+    for item in glob.glob('genesis_*'):
+        os.system(f"rm -r {item}")
     os.system(f"rm PEtest_pe")
     os.system(f"rm PECOMPtest_pe_comp_unq1")
     os.system(f"rm REGMODEtest_opt_reg")
@@ -194,8 +194,8 @@ def run_test(tester, functional_model, strategy, signed, lut_code,
         tester.poke(pe_core.bit0, bit0)
         tester.poke(pe_core.bit1, bit1)
         tester.poke(pe_core.bit2, bit2)
-        print(data0)
-        print(data1)
+        print(data0);
+        print(data1);
         print(bit0)
         print(bit1)
         print(bit2)
@@ -204,9 +204,8 @@ def run_test(tester, functional_model, strategy, signed, lut_code,
             tester.eval()
             res, res_p, irq = functional_model(data0=data0, data1=data1,
                                                bit0=bit0, bit1=bit1, bit2=bit2)
-            # print("-res-")
-            # print(res)
             # print("-res_p-")
+            
             tester.expect(pe_core.res, res)
             tester.expect(pe_core.res_p, res_p)
             tester.expect(pe_core.irq, irq)
