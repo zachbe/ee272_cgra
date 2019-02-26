@@ -72,8 +72,10 @@ wire  signed [DataWidth : 0]      b_signed;
     reg [2*DataWidth-1:0] c_addend;
     c_addend = vec_mode == 2'b10 ? {{vecStride{c[15]&is_signed}},c[15:12],{vecStride{c[11]&is_signed}},c[11:8],{vecStride{c[7]&is_signed}},c[7:4],{vecStride{c[3]&is_signed}},c[3:0]} : 
     vec_mode == 2'b01 ? {{2*vecStride{c[15]&is_signed}},c[15:8],{2*vecStride{c[7]&is_signed}},c[7:0]} : {{DataWidth{c[15]&is_signed}},c};
-    temp_pp_array[0] = {xdim{1'b0}};
 //;}
+
+
+    temp_pp_array[0] = {xdim{1'b0}};
 //This for loop should implement Tan et. al, Fig 7's diagram.
     for (bit_pair=0 ; bit_pair < npp-2 ; bit_pair = bit_pair+1)
     begin

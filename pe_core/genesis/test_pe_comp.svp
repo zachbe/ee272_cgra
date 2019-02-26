@@ -491,7 +491,6 @@ always_comb begin : proc_alu
   ovfl = {`$max_num_seg`{1'b0}};
 //;}
 
-
   unique case (op_code[5:0])
 //; if($use_add > 0) {
     PE_ADD_OP: begin
@@ -766,7 +765,7 @@ always_comb begin : proc_alu
         res_p_w = {{op_d_p},{`$max_num_seg-1`{1'b0}}};
       end
   endcase
-$display("res %h a %h b %h vec_mode op %b is_signed %b", res, op_a, op_b, op_vec_mode, op_code[5:0],is_signed );
+$display("res %h a %h b %h vec_mode %b op %b is_signed %b", mult_res, op_a, op_b, op_vec_mode, op_code[5:0],is_signed );
 end
 
 assign res   = res_w;
