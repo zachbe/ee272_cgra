@@ -1,72 +1,41 @@
-module corebit_and (
-  input in0,
-  input in1,
+/* External Modules
+module test_pe (
+  input  bit0,
+  input  bit1,
+  input  bit2,
+  input [7:0] cfg_a,
+  input [31:0] cfg_d,
+  input  cfg_en,
+  input  clk,
+  input  clk_en,
+  input [15:0] data0,
+  input [15:0] data1,
+  output  irq,
+  output [31:0] read_data,
+  output [15:0] res,
+  output [3:0] res_p,
+  input  rst_n
+);
+
+endmodule  // test_pe
+
+*/
+module coreir_ult #(parameter width=1) (
+  input [width-1:0] in0,
+  input [width-1:0] in1,
   output out
 );
-  assign out = in0 & in1;
+  assign out = in0 < in1;
 
-endmodule  // corebit_and
+endmodule  // coreir_ult
 
-module corebit_const #(parameter value=1) (
-  output out
+module coreir_slice #(parameter hi=1, parameter lo=0, parameter width=1) (
+  input [width-1:0] in,
+  output [hi-lo-1:0] out
 );
-  assign out = value;
+  assign out = in[hi-1:lo];
 
-endmodule  // corebit_const
-
-module corebit_term (
-  input in
-);
-
-
-endmodule  // corebit_term
-
-// Generated from commonlib.muxn(N:1, width:1)
-module muxn_U39 (
-  input [0:0] in_data_0,
-  input [0:0] in_sel,
-  output [0:0] out
-);
-
-
-  wire  term_sel__in;
-  corebit_term term_sel(
-    .in(term_sel__in)
-  );
-
-  assign out[0:0] = in_data_0[0:0];
-
-  assign term_sel__in = in_sel[0];
-
-
-endmodule  // muxn_U39
-
-// Generated from commonlib.muxn(N:1, width:32)
-module muxn_U40 (
-  input [31:0] in_data_0,
-  input [0:0] in_sel,
-  output [31:0] out
-);
-
-
-  wire  term_sel__in;
-  corebit_term term_sel(
-    .in(term_sel__in)
-  );
-
-  assign out[31:0] = in_data_0[31:0];
-
-  assign term_sel__in = in_sel[0];
-
-
-endmodule  // muxn_U40
-
-module coreir_const #(parameter value=1, parameter width=1) (
-  output [width-1:0] out
-);
-  assign out = value;
-
-endmodule  // coreir_const
+endmodule  // coreir_slice
 
 module coreir_reg_arst #(parameter arst_posedge=1, parameter clk_posedge=1, parameter init=1, parameter width=1) (
   input clk,
@@ -87,14 +56,28 @@ module coreir_reg_arst #(parameter arst_posedge=1, parameter clk_posedge=1, para
 
 endmodule  // coreir_reg_arst
 
-module coreir_eq #(parameter width=1) (
-  input [width-1:0] in0,
-  input [width-1:0] in1,
-  output out
+module coreir_reg #(parameter clk_posedge=1, parameter init=1, parameter width=1) (
+  input clk,
+  input [width-1:0] in,
+  output [width-1:0] out
 );
-  assign out = in0 == in1;
+  reg [width-1:0] outReg=init;
+  wire real_clk;
+  assign real_clk = clk_posedge ? clk : ~clk;
+  always @(posedge real_clk) begin
+    outReg <= in;
+  end
+  assign out = outReg;
 
-endmodule  // coreir_eq
+endmodule  // coreir_reg
+
+module coreir_not #(parameter width=1) (
+  input [width-1:0] in,
+  output [width-1:0] out
+);
+  assign out = ~in;
+
+endmodule  // coreir_not
 
 module coreir_mux #(parameter width=1) (
   input [width-1:0] in0,
@@ -106,136 +89,47 @@ module coreir_mux #(parameter width=1) (
 
 endmodule  // coreir_mux
 
-// Generated from commonlib.muxn(N:2, width:16)
-module muxn_U5 (
-  input [15:0] in_data_0,
-  input [15:0] in_data_1,
-  input [0:0] in_sel,
-  output [15:0] out
+module coreir_eq #(parameter width=1) (
+  input [width-1:0] in0,
+  input [width-1:0] in1,
+  output out
+);
+  assign out = in0 == in1;
+
+endmodule  // coreir_eq
+
+module coreir_const #(parameter value=1, parameter width=1) (
+  output [width-1:0] out
+);
+  assign out = value;
+
+endmodule  // coreir_const
+
+module corebit_term (
+  input in
 );
 
 
-  // Instancing generated Module: coreir.mux(width:16)
-  wire [15:0] _join__in0;
-  wire [15:0] _join__in1;
-  wire [15:0] _join__out;
-  wire  _join__sel;
-  coreir_mux #(.width(16)) _join(
-    .in0(_join__in0),
-    .in1(_join__in1),
-    .out(_join__out),
-    .sel(_join__sel)
-  );
+endmodule  // corebit_term
 
-  assign _join__in0[15:0] = in_data_0[15:0];
-
-  assign _join__in1[15:0] = in_data_1[15:0];
-
-  assign out[15:0] = _join__out[15:0];
-
-  assign _join__sel = in_sel[0];
-
-
-endmodule  // muxn_U5
-
-// Generated from commonlib.muxn(N:2, width:32)
-module muxn_U7 (
-  input [31:0] in_data_0,
-  input [31:0] in_data_1,
-  input [0:0] in_sel,
-  output [31:0] out
+module corebit_const #(parameter value=1) (
+  output out
 );
+  assign out = value;
 
+endmodule  // corebit_const
 
-  // Instancing generated Module: coreir.mux(width:32)
-  wire [31:0] _join__in0;
-  wire [31:0] _join__in1;
-  wire [31:0] _join__out;
-  wire  _join__sel;
-  coreir_mux #(.width(32)) _join(
-    .in0(_join__in0),
-    .in1(_join__in1),
-    .out(_join__out),
-    .sel(_join__sel)
-  );
-
-  assign _join__in0[31:0] = in_data_0[31:0];
-
-  assign _join__in1[31:0] = in_data_1[31:0];
-
-  assign out[31:0] = _join__out[31:0];
-
-  assign _join__sel = in_sel[0];
-
-
-endmodule  // muxn_U7
-
-// Generated from commonlib.muxn(N:2, width:1)
-module muxn_U4 (
-  input [0:0] in_data_0,
-  input [0:0] in_data_1,
-  input [0:0] in_sel,
-  output [0:0] out
+module corebit_and (
+  input in0,
+  input in1,
+  output out
 );
+  assign out = in0 & in1;
 
-
-  // Instancing generated Module: coreir.mux(width:1)
-  wire [0:0] _join__in0;
-  wire [0:0] _join__in1;
-  wire [0:0] _join__out;
-  wire  _join__sel;
-  coreir_mux #(.width(1)) _join(
-    .in0(_join__in0),
-    .in1(_join__in1),
-    .out(_join__out),
-    .sel(_join__sel)
-  );
-
-  assign _join__in0[0:0] = in_data_0[0:0];
-
-  assign _join__in1[0:0] = in_data_1[0:0];
-
-  assign out[0:0] = _join__out[0:0];
-
-  assign _join__sel = in_sel[0];
-
-
-endmodule  // muxn_U4
-
-// Generated from commonlib.muxn(N:2, width:2)
-module muxn_U6 (
-  input [1:0] in_data_0,
-  input [1:0] in_data_1,
-  input [0:0] in_sel,
-  output [1:0] out
-);
-
-
-  // Instancing generated Module: coreir.mux(width:2)
-  wire [1:0] _join__in0;
-  wire [1:0] _join__in1;
-  wire [1:0] _join__out;
-  wire  _join__sel;
-  coreir_mux #(.width(2)) _join(
-    .in0(_join__in0),
-    .in1(_join__in1),
-    .out(_join__out),
-    .sel(_join__sel)
-  );
-
-  assign _join__in0[1:0] = in_data_0[1:0];
-
-  assign _join__in1[1:0] = in_data_1[1:0];
-
-  assign out[1:0] = _join__out[1:0];
-
-  assign _join__sel = in_sel[0];
-
-
-endmodule  // muxn_U6
+endmodule  // corebit_and
 
 // Generated from commonlib.muxn(N:2, width:4)
-module muxn_U8 (
+module commonlib_muxn__N2__width4 (
   input [3:0] in_data_0,
   input [3:0] in_data_1,
   input [0:0] in_sel,
@@ -264,298 +158,13 @@ module muxn_U8 (
   assign _join__sel = in_sel[0];
 
 
-endmodule  // muxn_U8
+endmodule  // commonlib_muxn__N2__width4
 
-module coreir_not #(parameter width=1) (
-  input [width-1:0] in,
-  output [width-1:0] out
-);
-  assign out = ~in;
-
-endmodule  // coreir_not
-
-module ZextWrapper_1_32 (
-  input [0:0] I,
-  output [31:0] O
-);
-
-
-  wire  bit_const_0_None__out;
-  corebit_const #(.value(0)) bit_const_0_None(
-    .out(bit_const_0_None__out)
-  );
-
-  assign O[10] = bit_const_0_None__out;
-
-  assign O[11] = bit_const_0_None__out;
-
-  assign O[12] = bit_const_0_None__out;
-
-  assign O[13] = bit_const_0_None__out;
-
-  assign O[14] = bit_const_0_None__out;
-
-  assign O[15] = bit_const_0_None__out;
-
-  assign O[16] = bit_const_0_None__out;
-
-  assign O[17] = bit_const_0_None__out;
-
-  assign O[18] = bit_const_0_None__out;
-
-  assign O[19] = bit_const_0_None__out;
-
-  assign O[1] = bit_const_0_None__out;
-
-  assign O[20] = bit_const_0_None__out;
-
-  assign O[21] = bit_const_0_None__out;
-
-  assign O[22] = bit_const_0_None__out;
-
-  assign O[23] = bit_const_0_None__out;
-
-  assign O[24] = bit_const_0_None__out;
-
-  assign O[25] = bit_const_0_None__out;
-
-  assign O[26] = bit_const_0_None__out;
-
-  assign O[27] = bit_const_0_None__out;
-
-  assign O[28] = bit_const_0_None__out;
-
-  assign O[29] = bit_const_0_None__out;
-
-  assign O[2] = bit_const_0_None__out;
-
-  assign O[30] = bit_const_0_None__out;
-
-  assign O[31] = bit_const_0_None__out;
-
-  assign O[3] = bit_const_0_None__out;
-
-  assign O[4] = bit_const_0_None__out;
-
-  assign O[5] = bit_const_0_None__out;
-
-  assign O[6] = bit_const_0_None__out;
-
-  assign O[7] = bit_const_0_None__out;
-
-  assign O[8] = bit_const_0_None__out;
-
-  assign O[9] = bit_const_0_None__out;
-
-  assign O[0] = I[0];
-
-
-endmodule  // ZextWrapper_1_32
-
-module coreir_reg #(parameter clk_posedge=1, parameter init=1, parameter width=1) (
-  input clk,
-  input [width-1:0] in,
-  output [width-1:0] out
-);
-  reg [width-1:0] outReg=init;
-  wire real_clk;
-  assign real_clk = clk_posedge ? clk : ~clk;
-  always @(posedge real_clk) begin
-    outReg <= in;
-  end
-  assign out = outReg;
-
-endmodule  // coreir_reg
-
-module coreir_slice #(parameter hi=1, parameter lo=1, parameter width=1) (
-  input [width-1:0] in,
-  output [hi-lo-1:0] out
-);
-  assign out = in[hi-1:lo];
-
-endmodule  // coreir_slice
-
-// Generated from commonlib.muxn(N:3, width:1)
-module muxn_U9 (
-  input [0:0] in_data_0,
-  input [0:0] in_data_1,
-  input [0:0] in_data_2,
-  input [1:0] in_sel,
-  output [0:0] out
-);
-
-
-  // Instancing generated Module: coreir.mux(width:1)
-  wire [0:0] _join__in0;
-  wire [0:0] _join__in1;
-  wire [0:0] _join__out;
-  wire  _join__sel;
-  coreir_mux #(.width(1)) _join(
-    .in0(_join__in0),
-    .in1(_join__in1),
-    .out(_join__out),
-    .sel(_join__sel)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:2, width:1)
-  wire [0:0] muxN_0__in_data_0;
-  wire [0:0] muxN_0__in_data_1;
-  wire [0:0] muxN_0__in_sel;
-  wire [0:0] muxN_0__out;
-  muxn_U4 muxN_0(
-    .in_data_0(muxN_0__in_data_0),
-    .in_data_1(muxN_0__in_data_1),
-    .in_sel(muxN_0__in_sel),
-    .out(muxN_0__out)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:1, width:1)
-  wire [0:0] muxN_1__in_data_0;
-  wire [0:0] muxN_1__in_sel;
-  wire [0:0] muxN_1__out;
-  muxn_U39 muxN_1(
-    .in_data_0(muxN_1__in_data_0),
-    .in_sel(muxN_1__in_sel),
-    .out(muxN_1__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
-  wire [1:0] sel_slice0__in;
-  wire [0:0] sel_slice0__out;
-  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice0(
-    .in(sel_slice0__in),
-    .out(sel_slice0__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
-  wire [1:0] sel_slice1__in;
-  wire [0:0] sel_slice1__out;
-  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice1(
-    .in(sel_slice1__in),
-    .out(sel_slice1__out)
-  );
-
-  assign _join__in0[0:0] = muxN_0__out[0:0];
-
-  assign _join__in1[0:0] = muxN_1__out[0:0];
-
-  assign out[0:0] = _join__out[0:0];
-
-  assign _join__sel = in_sel[1];
-
-  assign muxN_0__in_data_0[0:0] = in_data_0[0:0];
-
-  assign muxN_0__in_data_1[0:0] = in_data_1[0:0];
-
-  assign muxN_0__in_sel[0:0] = sel_slice0__out[0:0];
-
-  assign muxN_1__in_data_0[0:0] = in_data_2[0:0];
-
-  assign muxN_1__in_sel[0:0] = sel_slice1__out[0:0];
-
-  assign sel_slice0__in[1:0] = in_sel[1:0];
-
-  assign sel_slice1__in[1:0] = in_sel[1:0];
-
-
-endmodule  // muxn_U9
-
-// Generated from commonlib.muxn(N:4, width:1)
-module muxn_U44 (
-  input [0:0] in_data_0,
-  input [0:0] in_data_1,
-  input [0:0] in_data_2,
-  input [0:0] in_data_3,
-  input [1:0] in_sel,
-  output [0:0] out
-);
-
-
-  // Instancing generated Module: coreir.mux(width:1)
-  wire [0:0] _join__in0;
-  wire [0:0] _join__in1;
-  wire [0:0] _join__out;
-  wire  _join__sel;
-  coreir_mux #(.width(1)) _join(
-    .in0(_join__in0),
-    .in1(_join__in1),
-    .out(_join__out),
-    .sel(_join__sel)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:2, width:1)
-  wire [0:0] muxN_0__in_data_0;
-  wire [0:0] muxN_0__in_data_1;
-  wire [0:0] muxN_0__in_sel;
-  wire [0:0] muxN_0__out;
-  muxn_U4 muxN_0(
-    .in_data_0(muxN_0__in_data_0),
-    .in_data_1(muxN_0__in_data_1),
-    .in_sel(muxN_0__in_sel),
-    .out(muxN_0__out)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:2, width:1)
-  wire [0:0] muxN_1__in_data_0;
-  wire [0:0] muxN_1__in_data_1;
-  wire [0:0] muxN_1__in_sel;
-  wire [0:0] muxN_1__out;
-  muxn_U4 muxN_1(
-    .in_data_0(muxN_1__in_data_0),
-    .in_data_1(muxN_1__in_data_1),
-    .in_sel(muxN_1__in_sel),
-    .out(muxN_1__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
-  wire [1:0] sel_slice0__in;
-  wire [0:0] sel_slice0__out;
-  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice0(
-    .in(sel_slice0__in),
-    .out(sel_slice0__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
-  wire [1:0] sel_slice1__in;
-  wire [0:0] sel_slice1__out;
-  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice1(
-    .in(sel_slice1__in),
-    .out(sel_slice1__out)
-  );
-
-  assign _join__in0[0:0] = muxN_0__out[0:0];
-
-  assign _join__in1[0:0] = muxN_1__out[0:0];
-
-  assign out[0:0] = _join__out[0:0];
-
-  assign _join__sel = in_sel[1];
-
-  assign muxN_0__in_data_0[0:0] = in_data_0[0:0];
-
-  assign muxN_0__in_data_1[0:0] = in_data_1[0:0];
-
-  assign muxN_0__in_sel[0:0] = sel_slice0__out[0:0];
-
-  assign muxN_1__in_data_0[0:0] = in_data_2[0:0];
-
-  assign muxN_1__in_data_1[0:0] = in_data_3[0:0];
-
-  assign muxN_1__in_sel[0:0] = sel_slice1__out[0:0];
-
-  assign sel_slice0__in[1:0] = in_sel[1:0];
-
-  assign sel_slice1__in[1:0] = in_sel[1:0];
-
-
-endmodule  // muxn_U44
-
-// Generated from commonlib.muxn(N:3, width:32)
-module muxn_U26 (
+// Generated from commonlib.muxn(N:2, width:32)
+module commonlib_muxn__N2__width32 (
   input [31:0] in_data_0,
   input [31:0] in_data_1,
-  input [31:0] in_data_2,
-  input [1:0] in_sel,
+  input [0:0] in_sel,
   output [31:0] out
 );
 
@@ -572,71 +181,19 @@ module muxn_U26 (
     .sel(_join__sel)
   );
 
-  // Instancing generated Module: commonlib.muxn(N:2, width:32)
-  wire [31:0] muxN_0__in_data_0;
-  wire [31:0] muxN_0__in_data_1;
-  wire [0:0] muxN_0__in_sel;
-  wire [31:0] muxN_0__out;
-  muxn_U7 muxN_0(
-    .in_data_0(muxN_0__in_data_0),
-    .in_data_1(muxN_0__in_data_1),
-    .in_sel(muxN_0__in_sel),
-    .out(muxN_0__out)
-  );
+  assign _join__in0[31:0] = in_data_0[31:0];
 
-  // Instancing generated Module: commonlib.muxn(N:1, width:32)
-  wire [31:0] muxN_1__in_data_0;
-  wire [0:0] muxN_1__in_sel;
-  wire [31:0] muxN_1__out;
-  muxn_U40 muxN_1(
-    .in_data_0(muxN_1__in_data_0),
-    .in_sel(muxN_1__in_sel),
-    .out(muxN_1__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
-  wire [1:0] sel_slice0__in;
-  wire [0:0] sel_slice0__out;
-  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice0(
-    .in(sel_slice0__in),
-    .out(sel_slice0__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
-  wire [1:0] sel_slice1__in;
-  wire [0:0] sel_slice1__out;
-  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice1(
-    .in(sel_slice1__in),
-    .out(sel_slice1__out)
-  );
-
-  assign _join__in0[31:0] = muxN_0__out[31:0];
-
-  assign _join__in1[31:0] = muxN_1__out[31:0];
+  assign _join__in1[31:0] = in_data_1[31:0];
 
   assign out[31:0] = _join__out[31:0];
 
-  assign _join__sel = in_sel[1];
-
-  assign muxN_0__in_data_0[31:0] = in_data_0[31:0];
-
-  assign muxN_0__in_data_1[31:0] = in_data_1[31:0];
-
-  assign muxN_0__in_sel[0:0] = sel_slice0__out[0:0];
-
-  assign muxN_1__in_data_0[31:0] = in_data_2[31:0];
-
-  assign muxN_1__in_sel[0:0] = sel_slice1__out[0:0];
-
-  assign sel_slice0__in[1:0] = in_sel[1:0];
-
-  assign sel_slice1__in[1:0] = in_sel[1:0];
+  assign _join__sel = in_sel[0];
 
 
-endmodule  // muxn_U26
+endmodule  // commonlib_muxn__N2__width32
 
 // Generated from commonlib.muxn(N:4, width:32)
-module muxn_U25 (
+module commonlib_muxn__N4__width32 (
   input [31:0] in_data_0,
   input [31:0] in_data_1,
   input [31:0] in_data_2,
@@ -663,7 +220,7 @@ module muxn_U25 (
   wire [31:0] muxN_0__in_data_1;
   wire [0:0] muxN_0__in_sel;
   wire [31:0] muxN_0__out;
-  muxn_U7 muxN_0(
+  commonlib_muxn__N2__width32 muxN_0(
     .in_data_0(muxN_0__in_data_0),
     .in_data_1(muxN_0__in_data_1),
     .in_sel(muxN_0__in_sel),
@@ -675,7 +232,7 @@ module muxn_U25 (
   wire [31:0] muxN_1__in_data_1;
   wire [0:0] muxN_1__in_sel;
   wire [31:0] muxN_1__out;
-  muxn_U7 muxN_1(
+  commonlib_muxn__N2__width32 muxN_1(
     .in_data_0(muxN_1__in_data_0),
     .in_data_1(muxN_1__in_data_1),
     .in_sel(muxN_1__in_sel),
@@ -723,320 +280,10 @@ module muxn_U25 (
   assign sel_slice1__in[1:0] = in_sel[1:0];
 
 
-endmodule  // muxn_U25
-
-// Generated from commonlib.muxn(N:4, width:16)
-module muxn_U10 (
-  input [15:0] in_data_0,
-  input [15:0] in_data_1,
-  input [15:0] in_data_2,
-  input [15:0] in_data_3,
-  input [1:0] in_sel,
-  output [15:0] out
-);
-
-
-  // Instancing generated Module: coreir.mux(width:16)
-  wire [15:0] _join__in0;
-  wire [15:0] _join__in1;
-  wire [15:0] _join__out;
-  wire  _join__sel;
-  coreir_mux #(.width(16)) _join(
-    .in0(_join__in0),
-    .in1(_join__in1),
-    .out(_join__out),
-    .sel(_join__sel)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:2, width:16)
-  wire [15:0] muxN_0__in_data_0;
-  wire [15:0] muxN_0__in_data_1;
-  wire [0:0] muxN_0__in_sel;
-  wire [15:0] muxN_0__out;
-  muxn_U5 muxN_0(
-    .in_data_0(muxN_0__in_data_0),
-    .in_data_1(muxN_0__in_data_1),
-    .in_sel(muxN_0__in_sel),
-    .out(muxN_0__out)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:2, width:16)
-  wire [15:0] muxN_1__in_data_0;
-  wire [15:0] muxN_1__in_data_1;
-  wire [0:0] muxN_1__in_sel;
-  wire [15:0] muxN_1__out;
-  muxn_U5 muxN_1(
-    .in_data_0(muxN_1__in_data_0),
-    .in_data_1(muxN_1__in_data_1),
-    .in_sel(muxN_1__in_sel),
-    .out(muxN_1__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
-  wire [1:0] sel_slice0__in;
-  wire [0:0] sel_slice0__out;
-  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice0(
-    .in(sel_slice0__in),
-    .out(sel_slice0__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
-  wire [1:0] sel_slice1__in;
-  wire [0:0] sel_slice1__out;
-  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice1(
-    .in(sel_slice1__in),
-    .out(sel_slice1__out)
-  );
-
-  assign _join__in0[15:0] = muxN_0__out[15:0];
-
-  assign _join__in1[15:0] = muxN_1__out[15:0];
-
-  assign out[15:0] = _join__out[15:0];
-
-  assign _join__sel = in_sel[1];
-
-  assign muxN_0__in_data_0[15:0] = in_data_0[15:0];
-
-  assign muxN_0__in_data_1[15:0] = in_data_1[15:0];
-
-  assign muxN_0__in_sel[0:0] = sel_slice0__out[0:0];
-
-  assign muxN_1__in_data_0[15:0] = in_data_2[15:0];
-
-  assign muxN_1__in_data_1[15:0] = in_data_3[15:0];
-
-  assign muxN_1__in_sel[0:0] = sel_slice1__out[0:0];
-
-  assign sel_slice0__in[1:0] = in_sel[1:0];
-
-  assign sel_slice1__in[1:0] = in_sel[1:0];
-
-
-endmodule  // muxn_U10
-
-// Generated from commonlib.muxn(N:8, width:16)
-module muxn_U36 (
-  input [15:0] in_data_0,
-  input [15:0] in_data_1,
-  input [15:0] in_data_2,
-  input [15:0] in_data_3,
-  input [15:0] in_data_4,
-  input [15:0] in_data_5,
-  input [15:0] in_data_6,
-  input [15:0] in_data_7,
-  input [2:0] in_sel,
-  output [15:0] out
-);
-
-
-  // Instancing generated Module: coreir.mux(width:16)
-  wire [15:0] _join__in0;
-  wire [15:0] _join__in1;
-  wire [15:0] _join__out;
-  wire  _join__sel;
-  coreir_mux #(.width(16)) _join(
-    .in0(_join__in0),
-    .in1(_join__in1),
-    .out(_join__out),
-    .sel(_join__sel)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:4, width:16)
-  wire [15:0] muxN_0__in_data_0;
-  wire [15:0] muxN_0__in_data_1;
-  wire [15:0] muxN_0__in_data_2;
-  wire [15:0] muxN_0__in_data_3;
-  wire [1:0] muxN_0__in_sel;
-  wire [15:0] muxN_0__out;
-  muxn_U10 muxN_0(
-    .in_data_0(muxN_0__in_data_0),
-    .in_data_1(muxN_0__in_data_1),
-    .in_data_2(muxN_0__in_data_2),
-    .in_data_3(muxN_0__in_data_3),
-    .in_sel(muxN_0__in_sel),
-    .out(muxN_0__out)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:4, width:16)
-  wire [15:0] muxN_1__in_data_0;
-  wire [15:0] muxN_1__in_data_1;
-  wire [15:0] muxN_1__in_data_2;
-  wire [15:0] muxN_1__in_data_3;
-  wire [1:0] muxN_1__in_sel;
-  wire [15:0] muxN_1__out;
-  muxn_U10 muxN_1(
-    .in_data_0(muxN_1__in_data_0),
-    .in_data_1(muxN_1__in_data_1),
-    .in_data_2(muxN_1__in_data_2),
-    .in_data_3(muxN_1__in_data_3),
-    .in_sel(muxN_1__in_sel),
-    .out(muxN_1__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:2, lo:0, width:3)
-  wire [2:0] sel_slice0__in;
-  wire [1:0] sel_slice0__out;
-  coreir_slice #(.hi(2),.lo(0),.width(3)) sel_slice0(
-    .in(sel_slice0__in),
-    .out(sel_slice0__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:2, lo:0, width:3)
-  wire [2:0] sel_slice1__in;
-  wire [1:0] sel_slice1__out;
-  coreir_slice #(.hi(2),.lo(0),.width(3)) sel_slice1(
-    .in(sel_slice1__in),
-    .out(sel_slice1__out)
-  );
-
-  assign _join__in0[15:0] = muxN_0__out[15:0];
-
-  assign _join__in1[15:0] = muxN_1__out[15:0];
-
-  assign out[15:0] = _join__out[15:0];
-
-  assign _join__sel = in_sel[2];
-
-  assign muxN_0__in_data_0[15:0] = in_data_0[15:0];
-
-  assign muxN_0__in_data_1[15:0] = in_data_1[15:0];
-
-  assign muxN_0__in_data_2[15:0] = in_data_2[15:0];
-
-  assign muxN_0__in_data_3[15:0] = in_data_3[15:0];
-
-  assign muxN_0__in_sel[1:0] = sel_slice0__out[1:0];
-
-  assign muxN_1__in_data_0[15:0] = in_data_4[15:0];
-
-  assign muxN_1__in_data_1[15:0] = in_data_5[15:0];
-
-  assign muxN_1__in_data_2[15:0] = in_data_6[15:0];
-
-  assign muxN_1__in_data_3[15:0] = in_data_7[15:0];
-
-  assign muxN_1__in_sel[1:0] = sel_slice1__out[1:0];
-
-  assign sel_slice0__in[2:0] = in_sel[2:0];
-
-  assign sel_slice1__in[2:0] = in_sel[2:0];
-
-
-endmodule  // muxn_U36
-
-// Generated from commonlib.muxn(N:8, width:1)
-module muxn_U33 (
-  input [0:0] in_data_0,
-  input [0:0] in_data_1,
-  input [0:0] in_data_2,
-  input [0:0] in_data_3,
-  input [0:0] in_data_4,
-  input [0:0] in_data_5,
-  input [0:0] in_data_6,
-  input [0:0] in_data_7,
-  input [2:0] in_sel,
-  output [0:0] out
-);
-
-
-  // Instancing generated Module: coreir.mux(width:1)
-  wire [0:0] _join__in0;
-  wire [0:0] _join__in1;
-  wire [0:0] _join__out;
-  wire  _join__sel;
-  coreir_mux #(.width(1)) _join(
-    .in0(_join__in0),
-    .in1(_join__in1),
-    .out(_join__out),
-    .sel(_join__sel)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:4, width:1)
-  wire [0:0] muxN_0__in_data_0;
-  wire [0:0] muxN_0__in_data_1;
-  wire [0:0] muxN_0__in_data_2;
-  wire [0:0] muxN_0__in_data_3;
-  wire [1:0] muxN_0__in_sel;
-  wire [0:0] muxN_0__out;
-  muxn_U44 muxN_0(
-    .in_data_0(muxN_0__in_data_0),
-    .in_data_1(muxN_0__in_data_1),
-    .in_data_2(muxN_0__in_data_2),
-    .in_data_3(muxN_0__in_data_3),
-    .in_sel(muxN_0__in_sel),
-    .out(muxN_0__out)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:4, width:1)
-  wire [0:0] muxN_1__in_data_0;
-  wire [0:0] muxN_1__in_data_1;
-  wire [0:0] muxN_1__in_data_2;
-  wire [0:0] muxN_1__in_data_3;
-  wire [1:0] muxN_1__in_sel;
-  wire [0:0] muxN_1__out;
-  muxn_U44 muxN_1(
-    .in_data_0(muxN_1__in_data_0),
-    .in_data_1(muxN_1__in_data_1),
-    .in_data_2(muxN_1__in_data_2),
-    .in_data_3(muxN_1__in_data_3),
-    .in_sel(muxN_1__in_sel),
-    .out(muxN_1__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:2, lo:0, width:3)
-  wire [2:0] sel_slice0__in;
-  wire [1:0] sel_slice0__out;
-  coreir_slice #(.hi(2),.lo(0),.width(3)) sel_slice0(
-    .in(sel_slice0__in),
-    .out(sel_slice0__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:2, lo:0, width:3)
-  wire [2:0] sel_slice1__in;
-  wire [1:0] sel_slice1__out;
-  coreir_slice #(.hi(2),.lo(0),.width(3)) sel_slice1(
-    .in(sel_slice1__in),
-    .out(sel_slice1__out)
-  );
-
-  assign _join__in0[0:0] = muxN_0__out[0:0];
-
-  assign _join__in1[0:0] = muxN_1__out[0:0];
-
-  assign out[0:0] = _join__out[0:0];
-
-  assign _join__sel = in_sel[2];
-
-  assign muxN_0__in_data_0[0:0] = in_data_0[0:0];
-
-  assign muxN_0__in_data_1[0:0] = in_data_1[0:0];
-
-  assign muxN_0__in_data_2[0:0] = in_data_2[0:0];
-
-  assign muxN_0__in_data_3[0:0] = in_data_3[0:0];
-
-  assign muxN_0__in_sel[1:0] = sel_slice0__out[1:0];
-
-  assign muxN_1__in_data_0[0:0] = in_data_4[0:0];
-
-  assign muxN_1__in_data_1[0:0] = in_data_5[0:0];
-
-  assign muxN_1__in_data_2[0:0] = in_data_6[0:0];
-
-  assign muxN_1__in_data_3[0:0] = in_data_7[0:0];
-
-  assign muxN_1__in_sel[1:0] = sel_slice1__out[1:0];
-
-  assign sel_slice0__in[2:0] = in_sel[2:0];
-
-  assign sel_slice1__in[2:0] = in_sel[2:0];
-
-
-endmodule  // muxn_U33
+endmodule  // commonlib_muxn__N4__width32
 
 // Generated from commonlib.muxn(N:8, width:32)
-module muxn_U43 (
+module commonlib_muxn__N8__width32 (
   input [31:0] in_data_0,
   input [31:0] in_data_1,
   input [31:0] in_data_2,
@@ -1069,7 +316,7 @@ module muxn_U43 (
   wire [31:0] muxN_0__in_data_3;
   wire [1:0] muxN_0__in_sel;
   wire [31:0] muxN_0__out;
-  muxn_U25 muxN_0(
+  commonlib_muxn__N4__width32 muxN_0(
     .in_data_0(muxN_0__in_data_0),
     .in_data_1(muxN_0__in_data_1),
     .in_data_2(muxN_0__in_data_2),
@@ -1085,7 +332,7 @@ module muxn_U43 (
   wire [31:0] muxN_1__in_data_3;
   wire [1:0] muxN_1__in_sel;
   wire [31:0] muxN_1__out;
-  muxn_U25 muxN_1(
+  commonlib_muxn__N4__width32 muxN_1(
     .in_data_0(muxN_1__in_data_0),
     .in_data_1(muxN_1__in_data_1),
     .in_data_2(muxN_1__in_data_2),
@@ -1143,10 +390,611 @@ module muxn_U43 (
   assign sel_slice1__in[2:0] = in_sel[2:0];
 
 
-endmodule  // muxn_U43
+endmodule  // commonlib_muxn__N8__width32
+
+// Generated from commonlib.muxn(N:2, width:2)
+module commonlib_muxn__N2__width2 (
+  input [1:0] in_data_0,
+  input [1:0] in_data_1,
+  input [0:0] in_sel,
+  output [1:0] out
+);
+
+
+  // Instancing generated Module: coreir.mux(width:2)
+  wire [1:0] _join__in0;
+  wire [1:0] _join__in1;
+  wire [1:0] _join__out;
+  wire  _join__sel;
+  coreir_mux #(.width(2)) _join(
+    .in0(_join__in0),
+    .in1(_join__in1),
+    .out(_join__out),
+    .sel(_join__sel)
+  );
+
+  assign _join__in0[1:0] = in_data_0[1:0];
+
+  assign _join__in1[1:0] = in_data_1[1:0];
+
+  assign out[1:0] = _join__out[1:0];
+
+  assign _join__sel = in_sel[0];
+
+
+endmodule  // commonlib_muxn__N2__width2
+
+// Generated from commonlib.muxn(N:2, width:16)
+module commonlib_muxn__N2__width16 (
+  input [15:0] in_data_0,
+  input [15:0] in_data_1,
+  input [0:0] in_sel,
+  output [15:0] out
+);
+
+
+  // Instancing generated Module: coreir.mux(width:16)
+  wire [15:0] _join__in0;
+  wire [15:0] _join__in1;
+  wire [15:0] _join__out;
+  wire  _join__sel;
+  coreir_mux #(.width(16)) _join(
+    .in0(_join__in0),
+    .in1(_join__in1),
+    .out(_join__out),
+    .sel(_join__sel)
+  );
+
+  assign _join__in0[15:0] = in_data_0[15:0];
+
+  assign _join__in1[15:0] = in_data_1[15:0];
+
+  assign out[15:0] = _join__out[15:0];
+
+  assign _join__sel = in_sel[0];
+
+
+endmodule  // commonlib_muxn__N2__width16
+
+// Generated from commonlib.muxn(N:4, width:16)
+module commonlib_muxn__N4__width16 (
+  input [15:0] in_data_0,
+  input [15:0] in_data_1,
+  input [15:0] in_data_2,
+  input [15:0] in_data_3,
+  input [1:0] in_sel,
+  output [15:0] out
+);
+
+
+  // Instancing generated Module: coreir.mux(width:16)
+  wire [15:0] _join__in0;
+  wire [15:0] _join__in1;
+  wire [15:0] _join__out;
+  wire  _join__sel;
+  coreir_mux #(.width(16)) _join(
+    .in0(_join__in0),
+    .in1(_join__in1),
+    .out(_join__out),
+    .sel(_join__sel)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:2, width:16)
+  wire [15:0] muxN_0__in_data_0;
+  wire [15:0] muxN_0__in_data_1;
+  wire [0:0] muxN_0__in_sel;
+  wire [15:0] muxN_0__out;
+  commonlib_muxn__N2__width16 muxN_0(
+    .in_data_0(muxN_0__in_data_0),
+    .in_data_1(muxN_0__in_data_1),
+    .in_sel(muxN_0__in_sel),
+    .out(muxN_0__out)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:2, width:16)
+  wire [15:0] muxN_1__in_data_0;
+  wire [15:0] muxN_1__in_data_1;
+  wire [0:0] muxN_1__in_sel;
+  wire [15:0] muxN_1__out;
+  commonlib_muxn__N2__width16 muxN_1(
+    .in_data_0(muxN_1__in_data_0),
+    .in_data_1(muxN_1__in_data_1),
+    .in_sel(muxN_1__in_sel),
+    .out(muxN_1__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
+  wire [1:0] sel_slice0__in;
+  wire [0:0] sel_slice0__out;
+  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice0(
+    .in(sel_slice0__in),
+    .out(sel_slice0__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
+  wire [1:0] sel_slice1__in;
+  wire [0:0] sel_slice1__out;
+  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice1(
+    .in(sel_slice1__in),
+    .out(sel_slice1__out)
+  );
+
+  assign _join__in0[15:0] = muxN_0__out[15:0];
+
+  assign _join__in1[15:0] = muxN_1__out[15:0];
+
+  assign out[15:0] = _join__out[15:0];
+
+  assign _join__sel = in_sel[1];
+
+  assign muxN_0__in_data_0[15:0] = in_data_0[15:0];
+
+  assign muxN_0__in_data_1[15:0] = in_data_1[15:0];
+
+  assign muxN_0__in_sel[0:0] = sel_slice0__out[0:0];
+
+  assign muxN_1__in_data_0[15:0] = in_data_2[15:0];
+
+  assign muxN_1__in_data_1[15:0] = in_data_3[15:0];
+
+  assign muxN_1__in_sel[0:0] = sel_slice1__out[0:0];
+
+  assign sel_slice0__in[1:0] = in_sel[1:0];
+
+  assign sel_slice1__in[1:0] = in_sel[1:0];
+
+
+endmodule  // commonlib_muxn__N4__width16
+
+// Generated from commonlib.muxn(N:8, width:16)
+module commonlib_muxn__N8__width16 (
+  input [15:0] in_data_0,
+  input [15:0] in_data_1,
+  input [15:0] in_data_2,
+  input [15:0] in_data_3,
+  input [15:0] in_data_4,
+  input [15:0] in_data_5,
+  input [15:0] in_data_6,
+  input [15:0] in_data_7,
+  input [2:0] in_sel,
+  output [15:0] out
+);
+
+
+  // Instancing generated Module: coreir.mux(width:16)
+  wire [15:0] _join__in0;
+  wire [15:0] _join__in1;
+  wire [15:0] _join__out;
+  wire  _join__sel;
+  coreir_mux #(.width(16)) _join(
+    .in0(_join__in0),
+    .in1(_join__in1),
+    .out(_join__out),
+    .sel(_join__sel)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:4, width:16)
+  wire [15:0] muxN_0__in_data_0;
+  wire [15:0] muxN_0__in_data_1;
+  wire [15:0] muxN_0__in_data_2;
+  wire [15:0] muxN_0__in_data_3;
+  wire [1:0] muxN_0__in_sel;
+  wire [15:0] muxN_0__out;
+  commonlib_muxn__N4__width16 muxN_0(
+    .in_data_0(muxN_0__in_data_0),
+    .in_data_1(muxN_0__in_data_1),
+    .in_data_2(muxN_0__in_data_2),
+    .in_data_3(muxN_0__in_data_3),
+    .in_sel(muxN_0__in_sel),
+    .out(muxN_0__out)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:4, width:16)
+  wire [15:0] muxN_1__in_data_0;
+  wire [15:0] muxN_1__in_data_1;
+  wire [15:0] muxN_1__in_data_2;
+  wire [15:0] muxN_1__in_data_3;
+  wire [1:0] muxN_1__in_sel;
+  wire [15:0] muxN_1__out;
+  commonlib_muxn__N4__width16 muxN_1(
+    .in_data_0(muxN_1__in_data_0),
+    .in_data_1(muxN_1__in_data_1),
+    .in_data_2(muxN_1__in_data_2),
+    .in_data_3(muxN_1__in_data_3),
+    .in_sel(muxN_1__in_sel),
+    .out(muxN_1__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:2, lo:0, width:3)
+  wire [2:0] sel_slice0__in;
+  wire [1:0] sel_slice0__out;
+  coreir_slice #(.hi(2),.lo(0),.width(3)) sel_slice0(
+    .in(sel_slice0__in),
+    .out(sel_slice0__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:2, lo:0, width:3)
+  wire [2:0] sel_slice1__in;
+  wire [1:0] sel_slice1__out;
+  coreir_slice #(.hi(2),.lo(0),.width(3)) sel_slice1(
+    .in(sel_slice1__in),
+    .out(sel_slice1__out)
+  );
+
+  assign _join__in0[15:0] = muxN_0__out[15:0];
+
+  assign _join__in1[15:0] = muxN_1__out[15:0];
+
+  assign out[15:0] = _join__out[15:0];
+
+  assign _join__sel = in_sel[2];
+
+  assign muxN_0__in_data_0[15:0] = in_data_0[15:0];
+
+  assign muxN_0__in_data_1[15:0] = in_data_1[15:0];
+
+  assign muxN_0__in_data_2[15:0] = in_data_2[15:0];
+
+  assign muxN_0__in_data_3[15:0] = in_data_3[15:0];
+
+  assign muxN_0__in_sel[1:0] = sel_slice0__out[1:0];
+
+  assign muxN_1__in_data_0[15:0] = in_data_4[15:0];
+
+  assign muxN_1__in_data_1[15:0] = in_data_5[15:0];
+
+  assign muxN_1__in_data_2[15:0] = in_data_6[15:0];
+
+  assign muxN_1__in_data_3[15:0] = in_data_7[15:0];
+
+  assign muxN_1__in_sel[1:0] = sel_slice1__out[1:0];
+
+  assign sel_slice0__in[2:0] = in_sel[2:0];
+
+  assign sel_slice1__in[2:0] = in_sel[2:0];
+
+
+endmodule  // commonlib_muxn__N8__width16
+
+// Generated from commonlib.muxn(N:2, width:1)
+module commonlib_muxn__N2__width1 (
+  input [0:0] in_data_0,
+  input [0:0] in_data_1,
+  input [0:0] in_sel,
+  output [0:0] out
+);
+
+
+  // Instancing generated Module: coreir.mux(width:1)
+  wire [0:0] _join__in0;
+  wire [0:0] _join__in1;
+  wire [0:0] _join__out;
+  wire  _join__sel;
+  coreir_mux #(.width(1)) _join(
+    .in0(_join__in0),
+    .in1(_join__in1),
+    .out(_join__out),
+    .sel(_join__sel)
+  );
+
+  assign _join__in0[0:0] = in_data_0[0:0];
+
+  assign _join__in1[0:0] = in_data_1[0:0];
+
+  assign out[0:0] = _join__out[0:0];
+
+  assign _join__sel = in_sel[0];
+
+
+endmodule  // commonlib_muxn__N2__width1
+
+// Generated from commonlib.muxn(N:4, width:1)
+module commonlib_muxn__N4__width1 (
+  input [0:0] in_data_0,
+  input [0:0] in_data_1,
+  input [0:0] in_data_2,
+  input [0:0] in_data_3,
+  input [1:0] in_sel,
+  output [0:0] out
+);
+
+
+  // Instancing generated Module: coreir.mux(width:1)
+  wire [0:0] _join__in0;
+  wire [0:0] _join__in1;
+  wire [0:0] _join__out;
+  wire  _join__sel;
+  coreir_mux #(.width(1)) _join(
+    .in0(_join__in0),
+    .in1(_join__in1),
+    .out(_join__out),
+    .sel(_join__sel)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:2, width:1)
+  wire [0:0] muxN_0__in_data_0;
+  wire [0:0] muxN_0__in_data_1;
+  wire [0:0] muxN_0__in_sel;
+  wire [0:0] muxN_0__out;
+  commonlib_muxn__N2__width1 muxN_0(
+    .in_data_0(muxN_0__in_data_0),
+    .in_data_1(muxN_0__in_data_1),
+    .in_sel(muxN_0__in_sel),
+    .out(muxN_0__out)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:2, width:1)
+  wire [0:0] muxN_1__in_data_0;
+  wire [0:0] muxN_1__in_data_1;
+  wire [0:0] muxN_1__in_sel;
+  wire [0:0] muxN_1__out;
+  commonlib_muxn__N2__width1 muxN_1(
+    .in_data_0(muxN_1__in_data_0),
+    .in_data_1(muxN_1__in_data_1),
+    .in_sel(muxN_1__in_sel),
+    .out(muxN_1__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
+  wire [1:0] sel_slice0__in;
+  wire [0:0] sel_slice0__out;
+  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice0(
+    .in(sel_slice0__in),
+    .out(sel_slice0__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
+  wire [1:0] sel_slice1__in;
+  wire [0:0] sel_slice1__out;
+  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice1(
+    .in(sel_slice1__in),
+    .out(sel_slice1__out)
+  );
+
+  assign _join__in0[0:0] = muxN_0__out[0:0];
+
+  assign _join__in1[0:0] = muxN_1__out[0:0];
+
+  assign out[0:0] = _join__out[0:0];
+
+  assign _join__sel = in_sel[1];
+
+  assign muxN_0__in_data_0[0:0] = in_data_0[0:0];
+
+  assign muxN_0__in_data_1[0:0] = in_data_1[0:0];
+
+  assign muxN_0__in_sel[0:0] = sel_slice0__out[0:0];
+
+  assign muxN_1__in_data_0[0:0] = in_data_2[0:0];
+
+  assign muxN_1__in_data_1[0:0] = in_data_3[0:0];
+
+  assign muxN_1__in_sel[0:0] = sel_slice1__out[0:0];
+
+  assign sel_slice0__in[1:0] = in_sel[1:0];
+
+  assign sel_slice1__in[1:0] = in_sel[1:0];
+
+
+endmodule  // commonlib_muxn__N4__width1
+
+// Generated from commonlib.muxn(N:8, width:1)
+module commonlib_muxn__N8__width1 (
+  input [0:0] in_data_0,
+  input [0:0] in_data_1,
+  input [0:0] in_data_2,
+  input [0:0] in_data_3,
+  input [0:0] in_data_4,
+  input [0:0] in_data_5,
+  input [0:0] in_data_6,
+  input [0:0] in_data_7,
+  input [2:0] in_sel,
+  output [0:0] out
+);
+
+
+  // Instancing generated Module: coreir.mux(width:1)
+  wire [0:0] _join__in0;
+  wire [0:0] _join__in1;
+  wire [0:0] _join__out;
+  wire  _join__sel;
+  coreir_mux #(.width(1)) _join(
+    .in0(_join__in0),
+    .in1(_join__in1),
+    .out(_join__out),
+    .sel(_join__sel)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:4, width:1)
+  wire [0:0] muxN_0__in_data_0;
+  wire [0:0] muxN_0__in_data_1;
+  wire [0:0] muxN_0__in_data_2;
+  wire [0:0] muxN_0__in_data_3;
+  wire [1:0] muxN_0__in_sel;
+  wire [0:0] muxN_0__out;
+  commonlib_muxn__N4__width1 muxN_0(
+    .in_data_0(muxN_0__in_data_0),
+    .in_data_1(muxN_0__in_data_1),
+    .in_data_2(muxN_0__in_data_2),
+    .in_data_3(muxN_0__in_data_3),
+    .in_sel(muxN_0__in_sel),
+    .out(muxN_0__out)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:4, width:1)
+  wire [0:0] muxN_1__in_data_0;
+  wire [0:0] muxN_1__in_data_1;
+  wire [0:0] muxN_1__in_data_2;
+  wire [0:0] muxN_1__in_data_3;
+  wire [1:0] muxN_1__in_sel;
+  wire [0:0] muxN_1__out;
+  commonlib_muxn__N4__width1 muxN_1(
+    .in_data_0(muxN_1__in_data_0),
+    .in_data_1(muxN_1__in_data_1),
+    .in_data_2(muxN_1__in_data_2),
+    .in_data_3(muxN_1__in_data_3),
+    .in_sel(muxN_1__in_sel),
+    .out(muxN_1__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:2, lo:0, width:3)
+  wire [2:0] sel_slice0__in;
+  wire [1:0] sel_slice0__out;
+  coreir_slice #(.hi(2),.lo(0),.width(3)) sel_slice0(
+    .in(sel_slice0__in),
+    .out(sel_slice0__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:2, lo:0, width:3)
+  wire [2:0] sel_slice1__in;
+  wire [1:0] sel_slice1__out;
+  coreir_slice #(.hi(2),.lo(0),.width(3)) sel_slice1(
+    .in(sel_slice1__in),
+    .out(sel_slice1__out)
+  );
+
+  assign _join__in0[0:0] = muxN_0__out[0:0];
+
+  assign _join__in1[0:0] = muxN_1__out[0:0];
+
+  assign out[0:0] = _join__out[0:0];
+
+  assign _join__sel = in_sel[2];
+
+  assign muxN_0__in_data_0[0:0] = in_data_0[0:0];
+
+  assign muxN_0__in_data_1[0:0] = in_data_1[0:0];
+
+  assign muxN_0__in_data_2[0:0] = in_data_2[0:0];
+
+  assign muxN_0__in_data_3[0:0] = in_data_3[0:0];
+
+  assign muxN_0__in_sel[1:0] = sel_slice0__out[1:0];
+
+  assign muxN_1__in_data_0[0:0] = in_data_4[0:0];
+
+  assign muxN_1__in_data_1[0:0] = in_data_5[0:0];
+
+  assign muxN_1__in_data_2[0:0] = in_data_6[0:0];
+
+  assign muxN_1__in_data_3[0:0] = in_data_7[0:0];
+
+  assign muxN_1__in_sel[1:0] = sel_slice1__out[1:0];
+
+  assign sel_slice0__in[2:0] = in_sel[2:0];
+
+  assign sel_slice1__in[2:0] = in_sel[2:0];
+
+
+endmodule  // commonlib_muxn__N8__width1
+
+// Generated from commonlib.muxn(N:1, width:32)
+module commonlib_muxn__N1__width32 (
+  input [31:0] in_data_0,
+  input [0:0] in_sel,
+  output [31:0] out
+);
+
+
+  wire  term_sel__in;
+  corebit_term term_sel(
+    .in(term_sel__in)
+  );
+
+  assign out[31:0] = in_data_0[31:0];
+
+  assign term_sel__in = in_sel[0];
+
+
+endmodule  // commonlib_muxn__N1__width32
+
+// Generated from commonlib.muxn(N:3, width:32)
+module commonlib_muxn__N3__width32 (
+  input [31:0] in_data_0,
+  input [31:0] in_data_1,
+  input [31:0] in_data_2,
+  input [1:0] in_sel,
+  output [31:0] out
+);
+
+
+  // Instancing generated Module: coreir.mux(width:32)
+  wire [31:0] _join__in0;
+  wire [31:0] _join__in1;
+  wire [31:0] _join__out;
+  wire  _join__sel;
+  coreir_mux #(.width(32)) _join(
+    .in0(_join__in0),
+    .in1(_join__in1),
+    .out(_join__out),
+    .sel(_join__sel)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:2, width:32)
+  wire [31:0] muxN_0__in_data_0;
+  wire [31:0] muxN_0__in_data_1;
+  wire [0:0] muxN_0__in_sel;
+  wire [31:0] muxN_0__out;
+  commonlib_muxn__N2__width32 muxN_0(
+    .in_data_0(muxN_0__in_data_0),
+    .in_data_1(muxN_0__in_data_1),
+    .in_sel(muxN_0__in_sel),
+    .out(muxN_0__out)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:1, width:32)
+  wire [31:0] muxN_1__in_data_0;
+  wire [0:0] muxN_1__in_sel;
+  wire [31:0] muxN_1__out;
+  commonlib_muxn__N1__width32 muxN_1(
+    .in_data_0(muxN_1__in_data_0),
+    .in_sel(muxN_1__in_sel),
+    .out(muxN_1__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
+  wire [1:0] sel_slice0__in;
+  wire [0:0] sel_slice0__out;
+  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice0(
+    .in(sel_slice0__in),
+    .out(sel_slice0__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
+  wire [1:0] sel_slice1__in;
+  wire [0:0] sel_slice1__out;
+  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice1(
+    .in(sel_slice1__in),
+    .out(sel_slice1__out)
+  );
+
+  assign _join__in0[31:0] = muxN_0__out[31:0];
+
+  assign _join__in1[31:0] = muxN_1__out[31:0];
+
+  assign out[31:0] = _join__out[31:0];
+
+  assign _join__sel = in_sel[1];
+
+  assign muxN_0__in_data_0[31:0] = in_data_0[31:0];
+
+  assign muxN_0__in_data_1[31:0] = in_data_1[31:0];
+
+  assign muxN_0__in_sel[0:0] = sel_slice0__out[0:0];
+
+  assign muxN_1__in_data_0[31:0] = in_data_2[31:0];
+
+  assign muxN_1__in_sel[0:0] = sel_slice1__out[0:0];
+
+  assign sel_slice0__in[1:0] = in_sel[1:0];
+
+  assign sel_slice1__in[1:0] = in_sel[1:0];
+
+
+endmodule  // commonlib_muxn__N3__width32
 
 // Generated from commonlib.muxn(N:7, width:32)
-module muxn_U11 (
+module commonlib_muxn__N7__width32 (
   input [31:0] in_data_0,
   input [31:0] in_data_1,
   input [31:0] in_data_2,
@@ -1178,7 +1026,7 @@ module muxn_U11 (
   wire [31:0] muxN_0__in_data_3;
   wire [1:0] muxN_0__in_sel;
   wire [31:0] muxN_0__out;
-  muxn_U25 muxN_0(
+  commonlib_muxn__N4__width32 muxN_0(
     .in_data_0(muxN_0__in_data_0),
     .in_data_1(muxN_0__in_data_1),
     .in_data_2(muxN_0__in_data_2),
@@ -1193,7 +1041,7 @@ module muxn_U11 (
   wire [31:0] muxN_1__in_data_2;
   wire [1:0] muxN_1__in_sel;
   wire [31:0] muxN_1__out;
-  muxn_U26 muxN_1(
+  commonlib_muxn__N3__width32 muxN_1(
     .in_data_0(muxN_1__in_data_0),
     .in_data_1(muxN_1__in_data_1),
     .in_data_2(muxN_1__in_data_2),
@@ -1248,46 +1096,115 @@ module muxn_U11 (
   assign sel_slice1__in[2:0] = in_sel[2:0];
 
 
-endmodule  // muxn_U11
+endmodule  // commonlib_muxn__N7__width32
 
-module Mux3x1 (
-  input [0:0] I0,
-  input [0:0] I1,
-  input [0:0] I2,
-  output [0:0] O,
-  input [1:0] S
+// Generated from commonlib.muxn(N:1, width:1)
+module commonlib_muxn__N1__width1 (
+  input [0:0] in_data_0,
+  input [0:0] in_sel,
+  output [0:0] out
 );
 
 
-  // Instancing generated Module: commonlib.muxn(N:3, width:1)
-  wire [0:0] inst0__in_data_0;
-  wire [0:0] inst0__in_data_1;
-  wire [0:0] inst0__in_data_2;
-  wire [1:0] inst0__in_sel;
-  wire [0:0] inst0__out;
-  muxn_U9 inst0(
-    .in_data_0(inst0__in_data_0),
-    .in_data_1(inst0__in_data_1),
-    .in_data_2(inst0__in_data_2),
-    .in_sel(inst0__in_sel),
-    .out(inst0__out)
+  wire  term_sel__in;
+  corebit_term term_sel(
+    .in(term_sel__in)
   );
 
-  assign inst0__in_data_0[0:0] = I0[0:0];
+  assign out[0:0] = in_data_0[0:0];
 
-  assign inst0__in_data_1[0:0] = I1[0:0];
-
-  assign inst0__in_data_2[0:0] = I2[0:0];
-
-  assign inst0__in_sel[1:0] = S[1:0];
-
-  assign O[0:0] = inst0__out[0:0];
+  assign term_sel__in = in_sel[0];
 
 
-endmodule  // Mux3x1
+endmodule  // commonlib_muxn__N1__width1
+
+// Generated from commonlib.muxn(N:3, width:1)
+module commonlib_muxn__N3__width1 (
+  input [0:0] in_data_0,
+  input [0:0] in_data_1,
+  input [0:0] in_data_2,
+  input [1:0] in_sel,
+  output [0:0] out
+);
+
+
+  // Instancing generated Module: coreir.mux(width:1)
+  wire [0:0] _join__in0;
+  wire [0:0] _join__in1;
+  wire [0:0] _join__out;
+  wire  _join__sel;
+  coreir_mux #(.width(1)) _join(
+    .in0(_join__in0),
+    .in1(_join__in1),
+    .out(_join__out),
+    .sel(_join__sel)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:2, width:1)
+  wire [0:0] muxN_0__in_data_0;
+  wire [0:0] muxN_0__in_data_1;
+  wire [0:0] muxN_0__in_sel;
+  wire [0:0] muxN_0__out;
+  commonlib_muxn__N2__width1 muxN_0(
+    .in_data_0(muxN_0__in_data_0),
+    .in_data_1(muxN_0__in_data_1),
+    .in_sel(muxN_0__in_sel),
+    .out(muxN_0__out)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:1, width:1)
+  wire [0:0] muxN_1__in_data_0;
+  wire [0:0] muxN_1__in_sel;
+  wire [0:0] muxN_1__out;
+  commonlib_muxn__N1__width1 muxN_1(
+    .in_data_0(muxN_1__in_data_0),
+    .in_sel(muxN_1__in_sel),
+    .out(muxN_1__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
+  wire [1:0] sel_slice0__in;
+  wire [0:0] sel_slice0__out;
+  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice0(
+    .in(sel_slice0__in),
+    .out(sel_slice0__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:2)
+  wire [1:0] sel_slice1__in;
+  wire [0:0] sel_slice1__out;
+  coreir_slice #(.hi(1),.lo(0),.width(2)) sel_slice1(
+    .in(sel_slice1__in),
+    .out(sel_slice1__out)
+  );
+
+  assign _join__in0[0:0] = muxN_0__out[0:0];
+
+  assign _join__in1[0:0] = muxN_1__out[0:0];
+
+  assign out[0:0] = _join__out[0:0];
+
+  assign _join__sel = in_sel[1];
+
+  assign muxN_0__in_data_0[0:0] = in_data_0[0:0];
+
+  assign muxN_0__in_data_1[0:0] = in_data_1[0:0];
+
+  assign muxN_0__in_sel[0:0] = sel_slice0__out[0:0];
+
+  assign muxN_1__in_data_0[0:0] = in_data_2[0:0];
+
+  assign muxN_1__in_sel[0:0] = sel_slice1__out[0:0];
+
+  assign sel_slice0__in[1:0] = in_sel[1:0];
+
+  assign sel_slice1__in[1:0] = in_sel[1:0];
+
+
+endmodule  // commonlib_muxn__N3__width1
 
 // Generated from commonlib.muxn(N:16, width:32)
-module muxn_U29 (
+module commonlib_muxn__N16__width32 (
   input [31:0] in_data_0,
   input [31:0] in_data_1,
   input [31:0] in_data_10,
@@ -1332,7 +1249,7 @@ module muxn_U29 (
   wire [31:0] muxN_0__in_data_7;
   wire [2:0] muxN_0__in_sel;
   wire [31:0] muxN_0__out;
-  muxn_U43 muxN_0(
+  commonlib_muxn__N8__width32 muxN_0(
     .in_data_0(muxN_0__in_data_0),
     .in_data_1(muxN_0__in_data_1),
     .in_data_2(muxN_0__in_data_2),
@@ -1356,7 +1273,7 @@ module muxn_U29 (
   wire [31:0] muxN_1__in_data_7;
   wire [2:0] muxN_1__in_sel;
   wire [31:0] muxN_1__out;
-  muxn_U43 muxN_1(
+  commonlib_muxn__N8__width32 muxN_1(
     .in_data_0(muxN_1__in_data_0),
     .in_data_1(muxN_1__in_data_1),
     .in_data_2(muxN_1__in_data_2),
@@ -1434,250 +1351,10 @@ module muxn_U29 (
   assign sel_slice1__in[3:0] = in_sel[3:0];
 
 
-endmodule  // muxn_U29
-
-// Generated from commonlib.muxn(N:10, width:16)
-module muxn_U3 (
-  input [15:0] in_data_0,
-  input [15:0] in_data_1,
-  input [15:0] in_data_2,
-  input [15:0] in_data_3,
-  input [15:0] in_data_4,
-  input [15:0] in_data_5,
-  input [15:0] in_data_6,
-  input [15:0] in_data_7,
-  input [15:0] in_data_8,
-  input [15:0] in_data_9,
-  input [3:0] in_sel,
-  output [15:0] out
-);
-
-
-  // Instancing generated Module: coreir.mux(width:16)
-  wire [15:0] _join__in0;
-  wire [15:0] _join__in1;
-  wire [15:0] _join__out;
-  wire  _join__sel;
-  coreir_mux #(.width(16)) _join(
-    .in0(_join__in0),
-    .in1(_join__in1),
-    .out(_join__out),
-    .sel(_join__sel)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:8, width:16)
-  wire [15:0] muxN_0__in_data_0;
-  wire [15:0] muxN_0__in_data_1;
-  wire [15:0] muxN_0__in_data_2;
-  wire [15:0] muxN_0__in_data_3;
-  wire [15:0] muxN_0__in_data_4;
-  wire [15:0] muxN_0__in_data_5;
-  wire [15:0] muxN_0__in_data_6;
-  wire [15:0] muxN_0__in_data_7;
-  wire [2:0] muxN_0__in_sel;
-  wire [15:0] muxN_0__out;
-  muxn_U36 muxN_0(
-    .in_data_0(muxN_0__in_data_0),
-    .in_data_1(muxN_0__in_data_1),
-    .in_data_2(muxN_0__in_data_2),
-    .in_data_3(muxN_0__in_data_3),
-    .in_data_4(muxN_0__in_data_4),
-    .in_data_5(muxN_0__in_data_5),
-    .in_data_6(muxN_0__in_data_6),
-    .in_data_7(muxN_0__in_data_7),
-    .in_sel(muxN_0__in_sel),
-    .out(muxN_0__out)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:2, width:16)
-  wire [15:0] muxN_1__in_data_0;
-  wire [15:0] muxN_1__in_data_1;
-  wire [0:0] muxN_1__in_sel;
-  wire [15:0] muxN_1__out;
-  muxn_U5 muxN_1(
-    .in_data_0(muxN_1__in_data_0),
-    .in_data_1(muxN_1__in_data_1),
-    .in_sel(muxN_1__in_sel),
-    .out(muxN_1__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:3, lo:0, width:4)
-  wire [3:0] sel_slice0__in;
-  wire [2:0] sel_slice0__out;
-  coreir_slice #(.hi(3),.lo(0),.width(4)) sel_slice0(
-    .in(sel_slice0__in),
-    .out(sel_slice0__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:4)
-  wire [3:0] sel_slice1__in;
-  wire [0:0] sel_slice1__out;
-  coreir_slice #(.hi(1),.lo(0),.width(4)) sel_slice1(
-    .in(sel_slice1__in),
-    .out(sel_slice1__out)
-  );
-
-  assign _join__in0[15:0] = muxN_0__out[15:0];
-
-  assign _join__in1[15:0] = muxN_1__out[15:0];
-
-  assign out[15:0] = _join__out[15:0];
-
-  assign _join__sel = in_sel[3];
-
-  assign muxN_0__in_data_0[15:0] = in_data_0[15:0];
-
-  assign muxN_0__in_data_1[15:0] = in_data_1[15:0];
-
-  assign muxN_0__in_data_2[15:0] = in_data_2[15:0];
-
-  assign muxN_0__in_data_3[15:0] = in_data_3[15:0];
-
-  assign muxN_0__in_data_4[15:0] = in_data_4[15:0];
-
-  assign muxN_0__in_data_5[15:0] = in_data_5[15:0];
-
-  assign muxN_0__in_data_6[15:0] = in_data_6[15:0];
-
-  assign muxN_0__in_data_7[15:0] = in_data_7[15:0];
-
-  assign muxN_0__in_sel[2:0] = sel_slice0__out[2:0];
-
-  assign muxN_1__in_data_0[15:0] = in_data_8[15:0];
-
-  assign muxN_1__in_data_1[15:0] = in_data_9[15:0];
-
-  assign muxN_1__in_sel[0:0] = sel_slice1__out[0:0];
-
-  assign sel_slice0__in[3:0] = in_sel[3:0];
-
-  assign sel_slice1__in[3:0] = in_sel[3:0];
-
-
-endmodule  // muxn_U3
-
-// Generated from commonlib.muxn(N:10, width:1)
-module muxn_U2 (
-  input [0:0] in_data_0,
-  input [0:0] in_data_1,
-  input [0:0] in_data_2,
-  input [0:0] in_data_3,
-  input [0:0] in_data_4,
-  input [0:0] in_data_5,
-  input [0:0] in_data_6,
-  input [0:0] in_data_7,
-  input [0:0] in_data_8,
-  input [0:0] in_data_9,
-  input [3:0] in_sel,
-  output [0:0] out
-);
-
-
-  // Instancing generated Module: coreir.mux(width:1)
-  wire [0:0] _join__in0;
-  wire [0:0] _join__in1;
-  wire [0:0] _join__out;
-  wire  _join__sel;
-  coreir_mux #(.width(1)) _join(
-    .in0(_join__in0),
-    .in1(_join__in1),
-    .out(_join__out),
-    .sel(_join__sel)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:8, width:1)
-  wire [0:0] muxN_0__in_data_0;
-  wire [0:0] muxN_0__in_data_1;
-  wire [0:0] muxN_0__in_data_2;
-  wire [0:0] muxN_0__in_data_3;
-  wire [0:0] muxN_0__in_data_4;
-  wire [0:0] muxN_0__in_data_5;
-  wire [0:0] muxN_0__in_data_6;
-  wire [0:0] muxN_0__in_data_7;
-  wire [2:0] muxN_0__in_sel;
-  wire [0:0] muxN_0__out;
-  muxn_U33 muxN_0(
-    .in_data_0(muxN_0__in_data_0),
-    .in_data_1(muxN_0__in_data_1),
-    .in_data_2(muxN_0__in_data_2),
-    .in_data_3(muxN_0__in_data_3),
-    .in_data_4(muxN_0__in_data_4),
-    .in_data_5(muxN_0__in_data_5),
-    .in_data_6(muxN_0__in_data_6),
-    .in_data_7(muxN_0__in_data_7),
-    .in_sel(muxN_0__in_sel),
-    .out(muxN_0__out)
-  );
-
-  // Instancing generated Module: commonlib.muxn(N:2, width:1)
-  wire [0:0] muxN_1__in_data_0;
-  wire [0:0] muxN_1__in_data_1;
-  wire [0:0] muxN_1__in_sel;
-  wire [0:0] muxN_1__out;
-  muxn_U4 muxN_1(
-    .in_data_0(muxN_1__in_data_0),
-    .in_data_1(muxN_1__in_data_1),
-    .in_sel(muxN_1__in_sel),
-    .out(muxN_1__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:3, lo:0, width:4)
-  wire [3:0] sel_slice0__in;
-  wire [2:0] sel_slice0__out;
-  coreir_slice #(.hi(3),.lo(0),.width(4)) sel_slice0(
-    .in(sel_slice0__in),
-    .out(sel_slice0__out)
-  );
-
-  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:4)
-  wire [3:0] sel_slice1__in;
-  wire [0:0] sel_slice1__out;
-  coreir_slice #(.hi(1),.lo(0),.width(4)) sel_slice1(
-    .in(sel_slice1__in),
-    .out(sel_slice1__out)
-  );
-
-  assign _join__in0[0:0] = muxN_0__out[0:0];
-
-  assign _join__in1[0:0] = muxN_1__out[0:0];
-
-  assign out[0:0] = _join__out[0:0];
-
-  assign _join__sel = in_sel[3];
-
-  assign muxN_0__in_data_0[0:0] = in_data_0[0:0];
-
-  assign muxN_0__in_data_1[0:0] = in_data_1[0:0];
-
-  assign muxN_0__in_data_2[0:0] = in_data_2[0:0];
-
-  assign muxN_0__in_data_3[0:0] = in_data_3[0:0];
-
-  assign muxN_0__in_data_4[0:0] = in_data_4[0:0];
-
-  assign muxN_0__in_data_5[0:0] = in_data_5[0:0];
-
-  assign muxN_0__in_data_6[0:0] = in_data_6[0:0];
-
-  assign muxN_0__in_data_7[0:0] = in_data_7[0:0];
-
-  assign muxN_0__in_sel[2:0] = sel_slice0__out[2:0];
-
-  assign muxN_1__in_data_0[0:0] = in_data_8[0:0];
-
-  assign muxN_1__in_data_1[0:0] = in_data_9[0:0];
-
-  assign muxN_1__in_sel[0:0] = sel_slice1__out[0:0];
-
-  assign sel_slice0__in[3:0] = in_sel[3:0];
-
-  assign sel_slice1__in[3:0] = in_sel[3:0];
-
-
-endmodule  // muxn_U2
+endmodule  // commonlib_muxn__N16__width32
 
 // Generated from commonlib.muxn(N:32, width:32)
-module muxn_U41 (
+module commonlib_muxn__N32__width32 (
   input [31:0] in_data_0,
   input [31:0] in_data_1,
   input [31:0] in_data_10,
@@ -1746,7 +1423,7 @@ module muxn_U41 (
   wire [31:0] muxN_0__in_data_9;
   wire [3:0] muxN_0__in_sel;
   wire [31:0] muxN_0__out;
-  muxn_U29 muxN_0(
+  commonlib_muxn__N16__width32 muxN_0(
     .in_data_0(muxN_0__in_data_0),
     .in_data_1(muxN_0__in_data_1),
     .in_data_10(muxN_0__in_data_10),
@@ -1786,7 +1463,7 @@ module muxn_U41 (
   wire [31:0] muxN_1__in_data_9;
   wire [3:0] muxN_1__in_sel;
   wire [31:0] muxN_1__out;
-  muxn_U29 muxN_1(
+  commonlib_muxn__N16__width32 muxN_1(
     .in_data_0(muxN_1__in_data_0),
     .in_data_1(muxN_1__in_data_1),
     .in_data_10(muxN_1__in_data_10),
@@ -1904,10 +1581,10 @@ module muxn_U41 (
   assign sel_slice1__in[4:0] = in_sel[4:0];
 
 
-endmodule  // muxn_U41
+endmodule  // commonlib_muxn__N32__width32
 
 // Generated from commonlib.muxn(N:64, width:32)
-module muxn_U28 (
+module commonlib_muxn__N64__width32 (
   input [31:0] in_data_0,
   input [31:0] in_data_1,
   input [31:0] in_data_10,
@@ -2024,7 +1701,7 @@ module muxn_U28 (
   wire [31:0] muxN_0__in_data_9;
   wire [4:0] muxN_0__in_sel;
   wire [31:0] muxN_0__out;
-  muxn_U41 muxN_0(
+  commonlib_muxn__N32__width32 muxN_0(
     .in_data_0(muxN_0__in_data_0),
     .in_data_1(muxN_0__in_data_1),
     .in_data_10(muxN_0__in_data_10),
@@ -2096,7 +1773,7 @@ module muxn_U28 (
   wire [31:0] muxN_1__in_data_9;
   wire [4:0] muxN_1__in_sel;
   wire [31:0] muxN_1__out;
-  muxn_U41 muxN_1(
+  commonlib_muxn__N32__width32 muxN_1(
     .in_data_0(muxN_1__in_data_0),
     .in_data_1(muxN_1__in_data_1),
     .in_data_10(muxN_1__in_data_10),
@@ -2294,10 +1971,10 @@ module muxn_U28 (
   assign sel_slice1__in[5:0] = in_sel[5:0];
 
 
-endmodule  // muxn_U28
+endmodule  // commonlib_muxn__N64__width32
 
 // Generated from commonlib.muxn(N:80, width:32)
-module muxn_U12 (
+module commonlib_muxn__N80__width32 (
   input [31:0] in_data_0,
   input [31:0] in_data_1,
   input [31:0] in_data_10,
@@ -2462,7 +2139,7 @@ module muxn_U12 (
   wire [31:0] muxN_0__in_data_9;
   wire [5:0] muxN_0__in_sel;
   wire [31:0] muxN_0__out;
-  muxn_U28 muxN_0(
+  commonlib_muxn__N64__width32 muxN_0(
     .in_data_0(muxN_0__in_data_0),
     .in_data_1(muxN_0__in_data_1),
     .in_data_10(muxN_0__in_data_10),
@@ -2550,7 +2227,7 @@ module muxn_U12 (
   wire [31:0] muxN_1__in_data_9;
   wire [3:0] muxN_1__in_sel;
   wire [31:0] muxN_1__out;
-  muxn_U29 muxN_1(
+  commonlib_muxn__N16__width32 muxN_1(
     .in_data_0(muxN_1__in_data_0),
     .in_data_1(muxN_1__in_data_1),
     .in_data_10(muxN_1__in_data_10),
@@ -2764,7 +2441,574 @@ module muxn_U12 (
   assign sel_slice1__in[6:0] = in_sel[6:0];
 
 
-endmodule  // muxn_U12
+endmodule  // commonlib_muxn__N80__width32
+
+// Generated from commonlib.muxn(N:10, width:16)
+module commonlib_muxn__N10__width16 (
+  input [15:0] in_data_0,
+  input [15:0] in_data_1,
+  input [15:0] in_data_2,
+  input [15:0] in_data_3,
+  input [15:0] in_data_4,
+  input [15:0] in_data_5,
+  input [15:0] in_data_6,
+  input [15:0] in_data_7,
+  input [15:0] in_data_8,
+  input [15:0] in_data_9,
+  input [3:0] in_sel,
+  output [15:0] out
+);
+
+
+  // Instancing generated Module: coreir.mux(width:16)
+  wire [15:0] _join__in0;
+  wire [15:0] _join__in1;
+  wire [15:0] _join__out;
+  wire  _join__sel;
+  coreir_mux #(.width(16)) _join(
+    .in0(_join__in0),
+    .in1(_join__in1),
+    .out(_join__out),
+    .sel(_join__sel)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:8, width:16)
+  wire [15:0] muxN_0__in_data_0;
+  wire [15:0] muxN_0__in_data_1;
+  wire [15:0] muxN_0__in_data_2;
+  wire [15:0] muxN_0__in_data_3;
+  wire [15:0] muxN_0__in_data_4;
+  wire [15:0] muxN_0__in_data_5;
+  wire [15:0] muxN_0__in_data_6;
+  wire [15:0] muxN_0__in_data_7;
+  wire [2:0] muxN_0__in_sel;
+  wire [15:0] muxN_0__out;
+  commonlib_muxn__N8__width16 muxN_0(
+    .in_data_0(muxN_0__in_data_0),
+    .in_data_1(muxN_0__in_data_1),
+    .in_data_2(muxN_0__in_data_2),
+    .in_data_3(muxN_0__in_data_3),
+    .in_data_4(muxN_0__in_data_4),
+    .in_data_5(muxN_0__in_data_5),
+    .in_data_6(muxN_0__in_data_6),
+    .in_data_7(muxN_0__in_data_7),
+    .in_sel(muxN_0__in_sel),
+    .out(muxN_0__out)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:2, width:16)
+  wire [15:0] muxN_1__in_data_0;
+  wire [15:0] muxN_1__in_data_1;
+  wire [0:0] muxN_1__in_sel;
+  wire [15:0] muxN_1__out;
+  commonlib_muxn__N2__width16 muxN_1(
+    .in_data_0(muxN_1__in_data_0),
+    .in_data_1(muxN_1__in_data_1),
+    .in_sel(muxN_1__in_sel),
+    .out(muxN_1__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:3, lo:0, width:4)
+  wire [3:0] sel_slice0__in;
+  wire [2:0] sel_slice0__out;
+  coreir_slice #(.hi(3),.lo(0),.width(4)) sel_slice0(
+    .in(sel_slice0__in),
+    .out(sel_slice0__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:4)
+  wire [3:0] sel_slice1__in;
+  wire [0:0] sel_slice1__out;
+  coreir_slice #(.hi(1),.lo(0),.width(4)) sel_slice1(
+    .in(sel_slice1__in),
+    .out(sel_slice1__out)
+  );
+
+  assign _join__in0[15:0] = muxN_0__out[15:0];
+
+  assign _join__in1[15:0] = muxN_1__out[15:0];
+
+  assign out[15:0] = _join__out[15:0];
+
+  assign _join__sel = in_sel[3];
+
+  assign muxN_0__in_data_0[15:0] = in_data_0[15:0];
+
+  assign muxN_0__in_data_1[15:0] = in_data_1[15:0];
+
+  assign muxN_0__in_data_2[15:0] = in_data_2[15:0];
+
+  assign muxN_0__in_data_3[15:0] = in_data_3[15:0];
+
+  assign muxN_0__in_data_4[15:0] = in_data_4[15:0];
+
+  assign muxN_0__in_data_5[15:0] = in_data_5[15:0];
+
+  assign muxN_0__in_data_6[15:0] = in_data_6[15:0];
+
+  assign muxN_0__in_data_7[15:0] = in_data_7[15:0];
+
+  assign muxN_0__in_sel[2:0] = sel_slice0__out[2:0];
+
+  assign muxN_1__in_data_0[15:0] = in_data_8[15:0];
+
+  assign muxN_1__in_data_1[15:0] = in_data_9[15:0];
+
+  assign muxN_1__in_sel[0:0] = sel_slice1__out[0:0];
+
+  assign sel_slice0__in[3:0] = in_sel[3:0];
+
+  assign sel_slice1__in[3:0] = in_sel[3:0];
+
+
+endmodule  // commonlib_muxn__N10__width16
+
+// Generated from commonlib.muxn(N:10, width:1)
+module commonlib_muxn__N10__width1 (
+  input [0:0] in_data_0,
+  input [0:0] in_data_1,
+  input [0:0] in_data_2,
+  input [0:0] in_data_3,
+  input [0:0] in_data_4,
+  input [0:0] in_data_5,
+  input [0:0] in_data_6,
+  input [0:0] in_data_7,
+  input [0:0] in_data_8,
+  input [0:0] in_data_9,
+  input [3:0] in_sel,
+  output [0:0] out
+);
+
+
+  // Instancing generated Module: coreir.mux(width:1)
+  wire [0:0] _join__in0;
+  wire [0:0] _join__in1;
+  wire [0:0] _join__out;
+  wire  _join__sel;
+  coreir_mux #(.width(1)) _join(
+    .in0(_join__in0),
+    .in1(_join__in1),
+    .out(_join__out),
+    .sel(_join__sel)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:8, width:1)
+  wire [0:0] muxN_0__in_data_0;
+  wire [0:0] muxN_0__in_data_1;
+  wire [0:0] muxN_0__in_data_2;
+  wire [0:0] muxN_0__in_data_3;
+  wire [0:0] muxN_0__in_data_4;
+  wire [0:0] muxN_0__in_data_5;
+  wire [0:0] muxN_0__in_data_6;
+  wire [0:0] muxN_0__in_data_7;
+  wire [2:0] muxN_0__in_sel;
+  wire [0:0] muxN_0__out;
+  commonlib_muxn__N8__width1 muxN_0(
+    .in_data_0(muxN_0__in_data_0),
+    .in_data_1(muxN_0__in_data_1),
+    .in_data_2(muxN_0__in_data_2),
+    .in_data_3(muxN_0__in_data_3),
+    .in_data_4(muxN_0__in_data_4),
+    .in_data_5(muxN_0__in_data_5),
+    .in_data_6(muxN_0__in_data_6),
+    .in_data_7(muxN_0__in_data_7),
+    .in_sel(muxN_0__in_sel),
+    .out(muxN_0__out)
+  );
+
+  // Instancing generated Module: commonlib.muxn(N:2, width:1)
+  wire [0:0] muxN_1__in_data_0;
+  wire [0:0] muxN_1__in_data_1;
+  wire [0:0] muxN_1__in_sel;
+  wire [0:0] muxN_1__out;
+  commonlib_muxn__N2__width1 muxN_1(
+    .in_data_0(muxN_1__in_data_0),
+    .in_data_1(muxN_1__in_data_1),
+    .in_sel(muxN_1__in_sel),
+    .out(muxN_1__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:3, lo:0, width:4)
+  wire [3:0] sel_slice0__in;
+  wire [2:0] sel_slice0__out;
+  coreir_slice #(.hi(3),.lo(0),.width(4)) sel_slice0(
+    .in(sel_slice0__in),
+    .out(sel_slice0__out)
+  );
+
+  // Instancing generated Module: coreir.slice(hi:1, lo:0, width:4)
+  wire [3:0] sel_slice1__in;
+  wire [0:0] sel_slice1__out;
+  coreir_slice #(.hi(1),.lo(0),.width(4)) sel_slice1(
+    .in(sel_slice1__in),
+    .out(sel_slice1__out)
+  );
+
+  assign _join__in0[0:0] = muxN_0__out[0:0];
+
+  assign _join__in1[0:0] = muxN_1__out[0:0];
+
+  assign out[0:0] = _join__out[0:0];
+
+  assign _join__sel = in_sel[3];
+
+  assign muxN_0__in_data_0[0:0] = in_data_0[0:0];
+
+  assign muxN_0__in_data_1[0:0] = in_data_1[0:0];
+
+  assign muxN_0__in_data_2[0:0] = in_data_2[0:0];
+
+  assign muxN_0__in_data_3[0:0] = in_data_3[0:0];
+
+  assign muxN_0__in_data_4[0:0] = in_data_4[0:0];
+
+  assign muxN_0__in_data_5[0:0] = in_data_5[0:0];
+
+  assign muxN_0__in_data_6[0:0] = in_data_6[0:0];
+
+  assign muxN_0__in_data_7[0:0] = in_data_7[0:0];
+
+  assign muxN_0__in_sel[2:0] = sel_slice0__out[2:0];
+
+  assign muxN_1__in_data_0[0:0] = in_data_8[0:0];
+
+  assign muxN_1__in_data_1[0:0] = in_data_9[0:0];
+
+  assign muxN_1__in_sel[0:0] = sel_slice1__out[0:0];
+
+  assign sel_slice0__in[3:0] = in_sel[3:0];
+
+  assign sel_slice1__in[3:0] = in_sel[3:0];
+
+
+endmodule  // commonlib_muxn__N10__width1
+
+module ZextWrapper_4_32 (
+  input [3:0] I,
+  output [31:0] O
+);
+
+
+  wire  bit_const_0_None__out;
+  corebit_const #(.value(0)) bit_const_0_None(
+    .out(bit_const_0_None__out)
+  );
+
+  assign O[10] = bit_const_0_None__out;
+
+  assign O[11] = bit_const_0_None__out;
+
+  assign O[12] = bit_const_0_None__out;
+
+  assign O[13] = bit_const_0_None__out;
+
+  assign O[14] = bit_const_0_None__out;
+
+  assign O[15] = bit_const_0_None__out;
+
+  assign O[16] = bit_const_0_None__out;
+
+  assign O[17] = bit_const_0_None__out;
+
+  assign O[18] = bit_const_0_None__out;
+
+  assign O[19] = bit_const_0_None__out;
+
+  assign O[20] = bit_const_0_None__out;
+
+  assign O[21] = bit_const_0_None__out;
+
+  assign O[22] = bit_const_0_None__out;
+
+  assign O[23] = bit_const_0_None__out;
+
+  assign O[24] = bit_const_0_None__out;
+
+  assign O[25] = bit_const_0_None__out;
+
+  assign O[26] = bit_const_0_None__out;
+
+  assign O[27] = bit_const_0_None__out;
+
+  assign O[28] = bit_const_0_None__out;
+
+  assign O[29] = bit_const_0_None__out;
+
+  assign O[30] = bit_const_0_None__out;
+
+  assign O[31] = bit_const_0_None__out;
+
+  assign O[4] = bit_const_0_None__out;
+
+  assign O[5] = bit_const_0_None__out;
+
+  assign O[6] = bit_const_0_None__out;
+
+  assign O[7] = bit_const_0_None__out;
+
+  assign O[8] = bit_const_0_None__out;
+
+  assign O[9] = bit_const_0_None__out;
+
+  assign O[0] = I[0];
+
+  assign O[1] = I[1];
+
+  assign O[2] = I[2];
+
+  assign O[3] = I[3];
+
+
+endmodule  // ZextWrapper_4_32
+
+module ZextWrapper_2_32 (
+  input [1:0] I,
+  output [31:0] O
+);
+
+
+  wire  bit_const_0_None__out;
+  corebit_const #(.value(0)) bit_const_0_None(
+    .out(bit_const_0_None__out)
+  );
+
+  assign O[10] = bit_const_0_None__out;
+
+  assign O[11] = bit_const_0_None__out;
+
+  assign O[12] = bit_const_0_None__out;
+
+  assign O[13] = bit_const_0_None__out;
+
+  assign O[14] = bit_const_0_None__out;
+
+  assign O[15] = bit_const_0_None__out;
+
+  assign O[16] = bit_const_0_None__out;
+
+  assign O[17] = bit_const_0_None__out;
+
+  assign O[18] = bit_const_0_None__out;
+
+  assign O[19] = bit_const_0_None__out;
+
+  assign O[20] = bit_const_0_None__out;
+
+  assign O[21] = bit_const_0_None__out;
+
+  assign O[22] = bit_const_0_None__out;
+
+  assign O[23] = bit_const_0_None__out;
+
+  assign O[24] = bit_const_0_None__out;
+
+  assign O[25] = bit_const_0_None__out;
+
+  assign O[26] = bit_const_0_None__out;
+
+  assign O[27] = bit_const_0_None__out;
+
+  assign O[28] = bit_const_0_None__out;
+
+  assign O[29] = bit_const_0_None__out;
+
+  assign O[2] = bit_const_0_None__out;
+
+  assign O[30] = bit_const_0_None__out;
+
+  assign O[31] = bit_const_0_None__out;
+
+  assign O[3] = bit_const_0_None__out;
+
+  assign O[4] = bit_const_0_None__out;
+
+  assign O[5] = bit_const_0_None__out;
+
+  assign O[6] = bit_const_0_None__out;
+
+  assign O[7] = bit_const_0_None__out;
+
+  assign O[8] = bit_const_0_None__out;
+
+  assign O[9] = bit_const_0_None__out;
+
+  assign O[0] = I[0];
+
+  assign O[1] = I[1];
+
+
+endmodule  // ZextWrapper_2_32
+
+module ZextWrapper_1_32 (
+  input [0:0] I,
+  output [31:0] O
+);
+
+
+  wire  bit_const_0_None__out;
+  corebit_const #(.value(0)) bit_const_0_None(
+    .out(bit_const_0_None__out)
+  );
+
+  assign O[10] = bit_const_0_None__out;
+
+  assign O[11] = bit_const_0_None__out;
+
+  assign O[12] = bit_const_0_None__out;
+
+  assign O[13] = bit_const_0_None__out;
+
+  assign O[14] = bit_const_0_None__out;
+
+  assign O[15] = bit_const_0_None__out;
+
+  assign O[16] = bit_const_0_None__out;
+
+  assign O[17] = bit_const_0_None__out;
+
+  assign O[18] = bit_const_0_None__out;
+
+  assign O[19] = bit_const_0_None__out;
+
+  assign O[1] = bit_const_0_None__out;
+
+  assign O[20] = bit_const_0_None__out;
+
+  assign O[21] = bit_const_0_None__out;
+
+  assign O[22] = bit_const_0_None__out;
+
+  assign O[23] = bit_const_0_None__out;
+
+  assign O[24] = bit_const_0_None__out;
+
+  assign O[25] = bit_const_0_None__out;
+
+  assign O[26] = bit_const_0_None__out;
+
+  assign O[27] = bit_const_0_None__out;
+
+  assign O[28] = bit_const_0_None__out;
+
+  assign O[29] = bit_const_0_None__out;
+
+  assign O[2] = bit_const_0_None__out;
+
+  assign O[30] = bit_const_0_None__out;
+
+  assign O[31] = bit_const_0_None__out;
+
+  assign O[3] = bit_const_0_None__out;
+
+  assign O[4] = bit_const_0_None__out;
+
+  assign O[5] = bit_const_0_None__out;
+
+  assign O[6] = bit_const_0_None__out;
+
+  assign O[7] = bit_const_0_None__out;
+
+  assign O[8] = bit_const_0_None__out;
+
+  assign O[9] = bit_const_0_None__out;
+
+  assign O[0] = I[0];
+
+
+endmodule  // ZextWrapper_1_32
+
+module PECore (
+  input [0:0] bit0,
+  input [0:0] bit1,
+  input [0:0] bit2,
+  input  clk,
+  input [7:0] config_config_addr,
+  input [31:0] config_config_data,
+  input [0:0] config_read,
+  input [0:0] config_write,
+  input [15:0] data0,
+  input [15:0] data1,
+  output [31:0] read_config_data,
+  output [15:0] res,
+  output [3:0] res_p,
+  input  reset,
+  input [3:0] stall
+);
+
+
+  wire  inst0__bit0;
+  wire  inst0__bit1;
+  wire  inst0__bit2;
+  wire [7:0] inst0__cfg_a;
+  wire [31:0] inst0__cfg_d;
+  wire  inst0__cfg_en;
+  wire  inst0__clk;
+  wire  inst0__clk_en;
+  wire [15:0] inst0__data0;
+  wire [15:0] inst0__data1;
+  wire  inst0__irq;
+  wire [31:0] inst0__read_data;
+  wire [15:0] inst0__res;
+  wire [3:0] inst0__res_p;
+  wire  inst0__rst_n;
+  test_pe inst0(
+    .bit0(inst0__bit0),
+    .bit1(inst0__bit1),
+    .bit2(inst0__bit2),
+    .cfg_a(inst0__cfg_a),
+    .cfg_d(inst0__cfg_d),
+    .cfg_en(inst0__cfg_en),
+    .clk(inst0__clk),
+    .clk_en(inst0__clk_en),
+    .data0(inst0__data0),
+    .data1(inst0__data1),
+    .irq(inst0__irq),
+    .read_data(inst0__read_data),
+    .res(inst0__res),
+    .res_p(inst0__res_p),
+    .rst_n(inst0__rst_n)
+  );
+
+  // Instancing generated Module: coreir.not(width:1)
+  wire [0:0] inst1__in;
+  wire [0:0] inst1__out;
+  coreir_not #(.width(1)) inst1(
+    .in(inst1__in),
+    .out(inst1__out)
+  );
+
+  assign inst0__bit0 = bit0[0];
+
+  assign inst0__bit1 = bit1[0];
+
+  assign inst0__bit2 = bit2[0];
+
+  assign inst0__cfg_a[7:0] = config_config_addr[7:0];
+
+  assign inst0__cfg_d[31:0] = config_config_data[31:0];
+
+  assign inst0__cfg_en = config_write[0];
+
+  assign inst0__clk = clk;
+
+  assign inst0__clk_en = inst1__out[0];
+
+  assign inst0__data0[15:0] = data0[15:0];
+
+  assign inst0__data1[15:0] = data1[15:0];
+
+  assign read_config_data[31:0] = inst0__read_data[31:0];
+
+  assign res[15:0] = inst0__res[15:0];
+
+  assign res_p[3:0] = inst0__res_p[3:0];
+
+  assign inst0__rst_n = reset;
+
+  assign inst1__in[0] = stall[0];
+
+
+endmodule  // PECore
 
 module Mux80x32 (
   input [31:0] I0,
@@ -2935,7 +3179,7 @@ module Mux80x32 (
   wire [31:0] inst0__in_data_9;
   wire [6:0] inst0__in_sel;
   wire [31:0] inst0__out;
-  muxn_U12 inst0(
+  commonlib_muxn__N80__width32 inst0(
     .in_data_0(inst0__in_data_0),
     .in_data_1(inst0__in_data_1),
     .in_data_10(inst0__in_data_10),
@@ -3186,1226 +3430,6 @@ module Mux80x32 (
 
 
 endmodule  // Mux80x32
-
-module coreir_ult #(parameter width=1) (
-  input [width-1:0] in0,
-  input [width-1:0] in1,
-  output out
-);
-  assign out = in0 < in1;
-
-endmodule  // coreir_ult
-
-module Mux2x16 (
-  input [15:0] I0,
-  input [15:0] I1,
-  output [15:0] O,
-  input  S
-);
-
-
-  // Instancing generated Module: commonlib.muxn(N:2, width:16)
-  wire [15:0] inst0__in_data_0;
-  wire [15:0] inst0__in_data_1;
-  wire [0:0] inst0__in_sel;
-  wire [15:0] inst0__out;
-  muxn_U5 inst0(
-    .in_data_0(inst0__in_data_0),
-    .in_data_1(inst0__in_data_1),
-    .in_sel(inst0__in_sel),
-    .out(inst0__out)
-  );
-
-  assign inst0__in_data_0[15:0] = I0[15:0];
-
-  assign inst0__in_data_1[15:0] = I1[15:0];
-
-  assign inst0__in_sel[0] = S;
-
-  assign O[15:0] = inst0__out[15:0];
-
-
-endmodule  // Mux2x16
-
-module Mux7x32 (
-  input [31:0] I0,
-  input [31:0] I1,
-  input [31:0] I2,
-  input [31:0] I3,
-  input [31:0] I4,
-  input [31:0] I5,
-  input [31:0] I6,
-  output [31:0] O,
-  input [2:0] S
-);
-
-
-  // Instancing generated Module: commonlib.muxn(N:7, width:32)
-  wire [31:0] inst0__in_data_0;
-  wire [31:0] inst0__in_data_1;
-  wire [31:0] inst0__in_data_2;
-  wire [31:0] inst0__in_data_3;
-  wire [31:0] inst0__in_data_4;
-  wire [31:0] inst0__in_data_5;
-  wire [31:0] inst0__in_data_6;
-  wire [2:0] inst0__in_sel;
-  wire [31:0] inst0__out;
-  muxn_U11 inst0(
-    .in_data_0(inst0__in_data_0),
-    .in_data_1(inst0__in_data_1),
-    .in_data_2(inst0__in_data_2),
-    .in_data_3(inst0__in_data_3),
-    .in_data_4(inst0__in_data_4),
-    .in_data_5(inst0__in_data_5),
-    .in_data_6(inst0__in_data_6),
-    .in_sel(inst0__in_sel),
-    .out(inst0__out)
-  );
-
-  assign inst0__in_data_0[31:0] = I0[31:0];
-
-  assign inst0__in_data_1[31:0] = I1[31:0];
-
-  assign inst0__in_data_2[31:0] = I2[31:0];
-
-  assign inst0__in_data_3[31:0] = I3[31:0];
-
-  assign inst0__in_data_4[31:0] = I4[31:0];
-
-  assign inst0__in_data_5[31:0] = I5[31:0];
-
-  assign inst0__in_data_6[31:0] = I6[31:0];
-
-  assign inst0__in_sel[2:0] = S[2:0];
-
-  assign O[31:0] = inst0__out[31:0];
-
-
-endmodule  // Mux7x32
-
-module Mux10x16 (
-  input [15:0] I0,
-  input [15:0] I1,
-  input [15:0] I2,
-  input [15:0] I3,
-  input [15:0] I4,
-  input [15:0] I5,
-  input [15:0] I6,
-  input [15:0] I7,
-  input [15:0] I8,
-  input [15:0] I9,
-  output [15:0] O,
-  input [3:0] S
-);
-
-
-  // Instancing generated Module: commonlib.muxn(N:10, width:16)
-  wire [15:0] inst0__in_data_0;
-  wire [15:0] inst0__in_data_1;
-  wire [15:0] inst0__in_data_2;
-  wire [15:0] inst0__in_data_3;
-  wire [15:0] inst0__in_data_4;
-  wire [15:0] inst0__in_data_5;
-  wire [15:0] inst0__in_data_6;
-  wire [15:0] inst0__in_data_7;
-  wire [15:0] inst0__in_data_8;
-  wire [15:0] inst0__in_data_9;
-  wire [3:0] inst0__in_sel;
-  wire [15:0] inst0__out;
-  muxn_U3 inst0(
-    .in_data_0(inst0__in_data_0),
-    .in_data_1(inst0__in_data_1),
-    .in_data_2(inst0__in_data_2),
-    .in_data_3(inst0__in_data_3),
-    .in_data_4(inst0__in_data_4),
-    .in_data_5(inst0__in_data_5),
-    .in_data_6(inst0__in_data_6),
-    .in_data_7(inst0__in_data_7),
-    .in_data_8(inst0__in_data_8),
-    .in_data_9(inst0__in_data_9),
-    .in_sel(inst0__in_sel),
-    .out(inst0__out)
-  );
-
-  assign inst0__in_data_0[15:0] = I0[15:0];
-
-  assign inst0__in_data_1[15:0] = I1[15:0];
-
-  assign inst0__in_data_2[15:0] = I2[15:0];
-
-  assign inst0__in_data_3[15:0] = I3[15:0];
-
-  assign inst0__in_data_4[15:0] = I4[15:0];
-
-  assign inst0__in_data_5[15:0] = I5[15:0];
-
-  assign inst0__in_data_6[15:0] = I6[15:0];
-
-  assign inst0__in_data_7[15:0] = I7[15:0];
-
-  assign inst0__in_data_8[15:0] = I8[15:0];
-
-  assign inst0__in_data_9[15:0] = I9[15:0];
-
-  assign inst0__in_sel[3:0] = S[3:0];
-
-  assign O[15:0] = inst0__out[15:0];
-
-
-endmodule  // Mux10x16
-
-module MuxWrapper_10_16 (
-  input [15:0] I_0,
-  input [15:0] I_1,
-  input [15:0] I_2,
-  input [15:0] I_3,
-  input [15:0] I_4,
-  input [15:0] I_5,
-  input [15:0] I_6,
-  input [15:0] I_7,
-  input [15:0] I_8,
-  input [15:0] I_9,
-  output [15:0] O,
-  input [3:0] S
-);
-
-
-  wire [15:0] inst0__I0;
-  wire [15:0] inst0__I1;
-  wire [15:0] inst0__I2;
-  wire [15:0] inst0__I3;
-  wire [15:0] inst0__I4;
-  wire [15:0] inst0__I5;
-  wire [15:0] inst0__I6;
-  wire [15:0] inst0__I7;
-  wire [15:0] inst0__I8;
-  wire [15:0] inst0__I9;
-  wire [15:0] inst0__O;
-  wire [3:0] inst0__S;
-  Mux10x16 inst0(
-    .I0(inst0__I0),
-    .I1(inst0__I1),
-    .I2(inst0__I2),
-    .I3(inst0__I3),
-    .I4(inst0__I4),
-    .I5(inst0__I5),
-    .I6(inst0__I6),
-    .I7(inst0__I7),
-    .I8(inst0__I8),
-    .I9(inst0__I9),
-    .O(inst0__O),
-    .S(inst0__S)
-  );
-
-  assign inst0__I0[15:0] = I_0[15:0];
-
-  assign inst0__I1[15:0] = I_1[15:0];
-
-  assign inst0__I2[15:0] = I_2[15:0];
-
-  assign inst0__I3[15:0] = I_3[15:0];
-
-  assign inst0__I4[15:0] = I_4[15:0];
-
-  assign inst0__I5[15:0] = I_5[15:0];
-
-  assign inst0__I6[15:0] = I_6[15:0];
-
-  assign inst0__I7[15:0] = I_7[15:0];
-
-  assign inst0__I8[15:0] = I_8[15:0];
-
-  assign inst0__I9[15:0] = I_9[15:0];
-
-  assign O[15:0] = inst0__O[15:0];
-
-  assign inst0__S[3:0] = S[3:0];
-
-
-endmodule  // MuxWrapper_10_16
-
-module Decode28 (
-  input [7:0] I,
-  output  O
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_2_8__out;
-  coreir_const #(.value(8'h02),.width(8)) const_2_8(
-    .out(const_2_8__out)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst0__in0;
-  wire [7:0] inst0__in1;
-  wire  inst0__out;
-  coreir_eq #(.width(8)) inst0(
-    .in0(inst0__in0),
-    .in1(inst0__in1),
-    .out(inst0__out)
-  );
-
-  assign inst0__in1[7:0] = const_2_8__out[7:0];
-
-  assign inst0__in0[7:0] = I[7:0];
-
-  assign O = inst0__out;
-
-
-endmodule  // Decode28
-
-module Decode38 (
-  input [7:0] I,
-  output  O
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_3_8__out;
-  coreir_const #(.value(8'h03),.width(8)) const_3_8(
-    .out(const_3_8__out)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst0__in0;
-  wire [7:0] inst0__in1;
-  wire  inst0__out;
-  coreir_eq #(.width(8)) inst0(
-    .in0(inst0__in0),
-    .in1(inst0__in1),
-    .out(inst0__out)
-  );
-
-  assign inst0__in1[7:0] = const_3_8__out[7:0];
-
-  assign inst0__in0[7:0] = I[7:0];
-
-  assign O = inst0__out;
-
-
-endmodule  // Decode38
-
-module Decode08 (
-  input [7:0] I,
-  output  O
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_0_8__out;
-  coreir_const #(.value(8'h00),.width(8)) const_0_8(
-    .out(const_0_8__out)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst0__in0;
-  wire [7:0] inst0__in1;
-  wire  inst0__out;
-  coreir_eq #(.width(8)) inst0(
-    .in0(inst0__in0),
-    .in1(inst0__in1),
-    .out(inst0__out)
-  );
-
-  assign inst0__in1[7:0] = const_0_8__out[7:0];
-
-  assign inst0__in0[7:0] = I[7:0];
-
-  assign O = inst0__out;
-
-
-endmodule  // Decode08
-
-module Decode18 (
-  input [7:0] I,
-  output  O
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_1_8__out;
-  coreir_const #(.value(8'h01),.width(8)) const_1_8(
-    .out(const_1_8__out)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst0__in0;
-  wire [7:0] inst0__in1;
-  wire  inst0__out;
-  coreir_eq #(.width(8)) inst0(
-    .in0(inst0__in0),
-    .in1(inst0__in1),
-    .out(inst0__out)
-  );
-
-  assign inst0__in1[7:0] = const_1_8__out[7:0];
-
-  assign inst0__in0[7:0] = I[7:0];
-
-  assign O = inst0__out;
-
-
-endmodule  // Decode18
-
-module Decode48 (
-  input [7:0] I,
-  output  O
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_4_8__out;
-  coreir_const #(.value(8'h04),.width(8)) const_4_8(
-    .out(const_4_8__out)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst0__in0;
-  wire [7:0] inst0__in1;
-  wire  inst0__out;
-  coreir_eq #(.width(8)) inst0(
-    .in0(inst0__in0),
-    .in1(inst0__in1),
-    .out(inst0__out)
-  );
-
-  assign inst0__in1[7:0] = const_4_8__out[7:0];
-
-  assign inst0__in0[7:0] = I[7:0];
-
-  assign O = inst0__out;
-
-
-endmodule  // Decode48
-
-module Decode58 (
-  input [7:0] I,
-  output  O
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_5_8__out;
-  coreir_const #(.value(8'h05),.width(8)) const_5_8(
-    .out(const_5_8__out)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst0__in0;
-  wire [7:0] inst0__in1;
-  wire  inst0__out;
-  coreir_eq #(.width(8)) inst0(
-    .in0(inst0__in0),
-    .in1(inst0__in1),
-    .out(inst0__out)
-  );
-
-  assign inst0__in1[7:0] = const_5_8__out[7:0];
-
-  assign inst0__in0[7:0] = I[7:0];
-
-  assign O = inst0__out;
-
-
-endmodule  // Decode58
-
-module Decode68 (
-  input [7:0] I,
-  output  O
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_6_8__out;
-  coreir_const #(.value(8'h06),.width(8)) const_6_8(
-    .out(const_6_8__out)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst0__in0;
-  wire [7:0] inst0__in1;
-  wire  inst0__out;
-  coreir_eq #(.width(8)) inst0(
-    .in0(inst0__in0),
-    .in1(inst0__in1),
-    .out(inst0__out)
-  );
-
-  assign inst0__in1[7:0] = const_6_8__out[7:0];
-
-  assign inst0__in0[7:0] = I[7:0];
-
-  assign O = inst0__out;
-
-
-endmodule  // Decode68
-
-module Mux10x1 (
-  input [0:0] I0,
-  input [0:0] I1,
-  input [0:0] I2,
-  input [0:0] I3,
-  input [0:0] I4,
-  input [0:0] I5,
-  input [0:0] I6,
-  input [0:0] I7,
-  input [0:0] I8,
-  input [0:0] I9,
-  output [0:0] O,
-  input [3:0] S
-);
-
-
-  // Instancing generated Module: commonlib.muxn(N:10, width:1)
-  wire [0:0] inst0__in_data_0;
-  wire [0:0] inst0__in_data_1;
-  wire [0:0] inst0__in_data_2;
-  wire [0:0] inst0__in_data_3;
-  wire [0:0] inst0__in_data_4;
-  wire [0:0] inst0__in_data_5;
-  wire [0:0] inst0__in_data_6;
-  wire [0:0] inst0__in_data_7;
-  wire [0:0] inst0__in_data_8;
-  wire [0:0] inst0__in_data_9;
-  wire [3:0] inst0__in_sel;
-  wire [0:0] inst0__out;
-  muxn_U2 inst0(
-    .in_data_0(inst0__in_data_0),
-    .in_data_1(inst0__in_data_1),
-    .in_data_2(inst0__in_data_2),
-    .in_data_3(inst0__in_data_3),
-    .in_data_4(inst0__in_data_4),
-    .in_data_5(inst0__in_data_5),
-    .in_data_6(inst0__in_data_6),
-    .in_data_7(inst0__in_data_7),
-    .in_data_8(inst0__in_data_8),
-    .in_data_9(inst0__in_data_9),
-    .in_sel(inst0__in_sel),
-    .out(inst0__out)
-  );
-
-  assign inst0__in_data_0[0:0] = I0[0:0];
-
-  assign inst0__in_data_1[0:0] = I1[0:0];
-
-  assign inst0__in_data_2[0:0] = I2[0:0];
-
-  assign inst0__in_data_3[0:0] = I3[0:0];
-
-  assign inst0__in_data_4[0:0] = I4[0:0];
-
-  assign inst0__in_data_5[0:0] = I5[0:0];
-
-  assign inst0__in_data_6[0:0] = I6[0:0];
-
-  assign inst0__in_data_7[0:0] = I7[0:0];
-
-  assign inst0__in_data_8[0:0] = I8[0:0];
-
-  assign inst0__in_data_9[0:0] = I9[0:0];
-
-  assign inst0__in_sel[3:0] = S[3:0];
-
-  assign O[0:0] = inst0__out[0:0];
-
-
-endmodule  // Mux10x1
-
-module MuxWrapper_10_1 (
-  input [0:0] I_0,
-  input [0:0] I_1,
-  input [0:0] I_2,
-  input [0:0] I_3,
-  input [0:0] I_4,
-  input [0:0] I_5,
-  input [0:0] I_6,
-  input [0:0] I_7,
-  input [0:0] I_8,
-  input [0:0] I_9,
-  output [0:0] O,
-  input [3:0] S
-);
-
-
-  wire [0:0] inst0__I0;
-  wire [0:0] inst0__I1;
-  wire [0:0] inst0__I2;
-  wire [0:0] inst0__I3;
-  wire [0:0] inst0__I4;
-  wire [0:0] inst0__I5;
-  wire [0:0] inst0__I6;
-  wire [0:0] inst0__I7;
-  wire [0:0] inst0__I8;
-  wire [0:0] inst0__I9;
-  wire [0:0] inst0__O;
-  wire [3:0] inst0__S;
-  Mux10x1 inst0(
-    .I0(inst0__I0),
-    .I1(inst0__I1),
-    .I2(inst0__I2),
-    .I3(inst0__I3),
-    .I4(inst0__I4),
-    .I5(inst0__I5),
-    .I6(inst0__I6),
-    .I7(inst0__I7),
-    .I8(inst0__I8),
-    .I9(inst0__I9),
-    .O(inst0__O),
-    .S(inst0__S)
-  );
-
-  assign inst0__I0[0:0] = I_0[0:0];
-
-  assign inst0__I1[0:0] = I_1[0:0];
-
-  assign inst0__I2[0:0] = I_2[0:0];
-
-  assign inst0__I3[0:0] = I_3[0:0];
-
-  assign inst0__I4[0:0] = I_4[0:0];
-
-  assign inst0__I5[0:0] = I_5[0:0];
-
-  assign inst0__I6[0:0] = I_6[0:0];
-
-  assign inst0__I7[0:0] = I_7[0:0];
-
-  assign inst0__I8[0:0] = I_8[0:0];
-
-  assign inst0__I9[0:0] = I_9[0:0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst0__S[3:0] = S[3:0];
-
-
-endmodule  // MuxWrapper_10_1
-
-module Mux2x1 (
-  input [0:0] I0,
-  input [0:0] I1,
-  output [0:0] O,
-  input  S
-);
-
-
-  // Instancing generated Module: commonlib.muxn(N:2, width:1)
-  wire [0:0] inst0__in_data_0;
-  wire [0:0] inst0__in_data_1;
-  wire [0:0] inst0__in_sel;
-  wire [0:0] inst0__out;
-  muxn_U4 inst0(
-    .in_data_0(inst0__in_data_0),
-    .in_data_1(inst0__in_data_1),
-    .in_sel(inst0__in_sel),
-    .out(inst0__out)
-  );
-
-  assign inst0__in_data_0[0:0] = I0[0:0];
-
-  assign inst0__in_data_1[0:0] = I1[0:0];
-
-  assign inst0__in_sel[0] = S;
-
-  assign O[0:0] = inst0__out[0:0];
-
-
-endmodule  // Mux2x1
-
-module Mux2x2 (
-  input [1:0] I0,
-  input [1:0] I1,
-  output [1:0] O,
-  input  S
-);
-
-
-  // Instancing generated Module: commonlib.muxn(N:2, width:2)
-  wire [1:0] inst0__in_data_0;
-  wire [1:0] inst0__in_data_1;
-  wire [0:0] inst0__in_sel;
-  wire [1:0] inst0__out;
-  muxn_U6 inst0(
-    .in_data_0(inst0__in_data_0),
-    .in_data_1(inst0__in_data_1),
-    .in_sel(inst0__in_sel),
-    .out(inst0__out)
-  );
-
-  assign inst0__in_data_0[1:0] = I0[1:0];
-
-  assign inst0__in_data_1[1:0] = I1[1:0];
-
-  assign inst0__in_sel[0] = S;
-
-  assign O[1:0] = inst0__out[1:0];
-
-
-endmodule  // Mux2x2
-
-module Mux2x32 (
-  input [31:0] I0,
-  input [31:0] I1,
-  output [31:0] O,
-  input  S
-);
-
-
-  // Instancing generated Module: commonlib.muxn(N:2, width:32)
-  wire [31:0] inst0__in_data_0;
-  wire [31:0] inst0__in_data_1;
-  wire [0:0] inst0__in_sel;
-  wire [31:0] inst0__out;
-  muxn_U7 inst0(
-    .in_data_0(inst0__in_data_0),
-    .in_data_1(inst0__in_data_1),
-    .in_sel(inst0__in_sel),
-    .out(inst0__out)
-  );
-
-  assign inst0__in_data_0[31:0] = I0[31:0];
-
-  assign inst0__in_data_1[31:0] = I1[31:0];
-
-  assign inst0__in_sel[0] = S;
-
-  assign O[31:0] = inst0__out[31:0];
-
-
-endmodule  // Mux2x32
-
-module Mux2x4 (
-  input [3:0] I0,
-  input [3:0] I1,
-  output [3:0] O,
-  input  S
-);
-
-
-  // Instancing generated Module: commonlib.muxn(N:2, width:4)
-  wire [3:0] inst0__in_data_0;
-  wire [3:0] inst0__in_data_1;
-  wire [0:0] inst0__in_sel;
-  wire [3:0] inst0__out;
-  muxn_U8 inst0(
-    .in_data_0(inst0__in_data_0),
-    .in_data_1(inst0__in_data_1),
-    .in_sel(inst0__in_sel),
-    .out(inst0__out)
-  );
-
-  assign inst0__in_data_0[3:0] = I0[3:0];
-
-  assign inst0__in_data_1[3:0] = I1[3:0];
-
-  assign inst0__in_sel[0] = S;
-
-  assign O[3:0] = inst0__out[3:0];
-
-
-endmodule  // Mux2x4
-
-module Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_4 (
-  input  ASYNCRESET,
-  input  CE,
-  input  CLK,
-  input [3:0] I,
-  output [3:0] O
-);
-
-
-  // Instancing generated Module: coreir.reg_arst(width:4)
-  wire  inst0__arst;
-  wire  inst0__clk;
-  wire [3:0] inst0__in;
-  wire [3:0] inst0__out;
-  coreir_reg_arst #(.arst_posedge(1),.clk_posedge(1),.init(4'h0),.width(4)) inst0(
-    .arst(inst0__arst),
-    .clk(inst0__clk),
-    .in(inst0__in),
-    .out(inst0__out)
-  );
-
-  wire [3:0] inst1__I0;
-  wire [3:0] inst1__I1;
-  wire [3:0] inst1__O;
-  wire  inst1__S;
-  Mux2x4 inst1(
-    .I0(inst1__I0),
-    .I1(inst1__I1),
-    .O(inst1__O),
-    .S(inst1__S)
-  );
-
-  assign inst0__arst = ASYNCRESET;
-
-  assign inst0__clk = CLK;
-
-  assign inst0__in[3:0] = inst1__O[3:0];
-
-  assign inst1__I0[3:0] = inst0__out[3:0];
-
-  assign O[3:0] = inst0__out[3:0];
-
-  assign inst1__I1[3:0] = I[3:0];
-
-  assign inst1__S = CE;
-
-
-endmodule  // Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_4
-
-module ConfigRegister_4_8_32_0 (
-  output [3:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_0_8__out;
-  coreir_const #(.value(8'h00),.width(8)) const_0_8(
-    .out(const_0_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [3:0] inst0__I;
-  wire [3:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_4 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_0_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign inst0__I[2] = config_data[2];
-
-  assign inst0__I[3] = config_data[3];
-
-  assign O[3:0] = inst0__O[3:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_4_8_32_0
-
-module Mux4x16 (
-  input [15:0] I0,
-  input [15:0] I1,
-  input [15:0] I2,
-  input [15:0] I3,
-  output [15:0] O,
-  input [1:0] S
-);
-
-
-  // Instancing generated Module: commonlib.muxn(N:4, width:16)
-  wire [15:0] inst0__in_data_0;
-  wire [15:0] inst0__in_data_1;
-  wire [15:0] inst0__in_data_2;
-  wire [15:0] inst0__in_data_3;
-  wire [1:0] inst0__in_sel;
-  wire [15:0] inst0__out;
-  muxn_U10 inst0(
-    .in_data_0(inst0__in_data_0),
-    .in_data_1(inst0__in_data_1),
-    .in_data_2(inst0__in_data_2),
-    .in_data_3(inst0__in_data_3),
-    .in_sel(inst0__in_sel),
-    .out(inst0__out)
-  );
-
-  assign inst0__in_data_0[15:0] = I0[15:0];
-
-  assign inst0__in_data_1[15:0] = I1[15:0];
-
-  assign inst0__in_data_2[15:0] = I2[15:0];
-
-  assign inst0__in_data_3[15:0] = I3[15:0];
-
-  assign inst0__in_sel[1:0] = S[1:0];
-
-  assign O[15:0] = inst0__out[15:0];
-
-
-endmodule  // Mux4x16
-
-module MuxWrapper_4_16 (
-  input [15:0] I_0,
-  input [15:0] I_1,
-  input [15:0] I_2,
-  input [15:0] I_3,
-  output [15:0] O,
-  input [1:0] S
-);
-
-
-  wire [15:0] inst0__I0;
-  wire [15:0] inst0__I1;
-  wire [15:0] inst0__I2;
-  wire [15:0] inst0__I3;
-  wire [15:0] inst0__O;
-  wire [1:0] inst0__S;
-  Mux4x16 inst0(
-    .I0(inst0__I0),
-    .I1(inst0__I1),
-    .I2(inst0__I2),
-    .I3(inst0__I3),
-    .O(inst0__O),
-    .S(inst0__S)
-  );
-
-  assign inst0__I0[15:0] = I_0[15:0];
-
-  assign inst0__I1[15:0] = I_1[15:0];
-
-  assign inst0__I2[15:0] = I_2[15:0];
-
-  assign inst0__I3[15:0] = I_3[15:0];
-
-  assign O[15:0] = inst0__O[15:0];
-
-  assign inst0__S[1:0] = S[1:0];
-
-
-endmodule  // MuxWrapper_4_16
-
-module MuxWrapper_2_1 (
-  input [0:0] I_0,
-  input [0:0] I_1,
-  output [0:0] O,
-  input [0:0] S
-);
-
-
-  wire [0:0] inst0__I0;
-  wire [0:0] inst0__I1;
-  wire [0:0] inst0__O;
-  wire  inst0__S;
-  Mux2x1 inst0(
-    .I0(inst0__I0),
-    .I1(inst0__I1),
-    .O(inst0__O),
-    .S(inst0__S)
-  );
-
-  assign inst0__I0[0:0] = I_0[0:0];
-
-  assign inst0__I1[0:0] = I_1[0:0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst0__S = S[0];
-
-
-endmodule  // MuxWrapper_2_1
-
-module MuxWrapper_2_16 (
-  input [15:0] I_0,
-  input [15:0] I_1,
-  output [15:0] O,
-  input [0:0] S
-);
-
-
-  wire [15:0] inst0__I0;
-  wire [15:0] inst0__I1;
-  wire [15:0] inst0__O;
-  wire  inst0__S;
-  Mux2x16 inst0(
-    .I0(inst0__I0),
-    .I1(inst0__I1),
-    .O(inst0__O),
-    .S(inst0__S)
-  );
-
-  assign inst0__I0[15:0] = I_0[15:0];
-
-  assign inst0__I1[15:0] = I_1[15:0];
-
-  assign O[15:0] = inst0__O[15:0];
-
-  assign inst0__S = S[0];
-
-
-endmodule  // MuxWrapper_2_16
-
-module MuxWrapper_2_32 (
-  input [31:0] I_0,
-  input [31:0] I_1,
-  output [31:0] O,
-  input [0:0] S
-);
-
-
-  wire [31:0] inst0__I0;
-  wire [31:0] inst0__I1;
-  wire [31:0] inst0__O;
-  wire  inst0__S;
-  Mux2x32 inst0(
-    .I0(inst0__I0),
-    .I1(inst0__I1),
-    .O(inst0__O),
-    .S(inst0__S)
-  );
-
-  assign inst0__I0[31:0] = I_0[31:0];
-
-  assign inst0__I1[31:0] = I_1[31:0];
-
-  assign O[31:0] = inst0__O[31:0];
-
-  assign inst0__S = S[0];
-
-
-endmodule  // MuxWrapper_2_32
-
-module MuxWrapper_3_1 (
-  input [0:0] I_0,
-  input [0:0] I_1,
-  input [0:0] I_2,
-  output [0:0] O,
-  input [1:0] S
-);
-
-
-  wire [0:0] inst0__I0;
-  wire [0:0] inst0__I1;
-  wire [0:0] inst0__I2;
-  wire [0:0] inst0__O;
-  wire [1:0] inst0__S;
-  Mux3x1 inst0(
-    .I0(inst0__I0),
-    .I1(inst0__I1),
-    .I2(inst0__I2),
-    .O(inst0__O),
-    .S(inst0__S)
-  );
-
-  assign inst0__I0[0:0] = I_0[0:0];
-
-  assign inst0__I1[0:0] = I_1[0:0];
-
-  assign inst0__I2[0:0] = I_2[0:0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst0__S[1:0] = S[1:0];
-
-
-endmodule  // MuxWrapper_3_1
-
-module MuxWrapper_7_32 (
-  input [31:0] I_0,
-  input [31:0] I_1,
-  input [31:0] I_2,
-  input [31:0] I_3,
-  input [31:0] I_4,
-  input [31:0] I_5,
-  input [31:0] I_6,
-  output [31:0] O,
-  input [2:0] S
-);
-
-
-  wire [31:0] inst0__I0;
-  wire [31:0] inst0__I1;
-  wire [31:0] inst0__I2;
-  wire [31:0] inst0__I3;
-  wire [31:0] inst0__I4;
-  wire [31:0] inst0__I5;
-  wire [31:0] inst0__I6;
-  wire [31:0] inst0__O;
-  wire [2:0] inst0__S;
-  Mux7x32 inst0(
-    .I0(inst0__I0),
-    .I1(inst0__I1),
-    .I2(inst0__I2),
-    .I3(inst0__I3),
-    .I4(inst0__I4),
-    .I5(inst0__I5),
-    .I6(inst0__I6),
-    .O(inst0__O),
-    .S(inst0__S)
-  );
-
-  assign inst0__I0[31:0] = I_0[31:0];
-
-  assign inst0__I1[31:0] = I_1[31:0];
-
-  assign inst0__I2[31:0] = I_2[31:0];
-
-  assign inst0__I3[31:0] = I_3[31:0];
-
-  assign inst0__I4[31:0] = I_4[31:0];
-
-  assign inst0__I5[31:0] = I_5[31:0];
-
-  assign inst0__I6[31:0] = I_6[31:0];
-
-  assign O[31:0] = inst0__O[31:0];
-
-  assign inst0__S[2:0] = S[2:0];
-
-
-endmodule  // MuxWrapper_7_32
-
-module MuxWithDefaultWrapper_7_32_8_0 (
-  input [0:0] EN,
-  input [31:0] I_0,
-  input [31:0] I_1,
-  input [31:0] I_2,
-  input [31:0] I_3,
-  input [31:0] I_4,
-  input [31:0] I_5,
-  input [31:0] I_6,
-  output [31:0] O,
-  input [7:0] S
-);
-
-
-  // Instancing generated Module: coreir.const(width:32)
-  wire [31:0] const_0_32__out;
-  coreir_const #(.value(32'h00000000),.width(32)) const_0_32(
-    .out(const_0_32__out)
-  );
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_7_8__out;
-  coreir_const #(.value(8'h07),.width(8)) const_7_8(
-    .out(const_7_8__out)
-  );
-
-  wire [31:0] inst0__I_0;
-  wire [31:0] inst0__I_1;
-  wire [31:0] inst0__I_2;
-  wire [31:0] inst0__I_3;
-  wire [31:0] inst0__I_4;
-  wire [31:0] inst0__I_5;
-  wire [31:0] inst0__I_6;
-  wire [31:0] inst0__O;
-  wire [2:0] inst0__S;
-  MuxWrapper_7_32 inst0(
-    .I_0(inst0__I_0),
-    .I_1(inst0__I_1),
-    .I_2(inst0__I_2),
-    .I_3(inst0__I_3),
-    .I_4(inst0__I_4),
-    .I_5(inst0__I_5),
-    .I_6(inst0__I_6),
-    .O(inst0__O),
-    .S(inst0__S)
-  );
-
-  wire [31:0] inst1__I_0;
-  wire [31:0] inst1__I_1;
-  wire [31:0] inst1__O;
-  wire [0:0] inst1__S;
-  MuxWrapper_2_32 inst1(
-    .I_0(inst1__I_0),
-    .I_1(inst1__I_1),
-    .O(inst1__O),
-    .S(inst1__S)
-  );
-
-  // Instancing generated Module: coreir.ult(width:8)
-  wire [7:0] inst2__in0;
-  wire [7:0] inst2__in1;
-  wire  inst2__out;
-  coreir_ult #(.width(8)) inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  wire  inst3__in0;
-  wire  inst3__in1;
-  wire  inst3__out;
-  corebit_and inst3(
-    .in0(inst3__in0),
-    .in1(inst3__in1),
-    .out(inst3__out)
-  );
-
-  assign inst1__I_0[31:0] = const_0_32__out[31:0];
-
-  assign inst2__in1[7:0] = const_7_8__out[7:0];
-
-  assign inst0__I_0[31:0] = I_0[31:0];
-
-  assign inst0__I_1[31:0] = I_1[31:0];
-
-  assign inst0__I_2[31:0] = I_2[31:0];
-
-  assign inst0__I_3[31:0] = I_3[31:0];
-
-  assign inst0__I_4[31:0] = I_4[31:0];
-
-  assign inst0__I_5[31:0] = I_5[31:0];
-
-  assign inst0__I_6[31:0] = I_6[31:0];
-
-  assign inst1__I_1[31:0] = inst0__O[31:0];
-
-  assign inst0__S[0] = S[0];
-
-  assign inst0__S[1] = S[1];
-
-  assign inst0__S[2] = S[2];
-
-  assign O[31:0] = inst1__O[31:0];
-
-  assign inst1__S[0] = inst3__out;
-
-  assign inst2__in0[7:0] = S[7:0];
-
-  assign inst3__in0 = inst2__out;
-
-  assign inst3__in1 = EN[0];
-
-
-endmodule  // MuxWithDefaultWrapper_7_32_8_0
 
 module MuxWrapper_80_32 (
   input [31:0] I_0,
@@ -4827,32 +3851,326 @@ module MuxWrapper_80_32 (
 
 endmodule  // MuxWrapper_80_32
 
-module Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 (
-  input  ASYNCRESET,
-  input  CE,
-  input  CLK,
-  input [0:0] I,
-  output [0:0] O
+module Mux7x32 (
+  input [31:0] I0,
+  input [31:0] I1,
+  input [31:0] I2,
+  input [31:0] I3,
+  input [31:0] I4,
+  input [31:0] I5,
+  input [31:0] I6,
+  output [31:0] O,
+  input [2:0] S
 );
 
 
-  // Instancing generated Module: coreir.reg_arst(width:1)
+  // Instancing generated Module: commonlib.muxn(N:7, width:32)
+  wire [31:0] inst0__in_data_0;
+  wire [31:0] inst0__in_data_1;
+  wire [31:0] inst0__in_data_2;
+  wire [31:0] inst0__in_data_3;
+  wire [31:0] inst0__in_data_4;
+  wire [31:0] inst0__in_data_5;
+  wire [31:0] inst0__in_data_6;
+  wire [2:0] inst0__in_sel;
+  wire [31:0] inst0__out;
+  commonlib_muxn__N7__width32 inst0(
+    .in_data_0(inst0__in_data_0),
+    .in_data_1(inst0__in_data_1),
+    .in_data_2(inst0__in_data_2),
+    .in_data_3(inst0__in_data_3),
+    .in_data_4(inst0__in_data_4),
+    .in_data_5(inst0__in_data_5),
+    .in_data_6(inst0__in_data_6),
+    .in_sel(inst0__in_sel),
+    .out(inst0__out)
+  );
+
+  assign inst0__in_data_0[31:0] = I0[31:0];
+
+  assign inst0__in_data_1[31:0] = I1[31:0];
+
+  assign inst0__in_data_2[31:0] = I2[31:0];
+
+  assign inst0__in_data_3[31:0] = I3[31:0];
+
+  assign inst0__in_data_4[31:0] = I4[31:0];
+
+  assign inst0__in_data_5[31:0] = I5[31:0];
+
+  assign inst0__in_data_6[31:0] = I6[31:0];
+
+  assign inst0__in_sel[2:0] = S[2:0];
+
+  assign O[31:0] = inst0__out[31:0];
+
+
+endmodule  // Mux7x32
+
+module MuxWrapper_7_32 (
+  input [31:0] I_0,
+  input [31:0] I_1,
+  input [31:0] I_2,
+  input [31:0] I_3,
+  input [31:0] I_4,
+  input [31:0] I_5,
+  input [31:0] I_6,
+  output [31:0] O,
+  input [2:0] S
+);
+
+
+  wire [31:0] inst0__I0;
+  wire [31:0] inst0__I1;
+  wire [31:0] inst0__I2;
+  wire [31:0] inst0__I3;
+  wire [31:0] inst0__I4;
+  wire [31:0] inst0__I5;
+  wire [31:0] inst0__I6;
+  wire [31:0] inst0__O;
+  wire [2:0] inst0__S;
+  Mux7x32 inst0(
+    .I0(inst0__I0),
+    .I1(inst0__I1),
+    .I2(inst0__I2),
+    .I3(inst0__I3),
+    .I4(inst0__I4),
+    .I5(inst0__I5),
+    .I6(inst0__I6),
+    .O(inst0__O),
+    .S(inst0__S)
+  );
+
+  assign inst0__I0[31:0] = I_0[31:0];
+
+  assign inst0__I1[31:0] = I_1[31:0];
+
+  assign inst0__I2[31:0] = I_2[31:0];
+
+  assign inst0__I3[31:0] = I_3[31:0];
+
+  assign inst0__I4[31:0] = I_4[31:0];
+
+  assign inst0__I5[31:0] = I_5[31:0];
+
+  assign inst0__I6[31:0] = I_6[31:0];
+
+  assign O[31:0] = inst0__O[31:0];
+
+  assign inst0__S[2:0] = S[2:0];
+
+
+endmodule  // MuxWrapper_7_32
+
+module Mux4x16 (
+  input [15:0] I0,
+  input [15:0] I1,
+  input [15:0] I2,
+  input [15:0] I3,
+  output [15:0] O,
+  input [1:0] S
+);
+
+
+  // Instancing generated Module: commonlib.muxn(N:4, width:16)
+  wire [15:0] inst0__in_data_0;
+  wire [15:0] inst0__in_data_1;
+  wire [15:0] inst0__in_data_2;
+  wire [15:0] inst0__in_data_3;
+  wire [1:0] inst0__in_sel;
+  wire [15:0] inst0__out;
+  commonlib_muxn__N4__width16 inst0(
+    .in_data_0(inst0__in_data_0),
+    .in_data_1(inst0__in_data_1),
+    .in_data_2(inst0__in_data_2),
+    .in_data_3(inst0__in_data_3),
+    .in_sel(inst0__in_sel),
+    .out(inst0__out)
+  );
+
+  assign inst0__in_data_0[15:0] = I0[15:0];
+
+  assign inst0__in_data_1[15:0] = I1[15:0];
+
+  assign inst0__in_data_2[15:0] = I2[15:0];
+
+  assign inst0__in_data_3[15:0] = I3[15:0];
+
+  assign inst0__in_sel[1:0] = S[1:0];
+
+  assign O[15:0] = inst0__out[15:0];
+
+
+endmodule  // Mux4x16
+
+module MuxWrapper_4_16 (
+  input [15:0] I_0,
+  input [15:0] I_1,
+  input [15:0] I_2,
+  input [15:0] I_3,
+  output [15:0] O,
+  input [1:0] S
+);
+
+
+  wire [15:0] inst0__I0;
+  wire [15:0] inst0__I1;
+  wire [15:0] inst0__I2;
+  wire [15:0] inst0__I3;
+  wire [15:0] inst0__O;
+  wire [1:0] inst0__S;
+  Mux4x16 inst0(
+    .I0(inst0__I0),
+    .I1(inst0__I1),
+    .I2(inst0__I2),
+    .I3(inst0__I3),
+    .O(inst0__O),
+    .S(inst0__S)
+  );
+
+  assign inst0__I0[15:0] = I_0[15:0];
+
+  assign inst0__I1[15:0] = I_1[15:0];
+
+  assign inst0__I2[15:0] = I_2[15:0];
+
+  assign inst0__I3[15:0] = I_3[15:0];
+
+  assign O[15:0] = inst0__O[15:0];
+
+  assign inst0__S[1:0] = S[1:0];
+
+
+endmodule  // MuxWrapper_4_16
+
+module Mux3x1 (
+  input [0:0] I0,
+  input [0:0] I1,
+  input [0:0] I2,
+  output [0:0] O,
+  input [1:0] S
+);
+
+
+  // Instancing generated Module: commonlib.muxn(N:3, width:1)
+  wire [0:0] inst0__in_data_0;
+  wire [0:0] inst0__in_data_1;
+  wire [0:0] inst0__in_data_2;
+  wire [1:0] inst0__in_sel;
+  wire [0:0] inst0__out;
+  commonlib_muxn__N3__width1 inst0(
+    .in_data_0(inst0__in_data_0),
+    .in_data_1(inst0__in_data_1),
+    .in_data_2(inst0__in_data_2),
+    .in_sel(inst0__in_sel),
+    .out(inst0__out)
+  );
+
+  assign inst0__in_data_0[0:0] = I0[0:0];
+
+  assign inst0__in_data_1[0:0] = I1[0:0];
+
+  assign inst0__in_data_2[0:0] = I2[0:0];
+
+  assign inst0__in_sel[1:0] = S[1:0];
+
+  assign O[0:0] = inst0__out[0:0];
+
+
+endmodule  // Mux3x1
+
+module MuxWrapper_3_1 (
+  input [0:0] I_0,
+  input [0:0] I_1,
+  input [0:0] I_2,
+  output [0:0] O,
+  input [1:0] S
+);
+
+
+  wire [0:0] inst0__I0;
+  wire [0:0] inst0__I1;
+  wire [0:0] inst0__I2;
+  wire [0:0] inst0__O;
+  wire [1:0] inst0__S;
+  Mux3x1 inst0(
+    .I0(inst0__I0),
+    .I1(inst0__I1),
+    .I2(inst0__I2),
+    .O(inst0__O),
+    .S(inst0__S)
+  );
+
+  assign inst0__I0[0:0] = I_0[0:0];
+
+  assign inst0__I1[0:0] = I_1[0:0];
+
+  assign inst0__I2[0:0] = I_2[0:0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst0__S[1:0] = S[1:0];
+
+
+endmodule  // MuxWrapper_3_1
+
+module Mux2x4 (
+  input [3:0] I0,
+  input [3:0] I1,
+  output [3:0] O,
+  input  S
+);
+
+
+  // Instancing generated Module: commonlib.muxn(N:2, width:4)
+  wire [3:0] inst0__in_data_0;
+  wire [3:0] inst0__in_data_1;
+  wire [0:0] inst0__in_sel;
+  wire [3:0] inst0__out;
+  commonlib_muxn__N2__width4 inst0(
+    .in_data_0(inst0__in_data_0),
+    .in_data_1(inst0__in_data_1),
+    .in_sel(inst0__in_sel),
+    .out(inst0__out)
+  );
+
+  assign inst0__in_data_0[3:0] = I0[3:0];
+
+  assign inst0__in_data_1[3:0] = I1[3:0];
+
+  assign inst0__in_sel[0] = S;
+
+  assign O[3:0] = inst0__out[3:0];
+
+
+endmodule  // Mux2x4
+
+module Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_4 (
+  input  ASYNCRESET,
+  input  CE,
+  input  CLK,
+  input [3:0] I,
+  output [3:0] O
+);
+
+
+  // Instancing generated Module: coreir.reg_arst(width:4)
   wire  inst0__arst;
   wire  inst0__clk;
-  wire [0:0] inst0__in;
-  wire [0:0] inst0__out;
-  coreir_reg_arst #(.arst_posedge(1),.clk_posedge(1),.init(1'h0),.width(1)) inst0(
+  wire [3:0] inst0__in;
+  wire [3:0] inst0__out;
+  coreir_reg_arst #(.arst_posedge(1),.clk_posedge(1),.init(4'h0),.width(4)) inst0(
     .arst(inst0__arst),
     .clk(inst0__clk),
     .in(inst0__in),
     .out(inst0__out)
   );
 
-  wire [0:0] inst1__I0;
-  wire [0:0] inst1__I1;
-  wire [0:0] inst1__O;
+  wire [3:0] inst1__I0;
+  wire [3:0] inst1__I1;
+  wire [3:0] inst1__O;
   wire  inst1__S;
-  Mux2x1 inst1(
+  Mux2x4 inst1(
     .I0(inst1__I0),
     .I1(inst1__I1),
     .O(inst1__O),
@@ -4863,1408 +4181,99 @@ module Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits_
 
   assign inst0__clk = CLK;
 
-  assign inst0__in[0:0] = inst1__O[0:0];
+  assign inst0__in[3:0] = inst1__O[3:0];
 
-  assign inst1__I0[0:0] = inst0__out[0:0];
+  assign inst1__I0[3:0] = inst0__out[3:0];
 
-  assign O[0:0] = inst0__out[0:0];
+  assign O[3:0] = inst0__out[3:0];
 
-  assign inst1__I1[0:0] = I[0:0];
+  assign inst1__I1[3:0] = I[3:0];
 
   assign inst1__S = CE;
 
 
-endmodule  // Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1
+endmodule  // Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_4
 
-module ConfigRegister_1_8_32_53 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
+module Mux2x32 (
+  input [31:0] I0,
+  input [31:0] I1,
+  output [31:0] O,
+  input  S
 );
 
 
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_53_8__out;
-  coreir_const #(.value(8'h35),.width(8)) const_53_8(
-    .out(const_53_8__out)
+  // Instancing generated Module: commonlib.muxn(N:2, width:32)
+  wire [31:0] inst0__in_data_0;
+  wire [31:0] inst0__in_data_1;
+  wire [0:0] inst0__in_sel;
+  wire [31:0] inst0__out;
+  commonlib_muxn__N2__width32 inst0(
+    .in_data_0(inst0__in_data_0),
+    .in_data_1(inst0__in_data_1),
+    .in_sel(inst0__in_sel),
+    .out(inst0__out)
   );
 
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
+  assign inst0__in_data_0[31:0] = I0[31:0];
 
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
+  assign inst0__in_data_1[31:0] = I1[31:0];
 
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
+  assign inst0__in_sel[0] = S;
 
-  assign inst1__in1[7:0] = const_53_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
+  assign O[31:0] = inst0__out[31:0];
 
 
-endmodule  // ConfigRegister_1_8_32_53
+endmodule  // Mux2x32
 
-module ConfigRegister_1_8_32_73 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
+module MuxWrapper_2_32 (
+  input [31:0] I_0,
+  input [31:0] I_1,
+  output [31:0] O,
+  input [0:0] S
 );
 
 
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_73_8__out;
-  coreir_const #(.value(8'h49),.width(8)) const_73_8(
-    .out(const_73_8__out)
+  wire [31:0] inst0__I0;
+  wire [31:0] inst0__I1;
+  wire [31:0] inst0__O;
+  wire  inst0__S;
+  Mux2x32 inst0(
+    .I0(inst0__I0),
+    .I1(inst0__I1),
+    .O(inst0__O),
+    .S(inst0__S)
   );
 
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
+  assign inst0__I0[31:0] = I_0[31:0];
 
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
+  assign inst0__I1[31:0] = I_1[31:0];
 
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
+  assign O[31:0] = inst0__O[31:0];
 
-  assign inst1__in1[7:0] = const_73_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
+  assign inst0__S = S[0];
 
 
-endmodule  // ConfigRegister_1_8_32_73
+endmodule  // MuxWrapper_2_32
 
-module ConfigRegister_1_8_32_31 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
+module MuxWithDefaultWrapper_7_32_8_0 (
+  input [0:0] EN,
+  input [31:0] I_0,
+  input [31:0] I_1,
+  input [31:0] I_2,
+  input [31:0] I_3,
+  input [31:0] I_4,
+  input [31:0] I_5,
+  input [31:0] I_6,
+  output [31:0] O,
+  input [7:0] S
 );
 
 
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_31_8__out;
-  coreir_const #(.value(8'h1f),.width(8)) const_31_8(
-    .out(const_31_8__out)
+  // Instancing generated Module: coreir.const(width:32)
+  wire [31:0] const_0_32__out;
+  coreir_const #(.value(32'h00000000),.width(32)) const_0_32(
+    .out(const_0_32__out)
   );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_31_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_31
-
-module ConfigRegister_1_8_32_1 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_1_8__out;
-  coreir_const #(.value(8'h01),.width(8)) const_1_8(
-    .out(const_1_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_1_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_1
-
-module ConfigRegister_1_8_32_39 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_39_8__out;
-  coreir_const #(.value(8'h27),.width(8)) const_39_8(
-    .out(const_39_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_39_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_39
-
-module ConfigRegister_1_8_32_11 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_11_8__out;
-  coreir_const #(.value(8'h0b),.width(8)) const_11_8(
-    .out(const_11_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_11_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_11
-
-module ConfigRegister_1_8_32_67 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_67_8__out;
-  coreir_const #(.value(8'h43),.width(8)) const_67_8(
-    .out(const_67_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_67_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_67
-
-module ConfigRegister_1_8_32_13 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_13_8__out;
-  coreir_const #(.value(8'h0d),.width(8)) const_13_8(
-    .out(const_13_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_13_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_13
-
-module ConfigRegister_1_8_32_17 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_17_8__out;
-  coreir_const #(.value(8'h11),.width(8)) const_17_8(
-    .out(const_17_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_17_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_17
-
-module ConfigRegister_1_8_32_5 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_5_8__out;
-  coreir_const #(.value(8'h05),.width(8)) const_5_8(
-    .out(const_5_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_5_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_5
-
-module ConfigRegister_1_8_32_19 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_19_8__out;
-  coreir_const #(.value(8'h13),.width(8)) const_19_8(
-    .out(const_19_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_19_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_19
-
-module ConfigRegister_1_8_32_23 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_23_8__out;
-  coreir_const #(.value(8'h17),.width(8)) const_23_8(
-    .out(const_23_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_23_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_23
-
-module ConfigRegister_1_8_32_27 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_27_8__out;
-  coreir_const #(.value(8'h1b),.width(8)) const_27_8(
-    .out(const_27_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_27_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_27
-
-module ConfigRegister_1_8_32_59 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_59_8__out;
-  coreir_const #(.value(8'h3b),.width(8)) const_59_8(
-    .out(const_59_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_59_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_59
-
-module ConfigRegister_1_8_32_3 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_3_8__out;
-  coreir_const #(.value(8'h03),.width(8)) const_3_8(
-    .out(const_3_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_3_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_3
-
-module ConfigRegister_1_8_32_33 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_33_8__out;
-  coreir_const #(.value(8'h21),.width(8)) const_33_8(
-    .out(const_33_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_33_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_33
-
-module ConfigRegister_1_8_32_35 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_35_8__out;
-  coreir_const #(.value(8'h23),.width(8)) const_35_8(
-    .out(const_35_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_35_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_35
-
-module ConfigRegister_1_8_32_37 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_37_8__out;
-  coreir_const #(.value(8'h25),.width(8)) const_37_8(
-    .out(const_37_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_37_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_37
-
-module ConfigRegister_1_8_32_9 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_9_8__out;
-  coreir_const #(.value(8'h09),.width(8)) const_9_8(
-    .out(const_9_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_9_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_9
-
-module ConfigRegister_1_8_32_25 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_25_8__out;
-  coreir_const #(.value(8'h19),.width(8)) const_25_8(
-    .out(const_25_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_25_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_25
-
-module ConfigRegister_1_8_32_7 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
 
   // Instancing generated Module: coreir.const(width:8)
   wire [7:0] const_7_8__out;
@@ -6272,1369 +4281,126 @@ module ConfigRegister_1_8_32_7 (
     .out(const_7_8__out)
   );
 
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
+  wire [31:0] inst0__I_0;
+  wire [31:0] inst0__I_1;
+  wire [31:0] inst0__I_2;
+  wire [31:0] inst0__I_3;
+  wire [31:0] inst0__I_4;
+  wire [31:0] inst0__I_5;
+  wire [31:0] inst0__I_6;
+  wire [31:0] inst0__O;
+  wire [2:0] inst0__S;
+  MuxWrapper_7_32 inst0(
+    .I_0(inst0__I_0),
+    .I_1(inst0__I_1),
+    .I_2(inst0__I_2),
+    .I_3(inst0__I_3),
+    .I_4(inst0__I_4),
+    .I_5(inst0__I_5),
+    .I_6(inst0__I_6),
+    .O(inst0__O),
+    .S(inst0__S)
   );
 
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
+  wire [31:0] inst1__I_0;
+  wire [31:0] inst1__I_1;
+  wire [31:0] inst1__O;
+  wire [0:0] inst1__S;
+  MuxWrapper_2_32 inst1(
+    .I_0(inst1__I_0),
+    .I_1(inst1__I_1),
+    .O(inst1__O),
+    .S(inst1__S)
   );
 
-  wire  inst2__in0;
-  wire  inst2__in1;
+  // Instancing generated Module: coreir.ult(width:8)
+  wire [7:0] inst2__in0;
+  wire [7:0] inst2__in1;
   wire  inst2__out;
-  corebit_and inst2(
+  coreir_ult #(.width(8)) inst2(
     .in0(inst2__in0),
     .in1(inst2__in1),
     .out(inst2__out)
   );
 
-  assign inst1__in1[7:0] = const_7_8__out[7:0];
+  wire  inst3__in0;
+  wire  inst3__in1;
+  wire  inst3__out;
+  corebit_and inst3(
+    .in0(inst3__in0),
+    .in1(inst3__in1),
+    .out(inst3__out)
+  );
 
-  assign inst0__ASYNCRESET = reset;
+  assign inst1__I_0[31:0] = const_0_32__out[31:0];
 
-  assign inst0__CE = inst2__out;
+  assign inst2__in1[7:0] = const_7_8__out[7:0];
 
-  assign inst0__CLK = clk;
+  assign inst0__I_0[31:0] = I_0[31:0];
 
-  assign inst0__I[0] = config_data[0];
+  assign inst0__I_1[31:0] = I_1[31:0];
 
-  assign O[0:0] = inst0__O[0:0];
+  assign inst0__I_2[31:0] = I_2[31:0];
 
-  assign inst1__in0[7:0] = config_addr[7:0];
+  assign inst0__I_3[31:0] = I_3[31:0];
 
-  assign inst2__in0 = inst1__out;
+  assign inst0__I_4[31:0] = I_4[31:0];
 
-  assign inst2__in1 = config_en;
+  assign inst0__I_5[31:0] = I_5[31:0];
+
+  assign inst0__I_6[31:0] = I_6[31:0];
+
+  assign inst1__I_1[31:0] = inst0__O[31:0];
+
+  assign inst0__S[0] = S[0];
+
+  assign inst0__S[1] = S[1];
+
+  assign inst0__S[2] = S[2];
+
+  assign O[31:0] = inst1__O[31:0];
+
+  assign inst1__S[0] = inst3__out;
+
+  assign inst2__in0[7:0] = S[7:0];
+
+  assign inst3__in0 = inst2__out;
+
+  assign inst3__in1 = EN[0];
 
 
-endmodule  // ConfigRegister_1_8_32_7
+endmodule  // MuxWithDefaultWrapper_7_32_8_0
 
-module ConfigRegister_1_8_32_71 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
+module Mux2x2 (
+  input [1:0] I0,
+  input [1:0] I1,
+  output [1:0] O,
+  input  S
 );
 
 
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_71_8__out;
-  coreir_const #(.value(8'h47),.width(8)) const_71_8(
-    .out(const_71_8__out)
+  // Instancing generated Module: commonlib.muxn(N:2, width:2)
+  wire [1:0] inst0__in_data_0;
+  wire [1:0] inst0__in_data_1;
+  wire [0:0] inst0__in_sel;
+  wire [1:0] inst0__out;
+  commonlib_muxn__N2__width2 inst0(
+    .in_data_0(inst0__in_data_0),
+    .in_data_1(inst0__in_data_1),
+    .in_sel(inst0__in_sel),
+    .out(inst0__out)
   );
 
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_71_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_71
-
-module ConfigRegister_1_8_32_29 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_29_8__out;
-  coreir_const #(.value(8'h1d),.width(8)) const_29_8(
-    .out(const_29_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_29_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_29
-
-module ConfigRegister_1_8_32_61 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_61_8__out;
-  coreir_const #(.value(8'h3d),.width(8)) const_61_8(
-    .out(const_61_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_61_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_61
-
-module ConfigRegister_1_8_32_69 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_69_8__out;
-  coreir_const #(.value(8'h45),.width(8)) const_69_8(
-    .out(const_69_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_69_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_69
-
-module ConfigRegister_1_8_32_65 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_65_8__out;
-  coreir_const #(.value(8'h41),.width(8)) const_65_8(
-    .out(const_65_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_65_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_65
-
-module ConfigRegister_1_8_32_15 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_15_8__out;
-  coreir_const #(.value(8'h0f),.width(8)) const_15_8(
-    .out(const_15_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_15_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_15
-
-module ConfigRegister_1_8_32_77 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_77_8__out;
-  coreir_const #(.value(8'h4d),.width(8)) const_77_8(
-    .out(const_77_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_77_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_77
-
-module ConfigRegister_1_8_32_63 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_63_8__out;
-  coreir_const #(.value(8'h3f),.width(8)) const_63_8(
-    .out(const_63_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_63_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_63
-
-module ConfigRegister_1_8_32_49 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_49_8__out;
-  coreir_const #(.value(8'h31),.width(8)) const_49_8(
-    .out(const_49_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_49_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_49
-
-module ConfigRegister_1_8_32_47 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_47_8__out;
-  coreir_const #(.value(8'h2f),.width(8)) const_47_8(
-    .out(const_47_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_47_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_47
-
-module ConfigRegister_1_8_32_51 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_51_8__out;
-  coreir_const #(.value(8'h33),.width(8)) const_51_8(
-    .out(const_51_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_51_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_51
-
-module ConfigRegister_1_8_32_43 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_43_8__out;
-  coreir_const #(.value(8'h2b),.width(8)) const_43_8(
-    .out(const_43_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_43_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_43
-
-module ConfigRegister_1_8_32_21 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_21_8__out;
-  coreir_const #(.value(8'h15),.width(8)) const_21_8(
-    .out(const_21_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_21_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_21
-
-module ConfigRegister_1_8_32_57 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_57_8__out;
-  coreir_const #(.value(8'h39),.width(8)) const_57_8(
-    .out(const_57_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_57_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_57
-
-module ConfigRegister_1_8_32_55 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_55_8__out;
-  coreir_const #(.value(8'h37),.width(8)) const_55_8(
-    .out(const_55_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_55_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_55
-
-module ConfigRegister_1_8_32_41 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_41_8__out;
-  coreir_const #(.value(8'h29),.width(8)) const_41_8(
-    .out(const_41_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_41_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_41
-
-module ConfigRegister_1_8_32_75 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_75_8__out;
-  coreir_const #(.value(8'h4b),.width(8)) const_75_8(
-    .out(const_75_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_75_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_75
-
-module ConfigRegister_1_8_32_45 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_45_8__out;
-  coreir_const #(.value(8'h2d),.width(8)) const_45_8(
-    .out(const_45_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_45_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_1_8_32_45
-
-module ConfigRegister_1_8_32_79 (
-  output [0:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_79_8__out;
-  coreir_const #(.value(8'h4f),.width(8)) const_79_8(
-    .out(const_79_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [0:0] inst0__I;
-  wire [0:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_79_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign O[0:0] = inst0__O[0:0];
+  assign inst0__in_data_0[1:0] = I0[1:0];
 
-  assign inst1__in0[7:0] = config_addr[7:0];
+  assign inst0__in_data_1[1:0] = I1[1:0];
 
-  assign inst2__in0 = inst1__out;
+  assign inst0__in_sel[0] = S;
 
-  assign inst2__in1 = config_en;
+  assign O[1:0] = inst0__out[1:0];
 
 
-endmodule  // ConfigRegister_1_8_32_79
+endmodule  // Mux2x2
 
 module Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 (
   input  ASYNCRESET,
@@ -7685,8 +4451,678 @@ module Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits_
 
 endmodule  // Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2
 
-module ConfigRegister_2_8_32_0 (
-  output [1:0] O,
+module Mux2x16 (
+  input [15:0] I0,
+  input [15:0] I1,
+  output [15:0] O,
+  input  S
+);
+
+
+  // Instancing generated Module: commonlib.muxn(N:2, width:16)
+  wire [15:0] inst0__in_data_0;
+  wire [15:0] inst0__in_data_1;
+  wire [0:0] inst0__in_sel;
+  wire [15:0] inst0__out;
+  commonlib_muxn__N2__width16 inst0(
+    .in_data_0(inst0__in_data_0),
+    .in_data_1(inst0__in_data_1),
+    .in_sel(inst0__in_sel),
+    .out(inst0__out)
+  );
+
+  assign inst0__in_data_0[15:0] = I0[15:0];
+
+  assign inst0__in_data_1[15:0] = I1[15:0];
+
+  assign inst0__in_sel[0] = S;
+
+  assign O[15:0] = inst0__out[15:0];
+
+
+endmodule  // Mux2x16
+
+module MuxWrapper_2_16 (
+  input [15:0] I_0,
+  input [15:0] I_1,
+  output [15:0] O,
+  input [0:0] S
+);
+
+
+  wire [15:0] inst0__I0;
+  wire [15:0] inst0__I1;
+  wire [15:0] inst0__O;
+  wire  inst0__S;
+  Mux2x16 inst0(
+    .I0(inst0__I0),
+    .I1(inst0__I1),
+    .O(inst0__O),
+    .S(inst0__S)
+  );
+
+  assign inst0__I0[15:0] = I_0[15:0];
+
+  assign inst0__I1[15:0] = I_1[15:0];
+
+  assign O[15:0] = inst0__O[15:0];
+
+  assign inst0__S = S[0];
+
+
+endmodule  // MuxWrapper_2_16
+
+module Mux2x1 (
+  input [0:0] I0,
+  input [0:0] I1,
+  output [0:0] O,
+  input  S
+);
+
+
+  // Instancing generated Module: commonlib.muxn(N:2, width:1)
+  wire [0:0] inst0__in_data_0;
+  wire [0:0] inst0__in_data_1;
+  wire [0:0] inst0__in_sel;
+  wire [0:0] inst0__out;
+  commonlib_muxn__N2__width1 inst0(
+    .in_data_0(inst0__in_data_0),
+    .in_data_1(inst0__in_data_1),
+    .in_sel(inst0__in_sel),
+    .out(inst0__out)
+  );
+
+  assign inst0__in_data_0[0:0] = I0[0:0];
+
+  assign inst0__in_data_1[0:0] = I1[0:0];
+
+  assign inst0__in_sel[0] = S;
+
+  assign O[0:0] = inst0__out[0:0];
+
+
+endmodule  // Mux2x1
+
+module Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 (
+  input  ASYNCRESET,
+  input  CE,
+  input  CLK,
+  input [0:0] I,
+  output [0:0] O
+);
+
+
+  // Instancing generated Module: coreir.reg_arst(width:1)
+  wire  inst0__arst;
+  wire  inst0__clk;
+  wire [0:0] inst0__in;
+  wire [0:0] inst0__out;
+  coreir_reg_arst #(.arst_posedge(1),.clk_posedge(1),.init(1'h0),.width(1)) inst0(
+    .arst(inst0__arst),
+    .clk(inst0__clk),
+    .in(inst0__in),
+    .out(inst0__out)
+  );
+
+  wire [0:0] inst1__I0;
+  wire [0:0] inst1__I1;
+  wire [0:0] inst1__O;
+  wire  inst1__S;
+  Mux2x1 inst1(
+    .I0(inst1__I0),
+    .I1(inst1__I1),
+    .O(inst1__O),
+    .S(inst1__S)
+  );
+
+  assign inst0__arst = ASYNCRESET;
+
+  assign inst0__clk = CLK;
+
+  assign inst0__in[0:0] = inst1__O[0:0];
+
+  assign inst1__I0[0:0] = inst0__out[0:0];
+
+  assign O[0:0] = inst0__out[0:0];
+
+  assign inst1__I1[0:0] = I[0:0];
+
+  assign inst1__S = CE;
+
+
+endmodule  // Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1
+
+module MuxWrapper_2_1 (
+  input [0:0] I_0,
+  input [0:0] I_1,
+  output [0:0] O,
+  input [0:0] S
+);
+
+
+  wire [0:0] inst0__I0;
+  wire [0:0] inst0__I1;
+  wire [0:0] inst0__O;
+  wire  inst0__S;
+  Mux2x1 inst0(
+    .I0(inst0__I0),
+    .I1(inst0__I1),
+    .O(inst0__O),
+    .S(inst0__S)
+  );
+
+  assign inst0__I0[0:0] = I_0[0:0];
+
+  assign inst0__I1[0:0] = I_1[0:0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst0__S = S[0];
+
+
+endmodule  // MuxWrapper_2_1
+
+module Mux10x16 (
+  input [15:0] I0,
+  input [15:0] I1,
+  input [15:0] I2,
+  input [15:0] I3,
+  input [15:0] I4,
+  input [15:0] I5,
+  input [15:0] I6,
+  input [15:0] I7,
+  input [15:0] I8,
+  input [15:0] I9,
+  output [15:0] O,
+  input [3:0] S
+);
+
+
+  // Instancing generated Module: commonlib.muxn(N:10, width:16)
+  wire [15:0] inst0__in_data_0;
+  wire [15:0] inst0__in_data_1;
+  wire [15:0] inst0__in_data_2;
+  wire [15:0] inst0__in_data_3;
+  wire [15:0] inst0__in_data_4;
+  wire [15:0] inst0__in_data_5;
+  wire [15:0] inst0__in_data_6;
+  wire [15:0] inst0__in_data_7;
+  wire [15:0] inst0__in_data_8;
+  wire [15:0] inst0__in_data_9;
+  wire [3:0] inst0__in_sel;
+  wire [15:0] inst0__out;
+  commonlib_muxn__N10__width16 inst0(
+    .in_data_0(inst0__in_data_0),
+    .in_data_1(inst0__in_data_1),
+    .in_data_2(inst0__in_data_2),
+    .in_data_3(inst0__in_data_3),
+    .in_data_4(inst0__in_data_4),
+    .in_data_5(inst0__in_data_5),
+    .in_data_6(inst0__in_data_6),
+    .in_data_7(inst0__in_data_7),
+    .in_data_8(inst0__in_data_8),
+    .in_data_9(inst0__in_data_9),
+    .in_sel(inst0__in_sel),
+    .out(inst0__out)
+  );
+
+  assign inst0__in_data_0[15:0] = I0[15:0];
+
+  assign inst0__in_data_1[15:0] = I1[15:0];
+
+  assign inst0__in_data_2[15:0] = I2[15:0];
+
+  assign inst0__in_data_3[15:0] = I3[15:0];
+
+  assign inst0__in_data_4[15:0] = I4[15:0];
+
+  assign inst0__in_data_5[15:0] = I5[15:0];
+
+  assign inst0__in_data_6[15:0] = I6[15:0];
+
+  assign inst0__in_data_7[15:0] = I7[15:0];
+
+  assign inst0__in_data_8[15:0] = I8[15:0];
+
+  assign inst0__in_data_9[15:0] = I9[15:0];
+
+  assign inst0__in_sel[3:0] = S[3:0];
+
+  assign O[15:0] = inst0__out[15:0];
+
+
+endmodule  // Mux10x16
+
+module MuxWrapper_10_16 (
+  input [15:0] I_0,
+  input [15:0] I_1,
+  input [15:0] I_2,
+  input [15:0] I_3,
+  input [15:0] I_4,
+  input [15:0] I_5,
+  input [15:0] I_6,
+  input [15:0] I_7,
+  input [15:0] I_8,
+  input [15:0] I_9,
+  output [15:0] O,
+  input [3:0] S
+);
+
+
+  wire [15:0] inst0__I0;
+  wire [15:0] inst0__I1;
+  wire [15:0] inst0__I2;
+  wire [15:0] inst0__I3;
+  wire [15:0] inst0__I4;
+  wire [15:0] inst0__I5;
+  wire [15:0] inst0__I6;
+  wire [15:0] inst0__I7;
+  wire [15:0] inst0__I8;
+  wire [15:0] inst0__I9;
+  wire [15:0] inst0__O;
+  wire [3:0] inst0__S;
+  Mux10x16 inst0(
+    .I0(inst0__I0),
+    .I1(inst0__I1),
+    .I2(inst0__I2),
+    .I3(inst0__I3),
+    .I4(inst0__I4),
+    .I5(inst0__I5),
+    .I6(inst0__I6),
+    .I7(inst0__I7),
+    .I8(inst0__I8),
+    .I9(inst0__I9),
+    .O(inst0__O),
+    .S(inst0__S)
+  );
+
+  assign inst0__I0[15:0] = I_0[15:0];
+
+  assign inst0__I1[15:0] = I_1[15:0];
+
+  assign inst0__I2[15:0] = I_2[15:0];
+
+  assign inst0__I3[15:0] = I_3[15:0];
+
+  assign inst0__I4[15:0] = I_4[15:0];
+
+  assign inst0__I5[15:0] = I_5[15:0];
+
+  assign inst0__I6[15:0] = I_6[15:0];
+
+  assign inst0__I7[15:0] = I_7[15:0];
+
+  assign inst0__I8[15:0] = I_8[15:0];
+
+  assign inst0__I9[15:0] = I_9[15:0];
+
+  assign O[15:0] = inst0__O[15:0];
+
+  assign inst0__S[3:0] = S[3:0];
+
+
+endmodule  // MuxWrapper_10_16
+
+module Mux10x1 (
+  input [0:0] I0,
+  input [0:0] I1,
+  input [0:0] I2,
+  input [0:0] I3,
+  input [0:0] I4,
+  input [0:0] I5,
+  input [0:0] I6,
+  input [0:0] I7,
+  input [0:0] I8,
+  input [0:0] I9,
+  output [0:0] O,
+  input [3:0] S
+);
+
+
+  // Instancing generated Module: commonlib.muxn(N:10, width:1)
+  wire [0:0] inst0__in_data_0;
+  wire [0:0] inst0__in_data_1;
+  wire [0:0] inst0__in_data_2;
+  wire [0:0] inst0__in_data_3;
+  wire [0:0] inst0__in_data_4;
+  wire [0:0] inst0__in_data_5;
+  wire [0:0] inst0__in_data_6;
+  wire [0:0] inst0__in_data_7;
+  wire [0:0] inst0__in_data_8;
+  wire [0:0] inst0__in_data_9;
+  wire [3:0] inst0__in_sel;
+  wire [0:0] inst0__out;
+  commonlib_muxn__N10__width1 inst0(
+    .in_data_0(inst0__in_data_0),
+    .in_data_1(inst0__in_data_1),
+    .in_data_2(inst0__in_data_2),
+    .in_data_3(inst0__in_data_3),
+    .in_data_4(inst0__in_data_4),
+    .in_data_5(inst0__in_data_5),
+    .in_data_6(inst0__in_data_6),
+    .in_data_7(inst0__in_data_7),
+    .in_data_8(inst0__in_data_8),
+    .in_data_9(inst0__in_data_9),
+    .in_sel(inst0__in_sel),
+    .out(inst0__out)
+  );
+
+  assign inst0__in_data_0[0:0] = I0[0:0];
+
+  assign inst0__in_data_1[0:0] = I1[0:0];
+
+  assign inst0__in_data_2[0:0] = I2[0:0];
+
+  assign inst0__in_data_3[0:0] = I3[0:0];
+
+  assign inst0__in_data_4[0:0] = I4[0:0];
+
+  assign inst0__in_data_5[0:0] = I5[0:0];
+
+  assign inst0__in_data_6[0:0] = I6[0:0];
+
+  assign inst0__in_data_7[0:0] = I7[0:0];
+
+  assign inst0__in_data_8[0:0] = I8[0:0];
+
+  assign inst0__in_data_9[0:0] = I9[0:0];
+
+  assign inst0__in_sel[3:0] = S[3:0];
+
+  assign O[0:0] = inst0__out[0:0];
+
+
+endmodule  // Mux10x1
+
+module MuxWrapper_10_1 (
+  input [0:0] I_0,
+  input [0:0] I_1,
+  input [0:0] I_2,
+  input [0:0] I_3,
+  input [0:0] I_4,
+  input [0:0] I_5,
+  input [0:0] I_6,
+  input [0:0] I_7,
+  input [0:0] I_8,
+  input [0:0] I_9,
+  output [0:0] O,
+  input [3:0] S
+);
+
+
+  wire [0:0] inst0__I0;
+  wire [0:0] inst0__I1;
+  wire [0:0] inst0__I2;
+  wire [0:0] inst0__I3;
+  wire [0:0] inst0__I4;
+  wire [0:0] inst0__I5;
+  wire [0:0] inst0__I6;
+  wire [0:0] inst0__I7;
+  wire [0:0] inst0__I8;
+  wire [0:0] inst0__I9;
+  wire [0:0] inst0__O;
+  wire [3:0] inst0__S;
+  Mux10x1 inst0(
+    .I0(inst0__I0),
+    .I1(inst0__I1),
+    .I2(inst0__I2),
+    .I3(inst0__I3),
+    .I4(inst0__I4),
+    .I5(inst0__I5),
+    .I6(inst0__I6),
+    .I7(inst0__I7),
+    .I8(inst0__I8),
+    .I9(inst0__I9),
+    .O(inst0__O),
+    .S(inst0__S)
+  );
+
+  assign inst0__I0[0:0] = I_0[0:0];
+
+  assign inst0__I1[0:0] = I_1[0:0];
+
+  assign inst0__I2[0:0] = I_2[0:0];
+
+  assign inst0__I3[0:0] = I_3[0:0];
+
+  assign inst0__I4[0:0] = I_4[0:0];
+
+  assign inst0__I5[0:0] = I_5[0:0];
+
+  assign inst0__I6[0:0] = I_6[0:0];
+
+  assign inst0__I7[0:0] = I_7[0:0];
+
+  assign inst0__I8[0:0] = I_8[0:0];
+
+  assign inst0__I9[0:0] = I_9[0:0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst0__S[3:0] = S[3:0];
+
+
+endmodule  // MuxWrapper_10_1
+
+module Decode68 (
+  input [7:0] I,
+  output  O
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_6_8__out;
+  coreir_const #(.value(8'h06),.width(8)) const_6_8(
+    .out(const_6_8__out)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst0__in0;
+  wire [7:0] inst0__in1;
+  wire  inst0__out;
+  coreir_eq #(.width(8)) inst0(
+    .in0(inst0__in0),
+    .in1(inst0__in1),
+    .out(inst0__out)
+  );
+
+  assign inst0__in1[7:0] = const_6_8__out[7:0];
+
+  assign inst0__in0[7:0] = I[7:0];
+
+  assign O = inst0__out;
+
+
+endmodule  // Decode68
+
+module Decode58 (
+  input [7:0] I,
+  output  O
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_5_8__out;
+  coreir_const #(.value(8'h05),.width(8)) const_5_8(
+    .out(const_5_8__out)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst0__in0;
+  wire [7:0] inst0__in1;
+  wire  inst0__out;
+  coreir_eq #(.width(8)) inst0(
+    .in0(inst0__in0),
+    .in1(inst0__in1),
+    .out(inst0__out)
+  );
+
+  assign inst0__in1[7:0] = const_5_8__out[7:0];
+
+  assign inst0__in0[7:0] = I[7:0];
+
+  assign O = inst0__out;
+
+
+endmodule  // Decode58
+
+module Decode48 (
+  input [7:0] I,
+  output  O
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_4_8__out;
+  coreir_const #(.value(8'h04),.width(8)) const_4_8(
+    .out(const_4_8__out)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst0__in0;
+  wire [7:0] inst0__in1;
+  wire  inst0__out;
+  coreir_eq #(.width(8)) inst0(
+    .in0(inst0__in0),
+    .in1(inst0__in1),
+    .out(inst0__out)
+  );
+
+  assign inst0__in1[7:0] = const_4_8__out[7:0];
+
+  assign inst0__in0[7:0] = I[7:0];
+
+  assign O = inst0__out;
+
+
+endmodule  // Decode48
+
+module Decode38 (
+  input [7:0] I,
+  output  O
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_3_8__out;
+  coreir_const #(.value(8'h03),.width(8)) const_3_8(
+    .out(const_3_8__out)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst0__in0;
+  wire [7:0] inst0__in1;
+  wire  inst0__out;
+  coreir_eq #(.width(8)) inst0(
+    .in0(inst0__in0),
+    .in1(inst0__in1),
+    .out(inst0__out)
+  );
+
+  assign inst0__in1[7:0] = const_3_8__out[7:0];
+
+  assign inst0__in0[7:0] = I[7:0];
+
+  assign O = inst0__out;
+
+
+endmodule  // Decode38
+
+module Decode28 (
+  input [7:0] I,
+  output  O
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_2_8__out;
+  coreir_const #(.value(8'h02),.width(8)) const_2_8(
+    .out(const_2_8__out)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst0__in0;
+  wire [7:0] inst0__in1;
+  wire  inst0__out;
+  coreir_eq #(.width(8)) inst0(
+    .in0(inst0__in0),
+    .in1(inst0__in1),
+    .out(inst0__out)
+  );
+
+  assign inst0__in1[7:0] = const_2_8__out[7:0];
+
+  assign inst0__in0[7:0] = I[7:0];
+
+  assign O = inst0__out;
+
+
+endmodule  // Decode28
+
+module Decode18 (
+  input [7:0] I,
+  output  O
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_1_8__out;
+  coreir_const #(.value(8'h01),.width(8)) const_1_8(
+    .out(const_1_8__out)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst0__in0;
+  wire [7:0] inst0__in1;
+  wire  inst0__out;
+  coreir_eq #(.width(8)) inst0(
+    .in0(inst0__in0),
+    .in1(inst0__in1),
+    .out(inst0__out)
+  );
+
+  assign inst0__in1[7:0] = const_1_8__out[7:0];
+
+  assign inst0__in0[7:0] = I[7:0];
+
+  assign O = inst0__out;
+
+
+endmodule  // Decode18
+
+module Decode08 (
+  input [7:0] I,
+  output  O
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_0_8__out;
+  coreir_const #(.value(8'h00),.width(8)) const_0_8(
+    .out(const_0_8__out)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst0__in0;
+  wire [7:0] inst0__in1;
+  wire  inst0__out;
+  coreir_eq #(.width(8)) inst0(
+    .in0(inst0__in0),
+    .in1(inst0__in1),
+    .out(inst0__out)
+  );
+
+  assign inst0__in1[7:0] = const_0_8__out[7:0];
+
+  assign inst0__in0[7:0] = I[7:0];
+
+  assign O = inst0__out;
+
+
+endmodule  // Decode08
+
+module ConfigRegister_4_8_32_0 (
+  output [3:0] O,
   input  clk,
   input [7:0] config_addr,
   input [31:0] config_data,
@@ -7704,9 +5140,9 @@ module ConfigRegister_2_8_32_0 (
   wire  inst0__ASYNCRESET;
   wire  inst0__CE;
   wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+  wire [3:0] inst0__I;
+  wire [3:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_4 inst0(
     .ASYNCRESET(inst0__ASYNCRESET),
     .CE(inst0__CE),
     .CLK(inst0__CLK),
@@ -7745,7 +5181,11 @@ module ConfigRegister_2_8_32_0 (
 
   assign inst0__I[1] = config_data[1];
 
-  assign O[1:0] = inst0__O[1:0];
+  assign inst0__I[2] = config_data[2];
+
+  assign inst0__I[3] = config_data[3];
+
+  assign O[3:0] = inst0__O[3:0];
 
   assign inst1__in0[7:0] = config_addr[7:0];
 
@@ -7754,220 +5194,7 @@ module ConfigRegister_2_8_32_0 (
   assign inst2__in1 = config_en;
 
 
-endmodule  // ConfigRegister_2_8_32_0
-
-module ConfigRegister_2_8_32_24 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_24_8__out;
-  coreir_const #(.value(8'h18),.width(8)) const_24_8(
-    .out(const_24_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_24_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_24
-
-module ConfigRegister_2_8_32_64 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_64_8__out;
-  coreir_const #(.value(8'h40),.width(8)) const_64_8(
-    .out(const_64_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_64_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_64
-
-module ConfigRegister_2_8_32_76 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_76_8__out;
-  coreir_const #(.value(8'h4c),.width(8)) const_76_8(
-    .out(const_76_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_76_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_76
+endmodule  // ConfigRegister_4_8_32_0
 
 module ConfigRegister_2_8_32_8 (
   output [1:0] O,
@@ -8040,7 +5267,7 @@ module ConfigRegister_2_8_32_8 (
 
 endmodule  // ConfigRegister_2_8_32_8
 
-module ConfigRegister_2_8_32_60 (
+module ConfigRegister_2_8_32_78 (
   output [1:0] O,
   input  clk,
   input [7:0] config_addr,
@@ -8051,9 +5278,9 @@ module ConfigRegister_2_8_32_60 (
 
 
   // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_60_8__out;
-  coreir_const #(.value(8'h3c),.width(8)) const_60_8(
-    .out(const_60_8__out)
+  wire [7:0] const_78_8__out;
+  coreir_const #(.value(8'h4e),.width(8)) const_78_8(
+    .out(const_78_8__out)
   );
 
   wire  inst0__ASYNCRESET;
@@ -8088,7 +5315,7 @@ module ConfigRegister_2_8_32_60 (
     .out(inst2__out)
   );
 
-  assign inst1__in1[7:0] = const_60_8__out[7:0];
+  assign inst1__in1[7:0] = const_78_8__out[7:0];
 
   assign inst0__ASYNCRESET = reset;
 
@@ -8109,9 +5336,9 @@ module ConfigRegister_2_8_32_60 (
   assign inst2__in1 = config_en;
 
 
-endmodule  // ConfigRegister_2_8_32_60
+endmodule  // ConfigRegister_2_8_32_78
 
-module ConfigRegister_2_8_32_68 (
+module ConfigRegister_2_8_32_76 (
   output [1:0] O,
   input  clk,
   input [7:0] config_addr,
@@ -8122,9 +5349,9 @@ module ConfigRegister_2_8_32_68 (
 
 
   // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_68_8__out;
-  coreir_const #(.value(8'h44),.width(8)) const_68_8(
-    .out(const_68_8__out)
+  wire [7:0] const_76_8__out;
+  coreir_const #(.value(8'h4c),.width(8)) const_76_8(
+    .out(const_76_8__out)
   );
 
   wire  inst0__ASYNCRESET;
@@ -8159,7 +5386,7 @@ module ConfigRegister_2_8_32_68 (
     .out(inst2__out)
   );
 
-  assign inst1__in1[7:0] = const_68_8__out[7:0];
+  assign inst1__in1[7:0] = const_76_8__out[7:0];
 
   assign inst0__ASYNCRESET = reset;
 
@@ -8180,717 +5407,7 @@ module ConfigRegister_2_8_32_68 (
   assign inst2__in1 = config_en;
 
 
-endmodule  // ConfigRegister_2_8_32_68
-
-module ConfigRegister_2_8_32_52 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_52_8__out;
-  coreir_const #(.value(8'h34),.width(8)) const_52_8(
-    .out(const_52_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_52_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_52
-
-module ConfigRegister_2_8_32_54 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_54_8__out;
-  coreir_const #(.value(8'h36),.width(8)) const_54_8(
-    .out(const_54_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_54_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_54
-
-module ConfigRegister_2_8_32_70 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_70_8__out;
-  coreir_const #(.value(8'h46),.width(8)) const_70_8(
-    .out(const_70_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_70_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_70
-
-module ConfigRegister_2_8_32_32 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_32_8__out;
-  coreir_const #(.value(8'h20),.width(8)) const_32_8(
-    .out(const_32_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_32_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_32
-
-module ConfigRegister_2_8_32_16 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_16_8__out;
-  coreir_const #(.value(8'h10),.width(8)) const_16_8(
-    .out(const_16_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_16_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_16
-
-module ConfigRegister_2_8_32_48 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_48_8__out;
-  coreir_const #(.value(8'h30),.width(8)) const_48_8(
-    .out(const_48_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_48_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_48
-
-module ConfigRegister_2_8_32_34 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_34_8__out;
-  coreir_const #(.value(8'h22),.width(8)) const_34_8(
-    .out(const_34_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_34_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_34
-
-module ConfigRegister_2_8_32_18 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_18_8__out;
-  coreir_const #(.value(8'h12),.width(8)) const_18_8(
-    .out(const_18_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_18_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_18
-
-module ConfigRegister_2_8_32_36 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_36_8__out;
-  coreir_const #(.value(8'h24),.width(8)) const_36_8(
-    .out(const_36_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_36_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_36
-
-module ConfigRegister_2_8_32_2 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_2_8__out;
-  coreir_const #(.value(8'h02),.width(8)) const_2_8(
-    .out(const_2_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_2_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_2
+endmodule  // ConfigRegister_2_8_32_76
 
 module ConfigRegister_2_8_32_74 (
   output [1:0] O,
@@ -8963,7 +5480,7 @@ module ConfigRegister_2_8_32_74 (
 
 endmodule  // ConfigRegister_2_8_32_74
 
-module ConfigRegister_2_8_32_58 (
+module ConfigRegister_2_8_32_72 (
   output [1:0] O,
   input  clk,
   input [7:0] config_addr,
@@ -8974,9 +5491,9 @@ module ConfigRegister_2_8_32_58 (
 
 
   // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_58_8__out;
-  coreir_const #(.value(8'h3a),.width(8)) const_58_8(
-    .out(const_58_8__out)
+  wire [7:0] const_72_8__out;
+  coreir_const #(.value(8'h48),.width(8)) const_72_8(
+    .out(const_72_8__out)
   );
 
   wire  inst0__ASYNCRESET;
@@ -9011,7 +5528,7 @@ module ConfigRegister_2_8_32_58 (
     .out(inst2__out)
   );
 
-  assign inst1__in1[7:0] = const_58_8__out[7:0];
+  assign inst1__in1[7:0] = const_72_8__out[7:0];
 
   assign inst0__ASYNCRESET = reset;
 
@@ -9032,9 +5549,9 @@ module ConfigRegister_2_8_32_58 (
   assign inst2__in1 = config_en;
 
 
-endmodule  // ConfigRegister_2_8_32_58
+endmodule  // ConfigRegister_2_8_32_72
 
-module ConfigRegister_2_8_32_6 (
+module ConfigRegister_2_8_32_70 (
   output [1:0] O,
   input  clk,
   input [7:0] config_addr,
@@ -9045,9 +5562,9 @@ module ConfigRegister_2_8_32_6 (
 
 
   // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_6_8__out;
-  coreir_const #(.value(8'h06),.width(8)) const_6_8(
-    .out(const_6_8__out)
+  wire [7:0] const_70_8__out;
+  coreir_const #(.value(8'h46),.width(8)) const_70_8(
+    .out(const_70_8__out)
   );
 
   wire  inst0__ASYNCRESET;
@@ -9082,7 +5599,7 @@ module ConfigRegister_2_8_32_6 (
     .out(inst2__out)
   );
 
-  assign inst1__in1[7:0] = const_6_8__out[7:0];
+  assign inst1__in1[7:0] = const_70_8__out[7:0];
 
   assign inst0__ASYNCRESET = reset;
 
@@ -9103,9 +5620,9 @@ module ConfigRegister_2_8_32_6 (
   assign inst2__in1 = config_en;
 
 
-endmodule  // ConfigRegister_2_8_32_6
+endmodule  // ConfigRegister_2_8_32_70
 
-module ConfigRegister_2_8_32_4 (
+module ConfigRegister_2_8_32_68 (
   output [1:0] O,
   input  clk,
   input [7:0] config_addr,
@@ -9116,9 +5633,9 @@ module ConfigRegister_2_8_32_4 (
 
 
   // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_4_8__out;
-  coreir_const #(.value(8'h04),.width(8)) const_4_8(
-    .out(const_4_8__out)
+  wire [7:0] const_68_8__out;
+  coreir_const #(.value(8'h44),.width(8)) const_68_8(
+    .out(const_68_8__out)
   );
 
   wire  inst0__ASYNCRESET;
@@ -9153,7 +5670,7 @@ module ConfigRegister_2_8_32_4 (
     .out(inst2__out)
   );
 
-  assign inst1__in1[7:0] = const_4_8__out[7:0];
+  assign inst1__in1[7:0] = const_68_8__out[7:0];
 
   assign inst0__ASYNCRESET = reset;
 
@@ -9174,362 +5691,7 @@ module ConfigRegister_2_8_32_4 (
   assign inst2__in1 = config_en;
 
 
-endmodule  // ConfigRegister_2_8_32_4
-
-module ConfigRegister_2_8_32_28 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_28_8__out;
-  coreir_const #(.value(8'h1c),.width(8)) const_28_8(
-    .out(const_28_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_28_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_28
-
-module ConfigRegister_2_8_32_44 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_44_8__out;
-  coreir_const #(.value(8'h2c),.width(8)) const_44_8(
-    .out(const_44_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_44_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_44
-
-module ConfigRegister_2_8_32_78 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_78_8__out;
-  coreir_const #(.value(8'h4e),.width(8)) const_78_8(
-    .out(const_78_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_78_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_78
-
-module ConfigRegister_2_8_32_22 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_22_8__out;
-  coreir_const #(.value(8'h16),.width(8)) const_22_8(
-    .out(const_22_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_22_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_22
-
-module ConfigRegister_2_8_32_40 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_40_8__out;
-  coreir_const #(.value(8'h28),.width(8)) const_40_8(
-    .out(const_40_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_40_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_40
+endmodule  // ConfigRegister_2_8_32_68
 
 module ConfigRegister_2_8_32_66 (
   output [1:0] O,
@@ -9602,7 +5764,7 @@ module ConfigRegister_2_8_32_66 (
 
 endmodule  // ConfigRegister_2_8_32_66
 
-module ConfigRegister_2_8_32_46 (
+module ConfigRegister_2_8_32_64 (
   output [1:0] O,
   input  clk,
   input [7:0] config_addr,
@@ -9613,9 +5775,9 @@ module ConfigRegister_2_8_32_46 (
 
 
   // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_46_8__out;
-  coreir_const #(.value(8'h2e),.width(8)) const_46_8(
-    .out(const_46_8__out)
+  wire [7:0] const_64_8__out;
+  coreir_const #(.value(8'h40),.width(8)) const_64_8(
+    .out(const_64_8__out)
   );
 
   wire  inst0__ASYNCRESET;
@@ -9650,7 +5812,7 @@ module ConfigRegister_2_8_32_46 (
     .out(inst2__out)
   );
 
-  assign inst1__in1[7:0] = const_46_8__out[7:0];
+  assign inst1__in1[7:0] = const_64_8__out[7:0];
 
   assign inst0__ASYNCRESET = reset;
 
@@ -9671,220 +5833,7 @@ module ConfigRegister_2_8_32_46 (
   assign inst2__in1 = config_en;
 
 
-endmodule  // ConfigRegister_2_8_32_46
-
-module ConfigRegister_2_8_32_30 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_30_8__out;
-  coreir_const #(.value(8'h1e),.width(8)) const_30_8(
-    .out(const_30_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_30_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_30
-
-module ConfigRegister_2_8_32_14 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_14_8__out;
-  coreir_const #(.value(8'h0e),.width(8)) const_14_8(
-    .out(const_14_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_14_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_14
-
-module ConfigRegister_2_8_32_20 (
-  output [1:0] O,
-  input  clk,
-  input [7:0] config_addr,
-  input [31:0] config_data,
-  input  config_en,
-  input  reset
-);
-
-
-  // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_20_8__out;
-  coreir_const #(.value(8'h14),.width(8)) const_20_8(
-    .out(const_20_8__out)
-  );
-
-  wire  inst0__ASYNCRESET;
-  wire  inst0__CE;
-  wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
-    .ASYNCRESET(inst0__ASYNCRESET),
-    .CE(inst0__CE),
-    .CLK(inst0__CLK),
-    .I(inst0__I),
-    .O(inst0__O)
-  );
-
-  // Instancing generated Module: coreir.eq(width:8)
-  wire [7:0] inst1__in0;
-  wire [7:0] inst1__in1;
-  wire  inst1__out;
-  coreir_eq #(.width(8)) inst1(
-    .in0(inst1__in0),
-    .in1(inst1__in1),
-    .out(inst1__out)
-  );
-
-  wire  inst2__in0;
-  wire  inst2__in1;
-  wire  inst2__out;
-  corebit_and inst2(
-    .in0(inst2__in0),
-    .in1(inst2__in1),
-    .out(inst2__out)
-  );
-
-  assign inst1__in1[7:0] = const_20_8__out[7:0];
-
-  assign inst0__ASYNCRESET = reset;
-
-  assign inst0__CE = inst2__out;
-
-  assign inst0__CLK = clk;
-
-  assign inst0__I[0] = config_data[0];
-
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
-
-  assign inst1__in0[7:0] = config_addr[7:0];
-
-  assign inst2__in0 = inst1__out;
-
-  assign inst2__in1 = config_en;
-
-
-endmodule  // ConfigRegister_2_8_32_20
+endmodule  // ConfigRegister_2_8_32_64
 
 module ConfigRegister_2_8_32_62 (
   output [1:0] O,
@@ -9957,6 +5906,716 @@ module ConfigRegister_2_8_32_62 (
 
 endmodule  // ConfigRegister_2_8_32_62
 
+module ConfigRegister_2_8_32_60 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_60_8__out;
+  coreir_const #(.value(8'h3c),.width(8)) const_60_8(
+    .out(const_60_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_60_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_60
+
+module ConfigRegister_2_8_32_6 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_6_8__out;
+  coreir_const #(.value(8'h06),.width(8)) const_6_8(
+    .out(const_6_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_6_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_6
+
+module ConfigRegister_2_8_32_58 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_58_8__out;
+  coreir_const #(.value(8'h3a),.width(8)) const_58_8(
+    .out(const_58_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_58_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_58
+
+module ConfigRegister_2_8_32_56 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_56_8__out;
+  coreir_const #(.value(8'h38),.width(8)) const_56_8(
+    .out(const_56_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_56_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_56
+
+module ConfigRegister_2_8_32_54 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_54_8__out;
+  coreir_const #(.value(8'h36),.width(8)) const_54_8(
+    .out(const_54_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_54_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_54
+
+module ConfigRegister_2_8_32_52 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_52_8__out;
+  coreir_const #(.value(8'h34),.width(8)) const_52_8(
+    .out(const_52_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_52_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_52
+
+module ConfigRegister_2_8_32_50 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_50_8__out;
+  coreir_const #(.value(8'h32),.width(8)) const_50_8(
+    .out(const_50_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_50_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_50
+
+module ConfigRegister_2_8_32_48 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_48_8__out;
+  coreir_const #(.value(8'h30),.width(8)) const_48_8(
+    .out(const_48_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_48_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_48
+
+module ConfigRegister_2_8_32_46 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_46_8__out;
+  coreir_const #(.value(8'h2e),.width(8)) const_46_8(
+    .out(const_46_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_46_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_46
+
+module ConfigRegister_2_8_32_44 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_44_8__out;
+  coreir_const #(.value(8'h2c),.width(8)) const_44_8(
+    .out(const_44_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_44_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_44
+
 module ConfigRegister_2_8_32_42 (
   output [1:0] O,
   input  clk,
@@ -10028,6 +6687,574 @@ module ConfigRegister_2_8_32_42 (
 
 endmodule  // ConfigRegister_2_8_32_42
 
+module ConfigRegister_2_8_32_40 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_40_8__out;
+  coreir_const #(.value(8'h28),.width(8)) const_40_8(
+    .out(const_40_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_40_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_40
+
+module ConfigRegister_2_8_32_4 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_4_8__out;
+  coreir_const #(.value(8'h04),.width(8)) const_4_8(
+    .out(const_4_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_4_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_4
+
+module ConfigRegister_2_8_32_38 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_38_8__out;
+  coreir_const #(.value(8'h26),.width(8)) const_38_8(
+    .out(const_38_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_38_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_38
+
+module ConfigRegister_2_8_32_36 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_36_8__out;
+  coreir_const #(.value(8'h24),.width(8)) const_36_8(
+    .out(const_36_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_36_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_36
+
+module ConfigRegister_2_8_32_34 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_34_8__out;
+  coreir_const #(.value(8'h22),.width(8)) const_34_8(
+    .out(const_34_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_34_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_34
+
+module ConfigRegister_2_8_32_32 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_32_8__out;
+  coreir_const #(.value(8'h20),.width(8)) const_32_8(
+    .out(const_32_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_32_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_32
+
+module ConfigRegister_2_8_32_30 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_30_8__out;
+  coreir_const #(.value(8'h1e),.width(8)) const_30_8(
+    .out(const_30_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_30_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_30
+
+module ConfigRegister_2_8_32_28 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_28_8__out;
+  coreir_const #(.value(8'h1c),.width(8)) const_28_8(
+    .out(const_28_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_28_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_28
+
 module ConfigRegister_2_8_32_26 (
   output [1:0] O,
   input  clk,
@@ -10098,6 +7325,503 @@ module ConfigRegister_2_8_32_26 (
 
 
 endmodule  // ConfigRegister_2_8_32_26
+
+module ConfigRegister_2_8_32_24 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_24_8__out;
+  coreir_const #(.value(8'h18),.width(8)) const_24_8(
+    .out(const_24_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_24_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_24
+
+module ConfigRegister_2_8_32_22 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_22_8__out;
+  coreir_const #(.value(8'h16),.width(8)) const_22_8(
+    .out(const_22_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_22_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_22
+
+module ConfigRegister_2_8_32_20 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_20_8__out;
+  coreir_const #(.value(8'h14),.width(8)) const_20_8(
+    .out(const_20_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_20_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_20
+
+module ConfigRegister_2_8_32_2 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_2_8__out;
+  coreir_const #(.value(8'h02),.width(8)) const_2_8(
+    .out(const_2_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_2_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_2
+
+module ConfigRegister_2_8_32_18 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_18_8__out;
+  coreir_const #(.value(8'h12),.width(8)) const_18_8(
+    .out(const_18_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_18_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_18
+
+module ConfigRegister_2_8_32_16 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_16_8__out;
+  coreir_const #(.value(8'h10),.width(8)) const_16_8(
+    .out(const_16_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_16_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_16
+
+module ConfigRegister_2_8_32_14 (
+  output [1:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_14_8__out;
+  coreir_const #(.value(8'h0e),.width(8)) const_14_8(
+    .out(const_14_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [1:0] inst0__I;
+  wire [1:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_14_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign inst0__I[1] = config_data[1];
+
+  assign O[1:0] = inst0__O[1:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_2_8_32_14
 
 module ConfigRegister_2_8_32_12 (
   output [1:0] O,
@@ -10241,7 +7965,7 @@ module ConfigRegister_2_8_32_10 (
 
 endmodule  // ConfigRegister_2_8_32_10
 
-module ConfigRegister_2_8_32_50 (
+module ConfigRegister_2_8_32_0 (
   output [1:0] O,
   input  clk,
   input [7:0] config_addr,
@@ -10252,9 +7976,9 @@ module ConfigRegister_2_8_32_50 (
 
 
   // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_50_8__out;
-  coreir_const #(.value(8'h32),.width(8)) const_50_8(
-    .out(const_50_8__out)
+  wire [7:0] const_0_8__out;
+  coreir_const #(.value(8'h00),.width(8)) const_0_8(
+    .out(const_0_8__out)
   );
 
   wire  inst0__ASYNCRESET;
@@ -10289,7 +8013,7 @@ module ConfigRegister_2_8_32_50 (
     .out(inst2__out)
   );
 
-  assign inst1__in1[7:0] = const_50_8__out[7:0];
+  assign inst1__in1[7:0] = const_0_8__out[7:0];
 
   assign inst0__ASYNCRESET = reset;
 
@@ -10310,10 +8034,10 @@ module ConfigRegister_2_8_32_50 (
   assign inst2__in1 = config_en;
 
 
-endmodule  // ConfigRegister_2_8_32_50
+endmodule  // ConfigRegister_2_8_32_0
 
-module ConfigRegister_2_8_32_72 (
-  output [1:0] O,
+module ConfigRegister_1_8_32_9 (
+  output [0:0] O,
   input  clk,
   input [7:0] config_addr,
   input [31:0] config_data,
@@ -10323,17 +8047,17 @@ module ConfigRegister_2_8_32_72 (
 
 
   // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_72_8__out;
-  coreir_const #(.value(8'h48),.width(8)) const_72_8(
-    .out(const_72_8__out)
+  wire [7:0] const_9_8__out;
+  coreir_const #(.value(8'h09),.width(8)) const_9_8(
+    .out(const_9_8__out)
   );
 
   wire  inst0__ASYNCRESET;
   wire  inst0__CE;
   wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
     .ASYNCRESET(inst0__ASYNCRESET),
     .CE(inst0__CE),
     .CLK(inst0__CLK),
@@ -10360,7 +8084,7 @@ module ConfigRegister_2_8_32_72 (
     .out(inst2__out)
   );
 
-  assign inst1__in1[7:0] = const_72_8__out[7:0];
+  assign inst1__in1[7:0] = const_9_8__out[7:0];
 
   assign inst0__ASYNCRESET = reset;
 
@@ -10370,9 +8094,7 @@ module ConfigRegister_2_8_32_72 (
 
   assign inst0__I[0] = config_data[0];
 
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
+  assign O[0:0] = inst0__O[0:0];
 
   assign inst1__in0[7:0] = config_addr[7:0];
 
@@ -10381,10 +8103,10 @@ module ConfigRegister_2_8_32_72 (
   assign inst2__in1 = config_en;
 
 
-endmodule  // ConfigRegister_2_8_32_72
+endmodule  // ConfigRegister_1_8_32_9
 
-module ConfigRegister_2_8_32_56 (
-  output [1:0] O,
+module ConfigRegister_1_8_32_79 (
+  output [0:0] O,
   input  clk,
   input [7:0] config_addr,
   input [31:0] config_data,
@@ -10394,17 +8116,17 @@ module ConfigRegister_2_8_32_56 (
 
 
   // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_56_8__out;
-  coreir_const #(.value(8'h38),.width(8)) const_56_8(
-    .out(const_56_8__out)
+  wire [7:0] const_79_8__out;
+  coreir_const #(.value(8'h4f),.width(8)) const_79_8(
+    .out(const_79_8__out)
   );
 
   wire  inst0__ASYNCRESET;
   wire  inst0__CE;
   wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
     .ASYNCRESET(inst0__ASYNCRESET),
     .CE(inst0__CE),
     .CLK(inst0__CLK),
@@ -10431,7 +8153,7 @@ module ConfigRegister_2_8_32_56 (
     .out(inst2__out)
   );
 
-  assign inst1__in1[7:0] = const_56_8__out[7:0];
+  assign inst1__in1[7:0] = const_79_8__out[7:0];
 
   assign inst0__ASYNCRESET = reset;
 
@@ -10441,9 +8163,7 @@ module ConfigRegister_2_8_32_56 (
 
   assign inst0__I[0] = config_data[0];
 
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
+  assign O[0:0] = inst0__O[0:0];
 
   assign inst1__in0[7:0] = config_addr[7:0];
 
@@ -10452,10 +8172,10 @@ module ConfigRegister_2_8_32_56 (
   assign inst2__in1 = config_en;
 
 
-endmodule  // ConfigRegister_2_8_32_56
+endmodule  // ConfigRegister_1_8_32_79
 
-module ConfigRegister_2_8_32_38 (
-  output [1:0] O,
+module ConfigRegister_1_8_32_77 (
+  output [0:0] O,
   input  clk,
   input [7:0] config_addr,
   input [31:0] config_data,
@@ -10465,17 +8185,17 @@ module ConfigRegister_2_8_32_38 (
 
 
   // Instancing generated Module: coreir.const(width:8)
-  wire [7:0] const_38_8__out;
-  coreir_const #(.value(8'h26),.width(8)) const_38_8(
-    .out(const_38_8__out)
+  wire [7:0] const_77_8__out;
+  coreir_const #(.value(8'h4d),.width(8)) const_77_8(
+    .out(const_77_8__out)
   );
 
   wire  inst0__ASYNCRESET;
   wire  inst0__CE;
   wire  inst0__CLK;
-  wire [1:0] inst0__I;
-  wire [1:0] inst0__O;
-  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_2 inst0(
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
     .ASYNCRESET(inst0__ASYNCRESET),
     .CE(inst0__CE),
     .CLK(inst0__CLK),
@@ -10502,7 +8222,7 @@ module ConfigRegister_2_8_32_38 (
     .out(inst2__out)
   );
 
-  assign inst1__in1[7:0] = const_38_8__out[7:0];
+  assign inst1__in1[7:0] = const_77_8__out[7:0];
 
   assign inst0__ASYNCRESET = reset;
 
@@ -10512,9 +8232,7 @@ module ConfigRegister_2_8_32_38 (
 
   assign inst0__I[0] = config_data[0];
 
-  assign inst0__I[1] = config_data[1];
-
-  assign O[1:0] = inst0__O[1:0];
+  assign O[0:0] = inst0__O[0:0];
 
   assign inst1__in0[7:0] = config_addr[7:0];
 
@@ -10523,85 +8241,2560 @@ module ConfigRegister_2_8_32_38 (
   assign inst2__in1 = config_en;
 
 
-endmodule  // ConfigRegister_2_8_32_38
+endmodule  // ConfigRegister_1_8_32_77
 
-module ZextWrapper_2_32 (
-  input [1:0] I,
-  output [31:0] O
+module ConfigRegister_1_8_32_75 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
 );
 
 
-  wire  bit_const_0_None__out;
-  corebit_const #(.value(0)) bit_const_0_None(
-    .out(bit_const_0_None__out)
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_75_8__out;
+  coreir_const #(.value(8'h4b),.width(8)) const_75_8(
+    .out(const_75_8__out)
   );
 
-  assign O[10] = bit_const_0_None__out;
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
 
-  assign O[11] = bit_const_0_None__out;
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
 
-  assign O[12] = bit_const_0_None__out;
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
 
-  assign O[13] = bit_const_0_None__out;
+  assign inst1__in1[7:0] = const_75_8__out[7:0];
 
-  assign O[14] = bit_const_0_None__out;
+  assign inst0__ASYNCRESET = reset;
 
-  assign O[15] = bit_const_0_None__out;
+  assign inst0__CE = inst2__out;
 
-  assign O[16] = bit_const_0_None__out;
+  assign inst0__CLK = clk;
 
-  assign O[17] = bit_const_0_None__out;
+  assign inst0__I[0] = config_data[0];
 
-  assign O[18] = bit_const_0_None__out;
+  assign O[0:0] = inst0__O[0:0];
 
-  assign O[19] = bit_const_0_None__out;
+  assign inst1__in0[7:0] = config_addr[7:0];
 
-  assign O[20] = bit_const_0_None__out;
+  assign inst2__in0 = inst1__out;
 
-  assign O[21] = bit_const_0_None__out;
-
-  assign O[22] = bit_const_0_None__out;
-
-  assign O[23] = bit_const_0_None__out;
-
-  assign O[24] = bit_const_0_None__out;
-
-  assign O[25] = bit_const_0_None__out;
-
-  assign O[26] = bit_const_0_None__out;
-
-  assign O[27] = bit_const_0_None__out;
-
-  assign O[28] = bit_const_0_None__out;
-
-  assign O[29] = bit_const_0_None__out;
-
-  assign O[2] = bit_const_0_None__out;
-
-  assign O[30] = bit_const_0_None__out;
-
-  assign O[31] = bit_const_0_None__out;
-
-  assign O[3] = bit_const_0_None__out;
-
-  assign O[4] = bit_const_0_None__out;
-
-  assign O[5] = bit_const_0_None__out;
-
-  assign O[6] = bit_const_0_None__out;
-
-  assign O[7] = bit_const_0_None__out;
-
-  assign O[8] = bit_const_0_None__out;
-
-  assign O[9] = bit_const_0_None__out;
-
-  assign O[0] = I[0];
-
-  assign O[1] = I[1];
+  assign inst2__in1 = config_en;
 
 
-endmodule  // ZextWrapper_2_32
+endmodule  // ConfigRegister_1_8_32_75
+
+module ConfigRegister_1_8_32_73 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_73_8__out;
+  coreir_const #(.value(8'h49),.width(8)) const_73_8(
+    .out(const_73_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_73_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_73
+
+module ConfigRegister_1_8_32_71 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_71_8__out;
+  coreir_const #(.value(8'h47),.width(8)) const_71_8(
+    .out(const_71_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_71_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_71
+
+module ConfigRegister_1_8_32_7 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_7_8__out;
+  coreir_const #(.value(8'h07),.width(8)) const_7_8(
+    .out(const_7_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_7_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_7
+
+module ConfigRegister_1_8_32_69 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_69_8__out;
+  coreir_const #(.value(8'h45),.width(8)) const_69_8(
+    .out(const_69_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_69_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_69
+
+module ConfigRegister_1_8_32_67 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_67_8__out;
+  coreir_const #(.value(8'h43),.width(8)) const_67_8(
+    .out(const_67_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_67_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_67
+
+module ConfigRegister_1_8_32_65 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_65_8__out;
+  coreir_const #(.value(8'h41),.width(8)) const_65_8(
+    .out(const_65_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_65_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_65
+
+module ConfigRegister_1_8_32_63 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_63_8__out;
+  coreir_const #(.value(8'h3f),.width(8)) const_63_8(
+    .out(const_63_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_63_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_63
+
+module ConfigRegister_1_8_32_61 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_61_8__out;
+  coreir_const #(.value(8'h3d),.width(8)) const_61_8(
+    .out(const_61_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_61_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_61
+
+module ConfigRegister_1_8_32_59 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_59_8__out;
+  coreir_const #(.value(8'h3b),.width(8)) const_59_8(
+    .out(const_59_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_59_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_59
+
+module ConfigRegister_1_8_32_57 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_57_8__out;
+  coreir_const #(.value(8'h39),.width(8)) const_57_8(
+    .out(const_57_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_57_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_57
+
+module ConfigRegister_1_8_32_55 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_55_8__out;
+  coreir_const #(.value(8'h37),.width(8)) const_55_8(
+    .out(const_55_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_55_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_55
+
+module ConfigRegister_1_8_32_53 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_53_8__out;
+  coreir_const #(.value(8'h35),.width(8)) const_53_8(
+    .out(const_53_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_53_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_53
+
+module ConfigRegister_1_8_32_51 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_51_8__out;
+  coreir_const #(.value(8'h33),.width(8)) const_51_8(
+    .out(const_51_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_51_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_51
+
+module ConfigRegister_1_8_32_5 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_5_8__out;
+  coreir_const #(.value(8'h05),.width(8)) const_5_8(
+    .out(const_5_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_5_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_5
+
+module ConfigRegister_1_8_32_49 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_49_8__out;
+  coreir_const #(.value(8'h31),.width(8)) const_49_8(
+    .out(const_49_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_49_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_49
+
+module ConfigRegister_1_8_32_47 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_47_8__out;
+  coreir_const #(.value(8'h2f),.width(8)) const_47_8(
+    .out(const_47_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_47_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_47
+
+module ConfigRegister_1_8_32_45 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_45_8__out;
+  coreir_const #(.value(8'h2d),.width(8)) const_45_8(
+    .out(const_45_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_45_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_45
+
+module ConfigRegister_1_8_32_43 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_43_8__out;
+  coreir_const #(.value(8'h2b),.width(8)) const_43_8(
+    .out(const_43_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_43_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_43
+
+module ConfigRegister_1_8_32_41 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_41_8__out;
+  coreir_const #(.value(8'h29),.width(8)) const_41_8(
+    .out(const_41_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_41_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_41
+
+module ConfigRegister_1_8_32_39 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_39_8__out;
+  coreir_const #(.value(8'h27),.width(8)) const_39_8(
+    .out(const_39_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_39_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_39
+
+module ConfigRegister_1_8_32_37 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_37_8__out;
+  coreir_const #(.value(8'h25),.width(8)) const_37_8(
+    .out(const_37_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_37_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_37
+
+module ConfigRegister_1_8_32_35 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_35_8__out;
+  coreir_const #(.value(8'h23),.width(8)) const_35_8(
+    .out(const_35_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_35_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_35
+
+module ConfigRegister_1_8_32_33 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_33_8__out;
+  coreir_const #(.value(8'h21),.width(8)) const_33_8(
+    .out(const_33_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_33_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_33
+
+module ConfigRegister_1_8_32_31 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_31_8__out;
+  coreir_const #(.value(8'h1f),.width(8)) const_31_8(
+    .out(const_31_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_31_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_31
+
+module ConfigRegister_1_8_32_3 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_3_8__out;
+  coreir_const #(.value(8'h03),.width(8)) const_3_8(
+    .out(const_3_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_3_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_3
+
+module ConfigRegister_1_8_32_29 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_29_8__out;
+  coreir_const #(.value(8'h1d),.width(8)) const_29_8(
+    .out(const_29_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_29_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_29
+
+module ConfigRegister_1_8_32_27 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_27_8__out;
+  coreir_const #(.value(8'h1b),.width(8)) const_27_8(
+    .out(const_27_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_27_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_27
+
+module ConfigRegister_1_8_32_25 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_25_8__out;
+  coreir_const #(.value(8'h19),.width(8)) const_25_8(
+    .out(const_25_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_25_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_25
+
+module ConfigRegister_1_8_32_23 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_23_8__out;
+  coreir_const #(.value(8'h17),.width(8)) const_23_8(
+    .out(const_23_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_23_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_23
+
+module ConfigRegister_1_8_32_21 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_21_8__out;
+  coreir_const #(.value(8'h15),.width(8)) const_21_8(
+    .out(const_21_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_21_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_21
+
+module ConfigRegister_1_8_32_19 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_19_8__out;
+  coreir_const #(.value(8'h13),.width(8)) const_19_8(
+    .out(const_19_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_19_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_19
+
+module ConfigRegister_1_8_32_17 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_17_8__out;
+  coreir_const #(.value(8'h11),.width(8)) const_17_8(
+    .out(const_17_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_17_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_17
+
+module ConfigRegister_1_8_32_15 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_15_8__out;
+  coreir_const #(.value(8'h0f),.width(8)) const_15_8(
+    .out(const_15_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_15_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_15
+
+module ConfigRegister_1_8_32_13 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_13_8__out;
+  coreir_const #(.value(8'h0d),.width(8)) const_13_8(
+    .out(const_13_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_13_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_13
+
+module ConfigRegister_1_8_32_11 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_11_8__out;
+  coreir_const #(.value(8'h0b),.width(8)) const_11_8(
+    .out(const_11_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_11_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_11
+
+module ConfigRegister_1_8_32_1 (
+  output [0:0] O,
+  input  clk,
+  input [7:0] config_addr,
+  input [31:0] config_data,
+  input  config_en,
+  input  reset
+);
+
+
+  // Instancing generated Module: coreir.const(width:8)
+  wire [7:0] const_1_8__out;
+  coreir_const #(.value(8'h01),.width(8)) const_1_8(
+    .out(const_1_8__out)
+  );
+
+  wire  inst0__ASYNCRESET;
+  wire  inst0__CE;
+  wire  inst0__CLK;
+  wire [0:0] inst0__I;
+  wire [0:0] inst0__O;
+  Register__has_ce_True__has_reset_False__has_async_reset__True__type_Bits__n_1 inst0(
+    .ASYNCRESET(inst0__ASYNCRESET),
+    .CE(inst0__CE),
+    .CLK(inst0__CLK),
+    .I(inst0__I),
+    .O(inst0__O)
+  );
+
+  // Instancing generated Module: coreir.eq(width:8)
+  wire [7:0] inst1__in0;
+  wire [7:0] inst1__in1;
+  wire  inst1__out;
+  coreir_eq #(.width(8)) inst1(
+    .in0(inst1__in0),
+    .in1(inst1__in1),
+    .out(inst1__out)
+  );
+
+  wire  inst2__in0;
+  wire  inst2__in1;
+  wire  inst2__out;
+  corebit_and inst2(
+    .in0(inst2__in0),
+    .in1(inst2__in1),
+    .out(inst2__out)
+  );
+
+  assign inst1__in1[7:0] = const_1_8__out[7:0];
+
+  assign inst0__ASYNCRESET = reset;
+
+  assign inst0__CE = inst2__out;
+
+  assign inst0__CLK = clk;
+
+  assign inst0__I[0] = config_data[0];
+
+  assign O[0:0] = inst0__O[0:0];
+
+  assign inst1__in0[7:0] = config_addr[7:0];
+
+  assign inst2__in0 = inst1__out;
+
+  assign inst2__in1 = config_en;
+
+
+endmodule  // ConfigRegister_1_8_32_1
 
 module SB_Out_Bits_16___Out_Bits_4__ (
   input  clk,
@@ -16002,84 +16195,6 @@ module SB_Out_Bits_16___Out_Bits_4__ (
 
 endmodule  // SB_Out_Bits_16___Out_Bits_4__
 
-module ZextWrapper_4_32 (
-  input [3:0] I,
-  output [31:0] O
-);
-
-
-  wire  bit_const_0_None__out;
-  corebit_const #(.value(0)) bit_const_0_None(
-    .out(bit_const_0_None__out)
-  );
-
-  assign O[10] = bit_const_0_None__out;
-
-  assign O[11] = bit_const_0_None__out;
-
-  assign O[12] = bit_const_0_None__out;
-
-  assign O[13] = bit_const_0_None__out;
-
-  assign O[14] = bit_const_0_None__out;
-
-  assign O[15] = bit_const_0_None__out;
-
-  assign O[16] = bit_const_0_None__out;
-
-  assign O[17] = bit_const_0_None__out;
-
-  assign O[18] = bit_const_0_None__out;
-
-  assign O[19] = bit_const_0_None__out;
-
-  assign O[20] = bit_const_0_None__out;
-
-  assign O[21] = bit_const_0_None__out;
-
-  assign O[22] = bit_const_0_None__out;
-
-  assign O[23] = bit_const_0_None__out;
-
-  assign O[24] = bit_const_0_None__out;
-
-  assign O[25] = bit_const_0_None__out;
-
-  assign O[26] = bit_const_0_None__out;
-
-  assign O[27] = bit_const_0_None__out;
-
-  assign O[28] = bit_const_0_None__out;
-
-  assign O[29] = bit_const_0_None__out;
-
-  assign O[30] = bit_const_0_None__out;
-
-  assign O[31] = bit_const_0_None__out;
-
-  assign O[4] = bit_const_0_None__out;
-
-  assign O[5] = bit_const_0_None__out;
-
-  assign O[6] = bit_const_0_None__out;
-
-  assign O[7] = bit_const_0_None__out;
-
-  assign O[8] = bit_const_0_None__out;
-
-  assign O[9] = bit_const_0_None__out;
-
-  assign O[0] = I[0];
-
-  assign O[1] = I[1];
-
-  assign O[2] = I[2];
-
-  assign O[3] = I[3];
-
-
-endmodule  // ZextWrapper_4_32
-
 module CB_10_16 (
   input [15:0] I_0,
   input [15:0] I_1,
@@ -16303,121 +16418,6 @@ module CB_10_1 (
 
 
 endmodule  // CB_10_1
-
-/* External Modules
-module test_pe (
-  input  bit0,
-  input  bit1,
-  input  bit2,
-  input [7:0] cfg_a,
-  input [31:0] cfg_d,
-  input  cfg_en,
-  input  clk,
-  input  clk_en,
-  input [15:0] data0,
-  input [15:0] data1,
-  output  irq,
-  output [31:0] read_data,
-  output [15:0] res,
-  output [3:0] res_p,
-  input  rst_n
-);
-
-endmodule  // test_pe
-
-*/
-module PECore (
-  input [0:0] bit0,
-  input [0:0] bit1,
-  input [0:0] bit2,
-  input  clk,
-  input [7:0] config_config_addr,
-  input [31:0] config_config_data,
-  input [0:0] config_read,
-  input [0:0] config_write,
-  input [15:0] data0,
-  input [15:0] data1,
-  output [31:0] read_config_data,
-  output [15:0] res,
-  output [3:0] res_p,
-  input  reset,
-  input [3:0] stall
-);
-
-
-  wire  inst0__bit0;
-  wire  inst0__bit1;
-  wire  inst0__bit2;
-  wire [7:0] inst0__cfg_a;
-  wire [31:0] inst0__cfg_d;
-  wire  inst0__cfg_en;
-  wire  inst0__clk;
-  wire  inst0__clk_en;
-  wire [15:0] inst0__data0;
-  wire [15:0] inst0__data1;
-  wire  inst0__irq;
-  wire [31:0] inst0__read_data;
-  wire [15:0] inst0__res;
-  wire [3:0] inst0__res_p;
-  wire  inst0__rst_n;
-  test_pe inst0(
-    .bit0(inst0__bit0),
-    .bit1(inst0__bit1),
-    .bit2(inst0__bit2),
-    .cfg_a(inst0__cfg_a),
-    .cfg_d(inst0__cfg_d),
-    .cfg_en(inst0__cfg_en),
-    .clk(inst0__clk),
-    .clk_en(inst0__clk_en),
-    .data0(inst0__data0),
-    .data1(inst0__data1),
-    .irq(inst0__irq),
-    .read_data(inst0__read_data),
-    .res(inst0__res),
-    .res_p(inst0__res_p),
-    .rst_n(inst0__rst_n)
-  );
-
-  // Instancing generated Module: coreir.not(width:1)
-  wire [0:0] inst1__in;
-  wire [0:0] inst1__out;
-  coreir_not #(.width(1)) inst1(
-    .in(inst1__in),
-    .out(inst1__out)
-  );
-
-  assign inst0__bit0 = bit0[0];
-
-  assign inst0__bit1 = bit1[0];
-
-  assign inst0__bit2 = bit2[0];
-
-  assign inst0__cfg_a[7:0] = config_config_addr[7:0];
-
-  assign inst0__cfg_d[31:0] = config_config_data[31:0];
-
-  assign inst0__cfg_en = config_write[0];
-
-  assign inst0__clk = clk;
-
-  assign inst0__clk_en = inst1__out[0];
-
-  assign inst0__data0[15:0] = data0[15:0];
-
-  assign inst0__data1[15:0] = data1[15:0];
-
-  assign read_config_data[31:0] = inst0__read_data[31:0];
-
-  assign res[15:0] = inst0__res[15:0];
-
-  assign res_p[3:0] = inst0__res_p[3:0];
-
-  assign inst0__rst_n = reset;
-
-  assign inst1__in[0] = stall[0];
-
-
-endmodule  // PECore
 
 module Tile_PECore (
   input  clk,
