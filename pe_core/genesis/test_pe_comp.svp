@@ -314,7 +314,7 @@ assign cmpr_eq   =  ~|(op_a ^ op_b);
 
 
 //; if($mult_mode > 0) {
-logic                 mult_c_out;
+logic [`$max_num_seg-1` : 0] mult_c_out;
 logic[1:0]	      op_vec_mode;
 always_comb begin
   unique case (op_code[5:0])
@@ -614,7 +614,7 @@ always_comb begin : proc_alu
 //; if($mult_mode > 0) {
     PE_MULT_0_OP: begin
         res_w   = mult_res[DATA_MSB:0];
-        res_p_w = {{mult_c_out},{`$max_num_seg-1`{1'b0}}};
+        res_p_w = mult_c_out;
 //; if($en_ovfl) {
         if (is_signed) begin
           ovfl = {{(op_a[DATA_MSB] == op_b[DATA_MSB]) ?
@@ -627,7 +627,7 @@ always_comb begin : proc_alu
       end
     PE_MULT_1_OP: begin
         res_w   = mult_res[`3*$data_width/2-1`:`$data_width/2`];
-        res_p_w = {{mult_c_out},{`$max_num_seg-1`{1'b0}}};
+        res_p_w = mult_c_out;
 //; if($en_ovfl) {
         if (is_signed) begin
           ovfl = {{(op_a[DATA_MSB] == op_b[DATA_MSB]) ?
@@ -640,7 +640,7 @@ always_comb begin : proc_alu
       end
     PE_MULT_2_OP: begin
         res_w   = mult_res[`2*$data_width-1`:`$data_width`];
-        res_p_w = {{mult_c_out},{`$max_num_seg-1`{1'b0}}};
+        res_p_w = mult_c_out;
 //; if($en_ovfl) {
         ovfl = {{1'b0},{`$max_num_seg-1`{1'b0}}};
 //;}

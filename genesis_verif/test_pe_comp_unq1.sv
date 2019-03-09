@@ -19,22 +19,22 @@
 // --------------- Begin Pre-Generation Parameters Status Report ---------------
 //
 //	From 'generate' statement (priority=5):
-// Parameter use_bool 	= 1
 // Parameter use_add 	= 1
+// Parameter en_ovfl 	= 1
 // Parameter mult_mode 	= 1
-// Parameter en_opt 	= 1
-// Parameter get_carry 	= 1
-// Parameter en_trick 	= 0
-// Parameter use_relu 	= 0
 // Parameter use_max_min 	= 1
+// Parameter use_shift 	= 1
+// Parameter get_carry 	= 1
 // Parameter is_msb 	= 0
 // Parameter use_cntr 	= 0
-// Parameter use_shift 	= 1
-// Parameter debug 	= 0
+// Parameter use_bool 	= 1
 // Parameter use_div 	= 0
-// Parameter use_abs 	= 1
-// Parameter en_ovfl 	= 1
+// Parameter en_trick 	= 0
+// Parameter en_opt 	= 1
+// Parameter use_relu 	= 0
 // Parameter en_double 	= 0
+// Parameter debug 	= 0
+// Parameter use_abs 	= 1
 //
 //		---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 //
@@ -211,7 +211,7 @@ test_cmpr  cmpr
 
 
 
-logic                 mult_c_out;
+logic [3 : 0] mult_c_out;
 logic[1:0]	      op_vec_mode;
 always_comb begin
   unique case (op_code[5:0])
@@ -332,7 +332,7 @@ always_comb begin : proc_alu
       end
     PE_MULT_0_OP: begin
         res_w   = mult_res[DATA_MSB:0];
-        res_p_w = {{mult_c_out},{3{1'b0}}};
+        res_p_w = mult_c_out;
         if (is_signed) begin
           ovfl = {{(op_a[DATA_MSB] == op_b[DATA_MSB]) ?
                                     mult_res[DATA_MSB] :
@@ -343,7 +343,7 @@ always_comb begin : proc_alu
       end
     PE_MULT_1_OP: begin
         res_w   = mult_res[23:8];
-        res_p_w = {{mult_c_out},{3{1'b0}}};
+        res_p_w = mult_c_out;
         if (is_signed) begin
           ovfl = {{(op_a[DATA_MSB] == op_b[DATA_MSB]) ?
                                     mult_res[DATA_MSB] :
@@ -354,7 +354,7 @@ always_comb begin : proc_alu
       end
     PE_MULT_2_OP: begin
         res_w   = mult_res[31:16];
-        res_p_w = {{mult_c_out},{3{1'b0}}};
+        res_p_w = mult_c_out;
         ovfl = {{1'b0},{3{1'b0}}};
       end
 
